@@ -2369,11 +2369,11 @@ body {
 }
 
 .account-tab {
-    display: none;
+    display: none !important;
 }
 
 .account-tab.active {
-    display: block;
+    display: block !important;
 }
 
 /* Profile Info Grid */
