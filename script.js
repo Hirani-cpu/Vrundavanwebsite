@@ -925,12 +925,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // Setup tab switching
             setupAccountTabs();
-
-            // Setup delete account button
-            const deleteAccountBtn = document.getElementById('deleteAccountBtn');
-            if (deleteAccountBtn) {
-                deleteAccountBtn.addEventListener('click', handleDeleteAccount);
-            }
         } else {
             // User is not logged in - show login message
             notLoggedInMessage.style.display = 'block';
@@ -1025,28 +1019,3 @@ function setupAccountTabs() {
     });
 }
 
-// Handle account deletion
-function handleDeleteAccount() {
-    const confirmed = confirm('Are you sure you want to delete your account? This action cannot be undone.');
-
-    if (confirmed) {
-        const doubleConfirm = confirm('This will permanently delete all your data. Are you absolutely sure?');
-
-        if (doubleConfirm) {
-            const currentUser = getCurrentUser();
-
-            if (currentUser) {
-                // Remove user from registered users
-                const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
-                const updatedUsers = registeredUsers.filter(u => u.email !== currentUser.email);
-                localStorage.setItem('registeredUsers', JSON.stringify(updatedUsers));
-
-                // Remove current user session
-                localStorage.removeItem('currentUser');
-
-                alert('Your account has been deleted successfully.');
-                window.location.href = 'index.html';
-            }
-        }
-    }
-}
