@@ -129,7 +129,7 @@ function setupTabs() {
 }
 
 // ===========================
-// Load Room Bookings from Firestore
+// Load Room Bookings from Firestore (Grouped by Date)
 // ===========================
 function loadRoomBookings() {
     const loadingEl = document.getElementById('roomBookingsLoading');
@@ -144,8 +144,6 @@ function loadRoomBookings() {
 
     console.log('Fetching room bookings from Firestore...');
 
-    // Fetch data from Firestore - without orderBy first to test
-    // Note: orderBy requires a Firestore index. If you get errors, create the index in Firebase Console.
     db.collection('roomBookings')
         .get()
         .then((querySnapshot) => {
@@ -154,21 +152,49 @@ function loadRoomBookings() {
             tableBody.innerHTML = '';
 
             if (querySnapshot.empty) {
-                // No bookings
                 loadingEl.style.display = 'none';
                 noBookingsEl.style.display = 'block';
                 updateStats(0, null);
             } else {
-                // Has bookings
-                loadingEl.style.display = 'none';
-                tableEl.style.display = 'block';
+                // Group bookings by check-in date
+                const bookingsByDate = {};
 
                 querySnapshot.forEach((doc) => {
                     const booking = doc.data();
-                    const row = createRoomBookingRow(booking, doc.id);
-                    tableBody.appendChild(row);
+                    const checkInDate = booking.checkIn || 'No Date';
+
+                    if (!bookingsByDate[checkInDate]) {
+                        bookingsByDate[checkInDate] = [];
+                    }
+
+                    bookingsByDate[checkInDate].push({
+                        id: doc.id,
+                        data: booking
+                    });
                 });
 
+                // Sort dates
+                const sortedDates = Object.keys(bookingsByDate).sort((a, b) => {
+                    if (a === 'No Date') return 1;
+                    if (b === 'No Date') return -1;
+                    return new Date(b) - new Date(a); // Newest first
+                });
+
+                // Create grouped rows
+                sortedDates.forEach(date => {
+                    // Add date header row
+                    const dateHeaderRow = createDateHeaderRow(date, bookingsByDate[date].length);
+                    tableBody.appendChild(dateHeaderRow);
+
+                    // Add booking rows for this date
+                    bookingsByDate[date].forEach(booking => {
+                        const row = createRoomBookingRow(booking.data, booking.id);
+                        tableBody.appendChild(row);
+                    });
+                });
+
+                loadingEl.style.display = 'none';
+                tableEl.style.display = 'block';
                 updateStats(querySnapshot.size, null);
             }
         })
@@ -177,6 +203,29 @@ function loadRoomBookings() {
             loadingEl.innerHTML = '<p style="color: red;">Error loading bookings. Please refresh.</p>';
             updateStats(0, null);
         });
+}
+
+// Create date header row
+function createDateHeaderRow(date, count) {
+    const row = document.createElement('tr');
+    row.className = 'date-header-row';
+
+    const formattedDate = date === 'No Date' ? 'No Check-in Date' : new Date(date).toLocaleDateString('en-US', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
+
+    row.innerHTML = `
+        <td colspan="8" style="background: linear-gradient(135deg, #2d5016 0%, #4a7c2c 100%); color: white; font-weight: bold; padding: 12px 15px; font-size: 1.05rem;">
+            📅 ${formattedDate} <span style="opacity: 0.9; font-size: 0.9rem;">(${count} booking${count !== 1 ? 's' : ''})</span>
+        </td>
+    `;
+
+    row.style.cursor = 'default';
+
+    return row;
 }
 
 // Create table row for room booking
@@ -222,7 +271,7 @@ function createRoomBookingRow(booking, docId) {
 }
 
 // ===========================
-// Load Event Bookings from Firestore
+// Load Event Bookings from Firestore (Grouped by Date)
 // ===========================
 function loadEventBookings() {
     const loadingEl = document.getElementById('eventBookingsLoading');
@@ -235,30 +284,55 @@ function loadEventBookings() {
     tableEl.style.display = 'none';
     noBookingsEl.style.display = 'none';
 
-    // Fetch data from Firestore - without orderBy first to test
-    // Note: orderBy requires a Firestore index. If you get errors, create the index in Firebase Console.
     db.collection('eventBookings')
         .get()
         .then((querySnapshot) => {
-            // Clear table
             tableBody.innerHTML = '';
 
             if (querySnapshot.empty) {
-                // No bookings
                 loadingEl.style.display = 'none';
                 noBookingsEl.style.display = 'block';
                 updateStats(null, 0);
             } else {
-                // Has bookings
-                loadingEl.style.display = 'none';
-                tableEl.style.display = 'block';
+                // Group bookings by event date
+                const bookingsByDate = {};
 
                 querySnapshot.forEach((doc) => {
                     const booking = doc.data();
-                    const row = createEventBookingRow(booking, doc.id);
-                    tableBody.appendChild(row);
+                    const eventDate = booking.eventDate || 'No Date';
+
+                    if (!bookingsByDate[eventDate]) {
+                        bookingsByDate[eventDate] = [];
+                    }
+
+                    bookingsByDate[eventDate].push({
+                        id: doc.id,
+                        data: booking
+                    });
                 });
 
+                // Sort dates
+                const sortedDates = Object.keys(bookingsByDate).sort((a, b) => {
+                    if (a === 'No Date') return 1;
+                    if (b === 'No Date') return -1;
+                    return new Date(b) - new Date(a); // Newest first
+                });
+
+                // Create grouped rows
+                sortedDates.forEach(date => {
+                    // Add date header row
+                    const dateHeaderRow = createEventDateHeaderRow(date, bookingsByDate[date].length);
+                    tableBody.appendChild(dateHeaderRow);
+
+                    // Add booking rows for this date
+                    bookingsByDate[date].forEach(booking => {
+                        const row = createEventBookingRow(booking.data, booking.id);
+                        tableBody.appendChild(row);
+                    });
+                });
+
+                loadingEl.style.display = 'none';
+                tableEl.style.display = 'block';
                 updateStats(null, querySnapshot.size);
             }
         })
@@ -267,6 +341,29 @@ function loadEventBookings() {
             loadingEl.innerHTML = '<p style="color: red;">Error loading bookings. Please refresh.</p>';
             updateStats(null, 0);
         });
+}
+
+// Create date header row for events
+function createEventDateHeaderRow(date, count) {
+    const row = document.createElement('tr');
+    row.className = 'date-header-row';
+
+    const formattedDate = date === 'No Date' ? 'No Event Date' : new Date(date).toLocaleDateString('en-US', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
+
+    row.innerHTML = `
+        <td colspan="8" style="background: linear-gradient(135deg, #2d5016 0%, #4a7c2c 100%); color: white; font-weight: bold; padding: 12px 15px; font-size: 1.05rem;">
+            🎉 ${formattedDate} <span style="opacity: 0.9; font-size: 0.9rem;">(${count} event${count !== 1 ? 's' : ''})</span>
+        </td>
+    `;
+
+    row.style.cursor = 'default';
+
+    return row;
 }
 
 // Create table row for event booking
@@ -558,22 +655,53 @@ function updateBookingStatus(status) {
     // Prepare update data
     const updateData = {
         bookingStatus: status,
-        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        updatedAt: new Date().toISOString()
     };
 
     if (adminNotes) {
         updateData.adminNotes = adminNotes;
     }
 
+    console.log('Preparing update for booking:', currentBookingId);
+    console.log('Collection:', collection);
+    console.log('Status:', status);
+    console.log('Admin notes:', adminNotes || 'none');
+
     // Update in Firestore
+    console.log('Updating booking:', currentBookingId, 'in collection:', collection);
+    console.log('Update data:', updateData);
+
+    // Add timeout fallback
+    let updateTimeout = setTimeout(() => {
+        console.error('Update timeout - operation taking too long');
+        alert('Update is taking too long. Please check your internet connection and try again.');
+        btnApprove.disabled = false;
+        btnReject.disabled = false;
+        btnApprove.textContent = '✓ Approve Booking';
+        btnReject.textContent = '✗ Reject Booking';
+    }, 10000); // 10 second timeout
+
+    // Try using set with merge instead of update
     db.collection(collection)
         .doc(currentBookingId)
-        .update(updateData)
+        .set(updateData, { merge: true })
         .then(() => {
-            alert(`Booking ${status === 'confirmed' ? 'APPROVED' : 'REJECTED'} successfully!`);
+            clearTimeout(updateTimeout); // Clear the timeout
+            console.log('Booking updated successfully');
+
+            // Re-enable buttons first
+            btnApprove.disabled = false;
+            btnReject.disabled = false;
+            btnApprove.textContent = '✓ Approve Booking';
+            btnReject.textContent = '✗ Reject Booking';
+
+            // Close modal first
             closeModal();
 
-            // Reload bookings
+            // Show success alert
+            alert(`Booking ${status === 'confirmed' ? 'APPROVED' : 'REJECTED'} successfully!`);
+
+            // Reload bookings immediately after alert is dismissed
             if (currentBookingType === 'room') {
                 loadRoomBookings();
             } else {
@@ -581,14 +709,115 @@ function updateBookingStatus(status) {
             }
         })
         .catch((error) => {
+            clearTimeout(updateTimeout); // Clear the timeout
             console.error('Error updating booking:', error);
-            alert('Error updating booking. Please try again.');
+            console.error('Error code:', error.code);
+            console.error('Error message:', error.message);
+            console.error('Full error object:', error);
+
+            // Show detailed error message
+            if (error.code === 'permission-denied') {
+                alert('Permission denied! Please update Firestore security rules to allow updates.\n\nGo to Firebase Console → Firestore Database → Rules\nand ensure "allow read, write: if true;" is set for both collections.');
+            } else {
+                alert('Error updating booking: ' + error.message + '\n\nError Code: ' + error.code + '\n\nCheck browser console for details.');
+            }
 
             // Re-enable buttons
             btnApprove.disabled = false;
             btnReject.disabled = false;
             btnApprove.textContent = '✓ Approve Booking';
             btnReject.textContent = '✗ Reject Booking';
+        });
+}
+
+// Delete booking from Firestore
+function deleteBooking() {
+    if (!currentBookingId || !currentBookingType) {
+        alert('Error: No booking selected');
+        return;
+    }
+
+    const collection = currentBookingType === 'room' ? 'roomBookings' : 'eventBookings';
+
+    // Strong confirmation for delete action
+    if (!confirm('⚠️ Are you sure you want to DELETE this booking?\n\nThis action CANNOT be undone!\n\nThe booking will be permanently removed from the system.')) {
+        return;
+    }
+
+    // Disable all buttons during delete
+    const btnApprove = document.getElementById('btnApprove');
+    const btnReject = document.getElementById('btnReject');
+    const btnDelete = document.getElementById('btnDelete');
+    const btnCancel = document.getElementById('btnCancelModal');
+
+    btnApprove.disabled = true;
+    btnReject.disabled = true;
+    btnDelete.disabled = true;
+    btnCancel.disabled = true;
+
+    const originalDeleteText = btnDelete.textContent;
+    btnDelete.textContent = 'Deleting...';
+
+    console.log('Deleting booking:', currentBookingId, 'from collection:', collection);
+
+    // Add timeout fallback
+    let deleteTimeout = setTimeout(() => {
+        console.error('Delete timeout - operation taking too long');
+        alert('Delete is taking too long. Please check your internet connection and try again.');
+        btnApprove.disabled = false;
+        btnReject.disabled = false;
+        btnDelete.disabled = false;
+        btnCancel.disabled = false;
+        btnDelete.textContent = originalDeleteText;
+    }, 10000); // 10 second timeout
+
+    // Delete from Firestore
+    db.collection(collection)
+        .doc(currentBookingId)
+        .delete()
+        .then(() => {
+            clearTimeout(deleteTimeout); // Clear the timeout
+            console.log('Booking deleted successfully');
+
+            // Re-enable buttons first
+            btnApprove.disabled = false;
+            btnReject.disabled = false;
+            btnDelete.disabled = false;
+            btnCancel.disabled = false;
+            btnDelete.textContent = originalDeleteText;
+
+            // Close modal first
+            closeModal();
+
+            // Show success alert
+            alert('✅ Booking deleted successfully!');
+
+            // Reload bookings immediately after alert is dismissed
+            if (currentBookingType === 'room') {
+                loadRoomBookings();
+            } else {
+                loadEventBookings();
+            }
+        })
+        .catch((error) => {
+            clearTimeout(deleteTimeout); // Clear the timeout
+            console.error('Error deleting booking:', error);
+            console.error('Error code:', error.code);
+            console.error('Error message:', error.message);
+
+            // Show detailed error message
+            if (error.code === 'permission-denied') {
+                alert('❌ Permission denied!\n\nPlease update Firestore security rules to allow deletes.\n\nGo to Firebase Console → Firestore Database → Rules\nand ensure "allow read, write: if true;" is set for both collections.');
+            } else {
+                alert('❌ Error deleting booking: ' + error.message + '\n\nError Code: ' + error.code + '\n\nCheck browser console for details.');
+            }
+
+            // Re-enable buttons
+            btnApprove.disabled = false;
+            btnReject.disabled = false;
+            btnDelete.disabled = false;
+            btnCancel.disabled = false;
+            btnDelete.textContent = originalDeleteText;
         });
 }
 
@@ -614,5 +843,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // Reject button
     document.getElementById('btnReject').addEventListener('click', function() {
         updateBookingStatus('rejected');
+    });
+
+    // Delete button
+    document.getElementById('btnDelete').addEventListener('click', function() {
+        deleteBooking();
     });
 });
