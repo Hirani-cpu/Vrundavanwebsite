@@ -60,14 +60,15 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // ===========================
-    // Room Booking Form
+    // Room Booking Form (Basic Handler - DISABLED, using Firebase handler instead)
     // ===========================
 
     const roomBookingForm = document.getElementById('roomBookingForm');
     const roomSuccessMessage = document.getElementById('roomSuccessMessage');
     const roomBookingSummary = document.getElementById('roomBookingSummary');
 
-    if (roomBookingForm) {
+    // DISABLED: Firebase handler takes precedence
+    if (false && roomBookingForm) {
         roomBookingForm.addEventListener('submit', function(e) {
             e.preventDefault();
 
@@ -173,14 +174,15 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // ===========================
-    // Event Booking Form
+    // Event Booking Form (Basic Handler - DISABLED, using Firebase handler instead)
     // ===========================
 
     const eventBookingForm = document.getElementById('eventBookingForm');
     const eventSuccessMessage = document.getElementById('eventSuccessMessage');
     const eventBookingSummary = document.getElementById('eventBookingSummary');
 
-    if (eventBookingForm) {
+    // DISABLED: Firebase handler takes precedence
+    if (false && eventBookingForm) {
         eventBookingForm.addEventListener('submit', function(e) {
             e.preventDefault();
 
@@ -699,10 +701,13 @@ document.addEventListener('DOMContentLoaded', function() {
 document.addEventListener('DOMContentLoaded', function() {
     updateNavigationState();
 
-    // Logout button handler in Account Settings page
-    const logoutBtnSettings = document.getElementById('logoutBtnSettings');
-    if (logoutBtnSettings) {
-        logoutBtnSettings.addEventListener('click', handleLogout);
+    // Logout button handler in Account Sidebar
+    const logoutBtnSidebar = document.getElementById('logoutBtnSidebar');
+    if (logoutBtnSidebar) {
+        logoutBtnSidebar.addEventListener('click', function(e) {
+            e.preventDefault();
+            handleLogout();
+        });
     }
 });
 
@@ -982,19 +987,29 @@ function populateAccountData(user) {
         });
     }
 
-    // Stats (placeholder values for now)
-    const totalBookings = document.getElementById('totalBookings');
-    const upcomingBookings = document.getElementById('upcomingBookings');
-    const totalNights = document.getElementById('totalNights');
+    // Load user bookings from Firestore
+    loadUserBookings(user.email);
 
-    if (totalBookings) totalBookings.textContent = '0';
-    if (upcomingBookings) upcomingBookings.textContent = '0';
-    if (totalNights) totalNights.textContent = '0';
+    // Check if user is admin and show admin panel link in sidebar
+    if (typeof isAdminUser === 'function' && isAdminUser(user.email)) {
+        const adminPanelLink = document.getElementById('adminPanelLink');
+        if (adminPanelLink) {
+            adminPanelLink.style.display = 'block';
+            console.log('Admin panel link shown in sidebar for:', user.email);
+        }
+
+        // Update profile badge to show "Admin"
+        const profileBadge = document.getElementById('profileBadge');
+        if (profileBadge) {
+            profileBadge.textContent = 'Admin';
+            profileBadge.classList.add('admin-badge');
+        }
+    }
 }
 
 // Setup account page tab switching
 function setupAccountTabs() {
-    const tabLinks = document.querySelectorAll('.account-menu-item');
+    const tabLinks = document.querySelectorAll('.account-menu-item[data-tab]');
     const tabs = {
         'profile': document.getElementById('profileTab'),
         'bookings': document.getElementById('bookingsTab'),
@@ -1121,8 +1136,211 @@ function setupPasswordChange() {
 }
 
 // ===========================
+// Admin Email List
+// ===========================
+// Add admin email addresses here
+const ADMIN_EMAILS = [
+    'admin@vrundavanresort.com',
+    'vishal@vrundavanresort.com'
+    // Add more admin emails as needed
+];
+
+// Check if user is admin
+function isAdminUser(email) {
+    return ADMIN_EMAILS.includes(email.toLowerCase());
+}
+
+// ===========================
+// Load User Bookings from Firestore
+// ===========================
+function loadUserBookings(userEmail) {
+    // Check if Firebase is available
+    if (typeof db === 'undefined') {
+        console.warn('Firebase not initialized - cannot load bookings');
+        return;
+    }
+
+    console.log('Loading bookings for user:', userEmail);
+
+    let roomBookingsCount = 0;
+    let eventBookingsCount = 0;
+    let upcomingRoomBookings = 0;
+    let totalNights = 0;
+
+    // Fetch room bookings for this user
+    db.collection('roomBookings')
+        .where('email', '==', userEmail)
+        .get()
+        .then((querySnapshot) => {
+            roomBookingsCount = querySnapshot.size;
+            console.log('Found', roomBookingsCount, 'room bookings');
+
+            const bookingsList = document.getElementById('bookingsList');
+            if (bookingsList) {
+                bookingsList.innerHTML = ''; // Clear existing content
+
+                if (querySnapshot.size > 0) {
+                    querySnapshot.forEach((doc) => {
+                        const booking = doc.data();
+                        const bookingCard = createRoomBookingCard(booking, doc.id);
+                        bookingsList.appendChild(bookingCard);
+
+                        // Calculate upcoming bookings and nights
+                        const checkIn = new Date(booking.checkIn);
+                        const checkOut = new Date(booking.checkOut);
+                        const today = new Date();
+                        today.setHours(0, 0, 0, 0);
+
+                        if (checkIn >= today) {
+                            upcomingRoomBookings++;
+                        }
+
+                        // Calculate nights
+                        const nights = Math.ceil((checkOut - checkIn) / (1000 * 60 * 60 * 24));
+                        totalNights += nights;
+                    });
+                }
+            }
+
+            // Fetch event bookings for this user
+            return db.collection('eventBookings').where('email', '==', userEmail).get();
+        })
+        .then((querySnapshot) => {
+            eventBookingsCount = querySnapshot.size;
+            console.log('Found', eventBookingsCount, 'event bookings');
+
+            const bookingsList = document.getElementById('bookingsList');
+            if (bookingsList && querySnapshot.size > 0) {
+                querySnapshot.forEach((doc) => {
+                    const booking = doc.data();
+                    const bookingCard = createEventBookingCard(booking, doc.id);
+                    bookingsList.appendChild(bookingCard);
+                });
+            }
+
+            // Update statistics
+            const totalBookings = document.getElementById('totalBookings');
+            const upcomingBookings = document.getElementById('upcomingBookings');
+            const totalNightsEl = document.getElementById('totalNights');
+
+            if (totalBookings) totalBookings.textContent = roomBookingsCount + eventBookingsCount;
+            if (upcomingBookings) upcomingBookings.textContent = upcomingRoomBookings;
+            if (totalNightsEl) totalNightsEl.textContent = totalNights;
+
+            // Hide or show the default message
+            const bookingsInfo = document.querySelector('.bookings-info');
+            if (bookingsInfo && (roomBookingsCount > 0 || eventBookingsCount > 0)) {
+                bookingsInfo.style.display = 'none';
+            }
+        })
+        .catch((error) => {
+            console.error('Error loading user bookings:', error);
+        });
+}
+
+// Create room booking card for display
+function createRoomBookingCard(booking, docId) {
+    const card = document.createElement('div');
+    card.className = 'booking-card';
+
+    const checkInDate = new Date(booking.checkIn).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
+
+    const checkOutDate = new Date(booking.checkOut).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
+
+    const createdDate = booking.createdAt ? new Date(booking.createdAt.toDate()).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    }) : 'N/A';
+
+    const status = booking.bookingStatus || 'pending';
+    const statusClass = status.toLowerCase();
+
+    card.innerHTML = `
+        <div class="booking-header">
+            <h4>🏨 Room Booking</h4>
+            <span class="status-badge ${statusClass}">${status.charAt(0).toUpperCase() + status.slice(1)}</span>
+        </div>
+        <div class="booking-details">
+            <p><strong>Booking ID:</strong> ${docId}</p>
+            <p><strong>Room Type:</strong> ${booking.roomType}</p>
+            <p><strong>Check-in:</strong> ${checkInDate}</p>
+            <p><strong>Check-out:</strong> ${checkOutDate}</p>
+            <p><strong>Guests:</strong> ${booking.adults} Adult(s)${booking.children > 0 ? ', ' + booking.children + ' Child(ren)' : ''}</p>
+            <p><strong>Booked on:</strong> ${createdDate}</p>
+            ${booking.specialRequests ? '<p><strong>Special Requests:</strong> ' + booking.specialRequests + '</p>' : ''}
+        </div>
+    `;
+
+    return card;
+}
+
+// Create event booking card for display
+function createEventBookingCard(booking, docId) {
+    const card = document.createElement('div');
+    card.className = 'booking-card';
+
+    const eventDate = new Date(booking.eventDate).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
+
+    const createdDate = booking.createdAt ? new Date(booking.createdAt.toDate()).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    }) : 'N/A';
+
+    const status = booking.bookingStatus || 'pending';
+    const statusClass = status.toLowerCase();
+
+    card.innerHTML = `
+        <div class="booking-header">
+            <h4>🎉 Event Booking</h4>
+            <span class="status-badge ${statusClass}">${status.charAt(0).toUpperCase() + status.slice(1)}</span>
+        </div>
+        <div class="booking-details">
+            <p><strong>Booking ID:</strong> ${docId}</p>
+            <p><strong>Event Type:</strong> ${booking.eventType}</p>
+            <p><strong>Event Date:</strong> ${eventDate}</p>
+            <p><strong>Time Slot:</strong> ${booking.timeSlot || 'N/A'}</p>
+            <p><strong>Expected Guests:</strong> ${booking.guests}</p>
+            <p><strong>Preferred Venue:</strong> ${booking.preferredArea}</p>
+            <p><strong>Booked on:</strong> ${createdDate}</p>
+            ${booking.message ? '<p><strong>Additional Details:</strong> ' + booking.message + '</p>' : ''}
+        </div>
+    `;
+
+    return card;
+}
+
+// ===========================
 // Firebase Integration for Booking Forms
 // ===========================
+
+// Helper function to format dates
+function formatDate(date) {
+    const options = { year: 'numeric', month: 'long', day: 'numeric' };
+    return date.toLocaleDateString('en-US', options);
+}
+
+// Helper function to run code when DOM is ready
+function whenReady(fn) {
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', fn);
+    } else {
+        fn();
+    }
+}
 
 // Check if Firebase is available before adding handlers
 if (typeof firebase !== 'undefined' && typeof db !== 'undefined') {
@@ -1131,10 +1349,11 @@ if (typeof firebase !== 'undefined' && typeof db !== 'undefined') {
     // ===========================
     // Room Booking Form - Firebase Integration
     // ===========================
-    document.addEventListener('DOMContentLoaded', function() {
+    whenReady(function() {
         const roomBookingForm = document.getElementById('roomBookingForm');
 
         if (roomBookingForm) {
+            console.log('Attaching Firebase handler to room booking form...');
             // Remove existing event listener and replace with Firebase version
             roomBookingForm.addEventListener('submit', function(e) {
                 e.preventDefault();
@@ -1229,30 +1448,34 @@ if (typeof firebase !== 'undefined' && typeof db !== 'undefined') {
 
                         // Create summary
                         const roomBookingSummary = document.getElementById('roomBookingSummary');
-                        let summaryHTML = `
-                            <p><strong>Booking ID:</strong> ${docRef.id.substring(0, 8).toUpperCase()}</p>
-                            <p><strong>Name:</strong> ${formData.fullName}</p>
-                            <p><strong>Phone:</strong> ${formData.phone}</p>
-                            <p><strong>Email:</strong> ${formData.email}</p>
-                            <p><strong>Check-in:</strong> ${checkInFormatted}</p>
-                            <p><strong>Check-out:</strong> ${checkOutFormatted}</p>
-                            <p><strong>Duration:</strong> ${nights} night${nights > 1 ? 's' : ''}</p>
-                            <p><strong>Guests:</strong> ${formData.adults} Adult${formData.adults > 1 ? 's' : ''}${formData.children > 0 ? ', ' + formData.children + ' Child' + (formData.children > 1 ? 'ren' : '') : ''}</p>
-                            <p><strong>Room Type:</strong> ${formData.roomType}</p>
-                        `;
+                        if (roomBookingSummary) {
+                            let summaryHTML = `
+                                <p><strong>Booking ID:</strong> ${docRef.id.substring(0, 8).toUpperCase()}</p>
+                                <p><strong>Name:</strong> ${formData.fullName}</p>
+                                <p><strong>Phone:</strong> ${formData.phone}</p>
+                                <p><strong>Email:</strong> ${formData.email}</p>
+                                <p><strong>Check-in:</strong> ${checkInFormatted}</p>
+                                <p><strong>Check-out:</strong> ${checkOutFormatted}</p>
+                                <p><strong>Duration:</strong> ${nights} night${nights > 1 ? 's' : ''}</p>
+                                <p><strong>Guests:</strong> ${formData.adults} Adult${formData.adults > 1 ? 's' : ''}${formData.children > 0 ? ', ' + formData.children + ' Child' + (formData.children > 1 ? 'ren' : '') : ''}</p>
+                                <p><strong>Room Type:</strong> ${formData.roomType}</p>
+                            `;
 
-                        if (formData.specialRequests) {
-                            summaryHTML += `<p><strong>Special Requests:</strong> ${formData.specialRequests}</p>`;
+                            if (formData.specialRequests) {
+                                summaryHTML += `<p><strong>Special Requests:</strong> ${formData.specialRequests}</p>`;
+                            }
+
+                            roomBookingSummary.innerHTML = summaryHTML;
                         }
-
-                        roomBookingSummary.innerHTML = summaryHTML;
 
                         // Hide form and show success message
                         roomBookingForm.style.display = 'none';
-                        document.getElementById('roomSuccessMessage').style.display = 'block';
-
-                        // Scroll to success message
-                        document.getElementById('roomSuccessMessage').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        const roomSuccessMessage = document.getElementById('roomSuccessMessage');
+                        if (roomSuccessMessage) {
+                            roomSuccessMessage.style.display = 'block';
+                            // Scroll to success message
+                            roomSuccessMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
 
                         // Reset form
                         roomBookingForm.reset();
@@ -1265,17 +1488,20 @@ if (typeof firebase !== 'undefined' && typeof db !== 'undefined') {
                         submitButton.disabled = false;
                         submitButton.textContent = originalButtonText;
                     });
-            }, {once: false, capture: true}); // Capture phase to override existing handler
+            });
+        } else {
+            console.warn('Room booking form not found on this page.');
         }
     });
 
     // ===========================
     // Event Booking Form - Firebase Integration
     // ===========================
-    document.addEventListener('DOMContentLoaded', function() {
+    whenReady(function() {
         const eventBookingForm = document.getElementById('eventBookingForm');
 
         if (eventBookingForm) {
+            console.log('Attaching Firebase handler to event booking form...');
             // Remove existing event listener and replace with Firebase version
             eventBookingForm.addEventListener('submit', function(e) {
                 e.preventDefault();
@@ -1372,30 +1598,34 @@ if (typeof firebase !== 'undefined' && typeof db !== 'undefined') {
 
                         // Create summary
                         const eventBookingSummary = document.getElementById('eventBookingSummary');
-                        let summaryHTML = `
-                            <p><strong>Booking ID:</strong> ${docRef.id.substring(0, 8).toUpperCase()}</p>
-                            <p><strong>Name:</strong> ${formData.fullName}</p>
-                            <p><strong>Phone:</strong> ${formData.phone}</p>
-                            <p><strong>Email:</strong> ${formData.email}</p>
-                            <p><strong>Event Type:</strong> ${formData.eventType}</p>
-                            <p><strong>Expected Guests:</strong> ${formData.guests}</p>
-                            <p><strong>Preferred Venue:</strong> ${formData.preferredArea}</p>
-                            <p><strong>Event Date:</strong> ${eventDateFormatted}</p>
-                            <p><strong>Time Slot:</strong> ${formData.timeSlot}</p>
-                        `;
+                        if (eventBookingSummary) {
+                            let summaryHTML = `
+                                <p><strong>Booking ID:</strong> ${docRef.id.substring(0, 8).toUpperCase()}</p>
+                                <p><strong>Name:</strong> ${formData.fullName}</p>
+                                <p><strong>Phone:</strong> ${formData.phone}</p>
+                                <p><strong>Email:</strong> ${formData.email}</p>
+                                <p><strong>Event Type:</strong> ${formData.eventType}</p>
+                                <p><strong>Expected Guests:</strong> ${formData.guests}</p>
+                                <p><strong>Preferred Venue:</strong> ${formData.preferredArea}</p>
+                                <p><strong>Event Date:</strong> ${eventDateFormatted}</p>
+                                <p><strong>Time Slot:</strong> ${formData.timeSlot}</p>
+                            `;
 
-                        if (formData.message) {
-                            summaryHTML += `<p><strong>Additional Details:</strong> ${formData.message}</p>`;
+                            if (formData.message) {
+                                summaryHTML += `<p><strong>Additional Details:</strong> ${formData.message}</p>`;
+                            }
+
+                            eventBookingSummary.innerHTML = summaryHTML;
                         }
-
-                        eventBookingSummary.innerHTML = summaryHTML;
 
                         // Hide form and show success message
                         eventBookingForm.style.display = 'none';
-                        document.getElementById('eventSuccessMessage').style.display = 'block';
-
-                        // Scroll to success message
-                        document.getElementById('eventSuccessMessage').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        const eventSuccessMessage = document.getElementById('eventSuccessMessage');
+                        if (eventSuccessMessage) {
+                            eventSuccessMessage.style.display = 'block';
+                            // Scroll to success message
+                            eventSuccessMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
 
                         // Reset form
                         eventBookingForm.reset();
@@ -1408,10 +1638,12 @@ if (typeof firebase !== 'undefined' && typeof db !== 'undefined') {
                         submitButton.disabled = false;
                         submitButton.textContent = originalButtonText;
                     });
-            }, {once: false, capture: true}); // Capture phase to override existing handler
+            });
+        } else {
+            console.warn('Event booking form not found on this page.');
         }
     });
 } else {
-    console.log('Firebase not initialized - booking forms will work without database integration');
+    console.warn('Firebase not initialized - booking forms will NOT work. Please check firebase-config.js');
 }
 

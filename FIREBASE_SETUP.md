@@ -250,23 +250,80 @@ service cloud.firestore {
 
 ## 🛠️ Troubleshooting
 
+### Bookings not showing in dashboard?
+
+**IMPORTANT: Use the Diagnostic Tool First!**
+
+1. Open `firestore-test.html` in your browser
+2. Click "Run All Tests" button
+3. This will show you exactly what's wrong:
+   - If Firebase is connected
+   - If Firestore security rules are blocking queries
+   - If collections exist and have data
+   - Detailed error messages
+
+**Common Issues:**
+
+#### Issue 1: Permission Denied Errors
+If you see "permission-denied" errors in the diagnostic tool or browser console:
+
+1. Go to Firebase Console → Firestore Database → Rules
+2. Update your rules to this (for testing):
+```javascript
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /roomBookings/{document=**} {
+      allow read, write: if true;  // Allow all for testing
+    }
+    match /eventBookings/{document=**} {
+      allow read, write: if true;  // Allow all for testing
+    }
+  }
+}
+```
+3. Click **"Publish"**
+4. Wait 30 seconds and try again
+
+#### Issue 2: Collections Don't Exist
+If diagnostic tool shows "0 bookings found":
+- The collections might not exist yet
+- Click "Create Test Room Booking" in the diagnostic tool
+- Then go to Firebase Console → Firestore Database
+- You should see the `roomBookings` collection appear
+- Now try viewing in dashboard
+
+#### Issue 3: Firestore Index Required
+If you see errors about "requires an index":
+- The error message will have a link
+- Click the link to automatically create the index
+- Wait 1-2 minutes for index to build
+- Try again
+
 ### Bookings not saving?
-- Check browser console for errors
+- Use the diagnostic tool `firestore-test.html` to test
+- Check browser console for errors (F12)
 - Verify Firebase config is correct in `firebase-config.js`
 - Check Firestore security rules allow `create` operations
 - Ensure Firebase SDK scripts are loaded before `firebase-config.js`
 
 ### Can't login to admin?
-- Verify admin user exists in Firebase Authentication
-- Check email and password are correct
-- Check browser console for auth errors
-- Verify Firebase Auth is enabled in Firebase Console
+- Admin users must be registered through the website first
+- Admin emails must be in the ADMIN_EMAILS list in `script.js`
+- Default admin emails:
+  - `admin@vrundavanresort.com`
+  - `vishal@vrundavanresort.com`
+- Make sure you register with one of these emails first
+- Then login with the same credentials
+- Admin panel will appear in Account → Settings
 
 ### Dashboard not showing bookings?
-- Check if you're logged in (should redirect to admin.html if not)
-- Verify Firestore security rules allow `read` for authenticated users
-- Check browser console for Firestore errors
-- Try clicking the "Refresh" button
+1. First, run `firestore-test.html` to diagnose the issue
+2. Check if you're logged in with an admin email
+3. Verify Firestore security rules allow `read` operations
+4. Check browser console (F12) for Firestore errors
+5. Try clicking the "Refresh" button
+6. Make sure collections have data (check Firebase Console)
 
 ---
 

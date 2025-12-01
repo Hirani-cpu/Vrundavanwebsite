@@ -30,31 +30,47 @@ document.addEventListener('DOMContentLoaded', function() {
 // Authentication Guard
 // ===========================
 function checkAuthStatus() {
-    auth.onAuthStateChanged((user) => {
-        if (user) {
-            // User is logged in
-            const adminLoggedIn = localStorage.getItem('adminLoggedIn');
-            const adminEmail = localStorage.getItem('adminEmail');
+    // First check localStorage for regular logged-in users
+    const currentUser = getCurrentUser();
 
-            if (adminLoggedIn === 'true' && adminEmail) {
-                // Display admin email
-                document.getElementById('adminEmailDisplay').textContent = adminEmail;
+    if (currentUser && currentUser.email) {
+        // User logged in via website
+        const ADMIN_EMAILS = [
+            'admin@vrundavanresort.com',
+            'vishal@vrundavanresort.com'
+        ];
+
+        if (ADMIN_EMAILS.includes(currentUser.email.toLowerCase())) {
+            // User is admin
+            document.getElementById('adminEmailDisplay').textContent = currentUser.email;
+            console.log('Admin user detected:', currentUser.email);
+        } else {
+            // Not an admin
+            alert('You do not have admin access. This page is restricted to administrators only.');
+            window.location.href = 'account.html';
+        }
+    } else {
+        // Check Firebase Auth (in case admin logged in via admin.html)
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                document.getElementById('adminEmailDisplay').textContent = user.email;
             } else {
-                // Redirect to login
+                // Not logged in at all
                 redirectToLogin();
             }
-        } else {
-            // No user logged in, redirect to login
-            redirectToLogin();
-        }
-    });
+        });
+    }
+}
+
+function getCurrentUser() {
+    const userJson = localStorage.getItem('currentUser');
+    return userJson ? JSON.parse(userJson) : null;
 }
 
 function redirectToLogin() {
     console.log('Not authenticated, redirecting to login...');
-    localStorage.removeItem('adminLoggedIn');
-    localStorage.removeItem('adminEmail');
-    window.location.href = 'admin.html';
+    alert('Please login to access the admin dashboard.');
+    window.location.href = 'login.html';
 }
 
 // ===========================
@@ -63,14 +79,19 @@ function redirectToLogin() {
 function setupLogout() {
     document.getElementById('logoutBtn').addEventListener('click', function() {
         if (confirm('Are you sure you want to logout?')) {
+            // Clear localStorage
+            localStorage.removeItem('currentUser');
+            localStorage.removeItem('adminLoggedIn');
+            localStorage.removeItem('adminEmail');
+
+            // Sign out from Firebase Auth if logged in
             auth.signOut().then(() => {
-                localStorage.removeItem('adminLoggedIn');
-                localStorage.removeItem('adminEmail');
-                console.log('Admin logged out successfully');
-                window.location.href = 'admin.html';
+                console.log('Logged out successfully');
+                window.location.href = 'index.html';
             }).catch((error) => {
                 console.error('Logout error:', error);
-                alert('Error logging out. Please try again.');
+                // Still redirect even if Firebase logout fails
+                window.location.href = 'index.html';
             });
         }
     });
@@ -121,11 +142,14 @@ function loadRoomBookings() {
     tableEl.style.display = 'none';
     noBookingsEl.style.display = 'none';
 
-    // Fetch data from Firestore - ordered by creation date (newest first)
+    console.log('Fetching room bookings from Firestore...');
+
+    // Fetch data from Firestore - without orderBy first to test
+    // Note: orderBy requires a Firestore index. If you get errors, create the index in Firebase Console.
     db.collection('roomBookings')
-        .orderBy('createdAt', 'desc')
         .get()
         .then((querySnapshot) => {
+            console.log('Room bookings query successful. Count:', querySnapshot.size);
             // Clear table
             tableBody.innerHTML = '';
 
@@ -187,6 +211,13 @@ function createRoomBookingRow(booking, docId) {
         <td><span class="status-badge ${statusClass}">${status}</span></td>
     `;
 
+    // Add click handler to open modal
+    row.addEventListener('click', function() {
+        openBookingModal(docId, 'room', booking);
+    });
+
+    row.style.cursor = 'pointer';
+
     return row;
 }
 
@@ -204,9 +235,9 @@ function loadEventBookings() {
     tableEl.style.display = 'none';
     noBookingsEl.style.display = 'none';
 
-    // Fetch data from Firestore - ordered by creation date (newest first)
+    // Fetch data from Firestore - without orderBy first to test
+    // Note: orderBy requires a Firestore index. If you get errors, create the index in Firebase Console.
     db.collection('eventBookings')
-        .orderBy('createdAt', 'desc')
         .get()
         .then((querySnapshot) => {
             // Clear table
@@ -267,6 +298,13 @@ function createEventBookingRow(booking, docId) {
         <td><span class="status-badge ${statusClass}">${status}</span></td>
     `;
 
+    // Add click handler to open modal
+    row.addEventListener('click', function() {
+        openBookingModal(docId, 'event', booking);
+    });
+
+    row.style.cursor = 'pointer';
+
     return row;
 }
 
@@ -291,3 +329,290 @@ function updateStats(rooms, events) {
     const total = roomCount + eventCount;
     document.getElementById('totalBookingsCount').textContent = total;
 }
+
+// ===========================
+// Modal Management System
+// ===========================
+let currentBookingId = null;
+let currentBookingType = null;
+let currentBookingData = null;
+
+// Open modal with booking details
+function openBookingModal(bookingId, bookingType, bookingData) {
+    currentBookingId = bookingId;
+    currentBookingType = bookingType;
+    currentBookingData = bookingData;
+
+    const modal = document.getElementById('bookingModal');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalBody = document.getElementById('modalBody');
+    const adminNotes = document.getElementById('adminNotes');
+
+    // Set title
+    modalTitle.textContent = bookingType === 'room' ? '🏨 Room Booking Details' : '🎉 Event Booking Details';
+
+    // Clear previous notes
+    adminNotes.value = bookingData.adminNotes || '';
+
+    // Generate modal content based on booking type
+    if (bookingType === 'room') {
+        modalBody.innerHTML = generateRoomBookingDetails(bookingData, bookingId);
+    } else {
+        modalBody.innerHTML = generateEventBookingDetails(bookingData, bookingId);
+    }
+
+    // Show modal
+    modal.style.display = 'block';
+}
+
+// Generate room booking details HTML
+function generateRoomBookingDetails(booking, docId) {
+    const checkInDate = new Date(booking.checkIn).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
+
+    const checkOutDate = new Date(booking.checkOut).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
+
+    const createdDate = booking.createdAt ? new Date(booking.createdAt.toDate()).toLocaleString('en-US') : 'N/A';
+
+    const status = booking.bookingStatus || 'pending';
+    const statusColor = status === 'confirmed' ? '#28a745' : status === 'rejected' ? '#dc3545' : '#ffc107';
+
+    return `
+        <div class="booking-detail-item">
+            <label>Booking ID</label>
+            <div class="value">${docId}</div>
+        </div>
+        <div class="booking-detail-item">
+            <label>Current Status</label>
+            <div class="value">
+                <span class="booking-status-display" style="background: ${statusColor}; color: white;">
+                    ${status.toUpperCase()}
+                </span>
+            </div>
+        </div>
+        <div class="booking-detail-item">
+            <label>Guest Name</label>
+            <div class="value">${booking.fullName || 'N/A'}</div>
+        </div>
+        <div class="booking-detail-item">
+            <label>Contact Information</label>
+            <div class="value">
+                📞 ${booking.phone || 'N/A'}<br>
+                📧 ${booking.email || 'N/A'}
+            </div>
+        </div>
+        <div class="booking-detail-item">
+            <label>Check-in Date</label>
+            <div class="value">${checkInDate}</div>
+        </div>
+        <div class="booking-detail-item">
+            <label>Check-out Date</label>
+            <div class="value">${checkOutDate}</div>
+        </div>
+        <div class="booking-detail-item">
+            <label>Guests</label>
+            <div class="value">${booking.adults || 0} Adult(s)${booking.children > 0 ? ', ' + booking.children + ' Child(ren)' : ''}</div>
+        </div>
+        <div class="booking-detail-item">
+            <label>Room Type</label>
+            <div class="value">${booking.roomType || 'N/A'}</div>
+        </div>
+        ${booking.specialRequests ? `
+        <div class="booking-detail-item">
+            <label>Special Requests</label>
+            <div class="value">${booking.specialRequests}</div>
+        </div>
+        ` : ''}
+        <div class="booking-detail-item">
+            <label>Booking Submitted On</label>
+            <div class="value">${createdDate}</div>
+        </div>
+        ${booking.adminNotes ? `
+        <div class="booking-detail-item">
+            <label>Previous Admin Notes</label>
+            <div class="value">${booking.adminNotes}</div>
+        </div>
+        ` : ''}
+    `;
+}
+
+// Generate event booking details HTML
+function generateEventBookingDetails(booking, docId) {
+    const eventDate = new Date(booking.eventDate).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
+
+    const createdDate = booking.createdAt ? new Date(booking.createdAt.toDate()).toLocaleString('en-US') : 'N/A';
+
+    const status = booking.bookingStatus || 'pending';
+    const statusColor = status === 'confirmed' ? '#28a745' : status === 'rejected' ? '#dc3545' : '#ffc107';
+
+    return `
+        <div class="booking-detail-item">
+            <label>Booking ID</label>
+            <div class="value">${docId}</div>
+        </div>
+        <div class="booking-detail-item">
+            <label>Current Status</label>
+            <div class="value">
+                <span class="booking-status-display" style="background: ${statusColor}; color: white;">
+                    ${status.toUpperCase()}
+                </span>
+            </div>
+        </div>
+        <div class="booking-detail-item">
+            <label>Guest Name</label>
+            <div class="value">${booking.fullName || 'N/A'}</div>
+        </div>
+        <div class="booking-detail-item">
+            <label>Contact Information</label>
+            <div class="value">
+                📞 ${booking.phone || 'N/A'}<br>
+                📧 ${booking.email || 'N/A'}
+            </div>
+        </div>
+        <div class="booking-detail-item">
+            <label>Event Type</label>
+            <div class="value">${booking.eventType || 'N/A'}</div>
+        </div>
+        <div class="booking-detail-item">
+            <label>Event Date</label>
+            <div class="value">${eventDate}</div>
+        </div>
+        <div class="booking-detail-item">
+            <label>Time Slot</label>
+            <div class="value">${booking.timeSlot || 'N/A'}</div>
+        </div>
+        <div class="booking-detail-item">
+            <label>Expected Guests</label>
+            <div class="value">${booking.guests || 'N/A'}</div>
+        </div>
+        <div class="booking-detail-item">
+            <label>Preferred Venue</label>
+            <div class="value">${booking.preferredArea || 'N/A'}</div>
+        </div>
+        ${booking.message ? `
+        <div class="booking-detail-item">
+            <label>Additional Details</label>
+            <div class="value">${booking.message}</div>
+        </div>
+        ` : ''}
+        <div class="booking-detail-item">
+            <label>Booking Submitted On</label>
+            <div class="value">${createdDate}</div>
+        </div>
+        ${booking.adminNotes ? `
+        <div class="booking-detail-item">
+            <label>Previous Admin Notes</label>
+            <div class="value">${booking.adminNotes}</div>
+        </div>
+        ` : ''}
+    `;
+}
+
+// Close modal
+function closeModal() {
+    const modal = document.getElementById('bookingModal');
+    modal.style.display = 'none';
+    currentBookingId = null;
+    currentBookingType = null;
+    currentBookingData = null;
+}
+
+// Update booking status in Firestore
+function updateBookingStatus(status) {
+    if (!currentBookingId || !currentBookingType) {
+        alert('Error: No booking selected');
+        return;
+    }
+
+    const adminNotes = document.getElementById('adminNotes').value.trim();
+    const collection = currentBookingType === 'room' ? 'roomBookings' : 'eventBookings';
+
+    // Confirm action
+    const confirmMessage = status === 'confirmed'
+        ? 'Are you sure you want to APPROVE this booking?'
+        : 'Are you sure you want to REJECT this booking?';
+
+    if (!confirm(confirmMessage)) {
+        return;
+    }
+
+    // Disable buttons during update
+    const btnApprove = document.getElementById('btnApprove');
+    const btnReject = document.getElementById('btnReject');
+    btnApprove.disabled = true;
+    btnReject.disabled = true;
+    btnApprove.textContent = 'Updating...';
+    btnReject.textContent = 'Updating...';
+
+    // Prepare update data
+    const updateData = {
+        bookingStatus: status,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    };
+
+    if (adminNotes) {
+        updateData.adminNotes = adminNotes;
+    }
+
+    // Update in Firestore
+    db.collection(collection)
+        .doc(currentBookingId)
+        .update(updateData)
+        .then(() => {
+            alert(`Booking ${status === 'confirmed' ? 'APPROVED' : 'REJECTED'} successfully!`);
+            closeModal();
+
+            // Reload bookings
+            if (currentBookingType === 'room') {
+                loadRoomBookings();
+            } else {
+                loadEventBookings();
+            }
+        })
+        .catch((error) => {
+            console.error('Error updating booking:', error);
+            alert('Error updating booking. Please try again.');
+
+            // Re-enable buttons
+            btnApprove.disabled = false;
+            btnReject.disabled = false;
+            btnApprove.textContent = '✓ Approve Booking';
+            btnReject.textContent = '✗ Reject Booking';
+        });
+}
+
+// Setup modal event listeners
+document.addEventListener('DOMContentLoaded', function() {
+    // Close modal button
+    document.getElementById('modalClose').addEventListener('click', closeModal);
+    document.getElementById('btnCancelModal').addEventListener('click', closeModal);
+
+    // Click outside modal to close
+    window.addEventListener('click', function(event) {
+        const modal = document.getElementById('bookingModal');
+        if (event.target === modal) {
+            closeModal();
+        }
+    });
+
+    // Approve button
+    document.getElementById('btnApprove').addEventListener('click', function() {
+        updateBookingStatus('confirmed');
+    });
+
+    // Reject button
+    document.getElementById('btnReject').addEventListener('click', function() {
+        updateBookingStatus('rejected');
+    });
+});
