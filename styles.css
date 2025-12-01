@@ -2476,7 +2476,24 @@ body {
     margin-top: 10px;
 }
 
+.settings-section .btn-secondary {
+    background: var(--secondary-green);
+    color: var(--white);
+    border: 2px solid var(--secondary-green);
+}
+
+.settings-section .btn-secondary:hover {
+    background: var(--primary-green);
+    color: var(--white);
+    border-color: var(--primary-green);
+}
+
 #logoutBtnSettings {
+    display: inline-block !important;
+    visibility: visible !important;
+}
+
+#showPasswordFormBtn {
     display: inline-block !important;
     visibility: visible !important;
 }
