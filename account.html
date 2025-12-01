@@ -180,9 +180,42 @@
 
                             <div class="settings-section">
                                 <h3>Security</h3>
-                                <button class="btn btn-secondary" onclick="alert('Password change feature coming soon!')">
-                                    Change Password
-                                </button>
+
+                                <!-- Change Password Form (Hidden by default) -->
+                                <div id="changePasswordSection">
+                                    <button class="btn btn-secondary" id="showPasswordFormBtn">
+                                        Change Password
+                                    </button>
+
+                                    <div id="passwordChangeForm" style="display: none; margin-top: 20px;">
+                                        <form id="changePasswordFormElement">
+                                            <div class="form-group" style="margin-bottom: 15px;">
+                                                <label for="currentPassword">Current Password *</label>
+                                                <input type="password" id="currentPassword" required placeholder="Enter current password" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; margin-top: 5px;">
+                                            </div>
+
+                                            <div class="form-group" style="margin-bottom: 15px;">
+                                                <label for="newPassword">New Password *</label>
+                                                <input type="password" id="newPassword" required placeholder="Enter new password (min 6 characters)" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; margin-top: 5px;">
+                                            </div>
+
+                                            <div class="form-group" style="margin-bottom: 20px;">
+                                                <label for="confirmNewPassword">Confirm New Password *</label>
+                                                <input type="password" id="confirmNewPassword" required placeholder="Confirm new password" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; margin-top: 5px;">
+                                            </div>
+
+                                            <div style="display: flex; gap: 10px;">
+                                                <button type="submit" class="btn btn-primary">Update Password</button>
+                                                <button type="button" class="btn btn-secondary" id="cancelPasswordChangeBtn">Cancel</button>
+                                            </div>
+                                        </form>
+
+                                        <div id="passwordChangeSuccess" style="display: none; margin-top: 15px; padding: 15px; background: #d4edda; color: #155724; border-radius: 5px;">
+                                            <strong>✓ Password Changed Successfully!</strong>
+                                            <p style="margin: 5px 0 0 0;">Your password has been updated.</p>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
                             <div class="settings-section">

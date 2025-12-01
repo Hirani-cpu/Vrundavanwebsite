@@ -925,6 +925,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // Setup tab switching
             setupAccountTabs();
+
+            // Setup password change functionality
+            setupPasswordChange();
         } else {
             // User is not logged in - show login message
             notLoggedInMessage.style.display = 'block';
@@ -1017,5 +1020,103 @@ function setupAccountTabs() {
             }
         });
     });
+}
+
+// Setup password change functionality
+function setupPasswordChange() {
+    const showPasswordFormBtn = document.getElementById('showPasswordFormBtn');
+    const passwordChangeForm = document.getElementById('passwordChangeForm');
+    const cancelPasswordChangeBtn = document.getElementById('cancelPasswordChangeBtn');
+    const changePasswordFormElement = document.getElementById('changePasswordFormElement');
+    const passwordChangeSuccess = document.getElementById('passwordChangeSuccess');
+
+    // Show password change form
+    if (showPasswordFormBtn) {
+        showPasswordFormBtn.addEventListener('click', function() {
+            passwordChangeForm.style.display = 'block';
+            showPasswordFormBtn.style.display = 'none';
+            passwordChangeSuccess.style.display = 'none';
+        });
+    }
+
+    // Cancel password change
+    if (cancelPasswordChangeBtn) {
+        cancelPasswordChangeBtn.addEventListener('click', function() {
+            passwordChangeForm.style.display = 'none';
+            showPasswordFormBtn.style.display = 'inline-block';
+            changePasswordFormElement.reset();
+        });
+    }
+
+    // Handle password change form submission
+    if (changePasswordFormElement) {
+        changePasswordFormElement.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmNewPassword = document.getElementById('confirmNewPassword').value;
+
+            // Get current user
+            const currentUser = getCurrentUser();
+            if (!currentUser) {
+                alert('Please login first.');
+                return;
+            }
+
+            // Get registered users
+            const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
+            const userIndex = registeredUsers.findIndex(u => u.email === currentUser.email);
+
+            if (userIndex === -1) {
+                alert('User not found.');
+                return;
+            }
+
+            // Validate current password
+            if (registeredUsers[userIndex].password !== currentPassword) {
+                alert('Current password is incorrect.');
+                document.getElementById('currentPassword').focus();
+                return;
+            }
+
+            // Validate new password
+            if (newPassword.length < 6) {
+                alert('New password must be at least 6 characters long.');
+                document.getElementById('newPassword').focus();
+                return;
+            }
+
+            if (newPassword !== confirmNewPassword) {
+                alert('New passwords do not match.');
+                document.getElementById('confirmNewPassword').focus();
+                return;
+            }
+
+            if (newPassword === currentPassword) {
+                alert('New password must be different from current password.');
+                document.getElementById('newPassword').focus();
+                return;
+            }
+
+            // Update password
+            registeredUsers[userIndex].password = newPassword;
+            localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
+
+            // Show success message
+            changePasswordFormElement.reset();
+            changePasswordFormElement.style.display = 'none';
+            passwordChangeSuccess.style.display = 'block';
+
+            // Reset form after 3 seconds
+            setTimeout(function() {
+                passwordChangeForm.style.display = 'none';
+                showPasswordFormBtn.style.display = 'inline-block';
+                passwordChangeSuccess.style.display = 'none';
+            }, 3000);
+
+            console.log('Password changed successfully for:', currentUser.email);
+        });
+    }
 }
 
