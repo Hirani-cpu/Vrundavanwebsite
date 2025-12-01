@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact & Booking – Vrundavan Resort & Restaurant</title>
+    <meta name="description" content="Book your room or event at Vrundavan Resort. Contact us for reservations, enquiries, and special requests.">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Header & Navigation -->
+    <header id="header">
+        <nav class="navbar">
+            <div class="container nav-container">
+                <div class="logo">
+                    <a href="index.html">Vrundavan Resort & Restaurant</a>
+                </div>
+
+                <button class="hamburger" id="hamburger" aria-label="Toggle navigation">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+
+                <ul class="nav-links" id="navLinks">
+                    <li><a href="index.html" class="nav-link">Home</a></li>
+                    <li><a href="rooms.html" class="nav-link">Rooms</a></li>
+                    <li><a href="restaurant.html" class="nav-link">Restaurant</a></li>
+                    <li><a href="amenities.html" class="nav-link">Amenities</a></li>
+                    <li><a href="events.html" class="nav-link">Events & Parties</a></li>
+                    <li><a href="gallery.html" class="nav-link">Gallery</a></li>
+                    <li><a href="contact.html" class="nav-link active">Contact / Booking</a></li>
+                    <li><a href="login.html" class="nav-link nav-link-login">Login</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Page Hero -->
+    <section class="page-hero">
+        <div class="hero-overlay"></div>
+        <div class="page-hero-content">
+            <h1>Contact & Booking</h1>
+            <p>Get in touch with us or make a reservation</p>
+        </div>
+    </section>
+
+    <!-- Contact Info Section -->
+    <section class="section">
+        <div class="container">
+            <div class="contact-info-section">
+                <div class="contact-info-content">
+                    <h2 class="section-title">Get in Touch</h2>
+                    <p>Have questions or need assistance? We're here to help! Reach out to us through phone, email, or visit us at our resort.</p>
+
+                    <div class="contact-details-list">
+                        <div class="contact-detail-item">
+                            <span class="contact-icon">📞</span>
+                            <div class="contact-detail-info">
+                                <h3>Phone</h3>
+                                <p><a href="tel:+919876543210">+91 98765 43210</a></p>
+                                <p><a href="tel:+919876543211">+91 98765 43211</a></p>
+                            </div>
+                        </div>
+
+                        <div class="contact-detail-item">
+                            <span class="contact-icon">📧</span>
+                            <div class="contact-detail-info">
+                                <h3>Email</h3>
+                                <p><a href="mailto:info@vrundavanresort.com">info@vrundavanresort.com</a></p>
+                                <p><a href="mailto:bookings@vrundavanresort.com">bookings@vrundavanresort.com</a></p>
+                            </div>
+                        </div>
+
+                        <div class="contact-detail-item">
+                            <span class="contact-icon">📍</span>
+                            <div class="contact-detail-info">
+                                <h3>Location</h3>
+                                <p>Vrundavan Resort & Restaurant</p>
+                                <p>Countryside Location</p>
+                                <p>Near Natural Surroundings</p>
+                            </div>
+                        </div>
+
+                        <div class="contact-detail-item">
+                            <span class="contact-icon">🕐</span>
+                            <div class="contact-detail-info">
+                                <h3>Operating Hours</h3>
+                                <p><strong>Reception:</strong> 24/7</p>
+                                <p><strong>Restaurant:</strong> 8:00 AM - 11:00 PM</p>
+                                <p><strong>Pool:</strong> 6:00 AM - 8:00 PM</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="map-placeholder">
+                    <div class="map-content" style="background: linear-gradient(135deg, #2d5016 0%, #6b9d3e 100%);">
+                        <span>📍 Resort Location Map</span>
+                        <p>(Map integration placeholder)</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Booking Forms Section -->
+    <section class="section section-alt">
+        <div class="container">
+            <h2 class="section-title">Make a Reservation</h2>
+            <p class="section-subtitle">Fill out the form below and we'll get back to you shortly</p>
+
+            <div class="booking-container">
+                <!-- Room Booking Form -->
+                <div class="booking-form-wrapper">
+                    <h3 class="form-title">Room Booking</h3>
+                    <form id="roomBookingForm" class="booking-form">
+                        <div class="form-group">
+                            <label for="roomName">Full Name *</label>
+                            <input type="text" id="roomName" name="name" required placeholder="Enter your full name">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="roomPhone">Phone Number *</label>
+                            <input type="tel" id="roomPhone" name="phone" required placeholder="Your contact number">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="roomEmail">Email Address *</label>
+                            <input type="email" id="roomEmail" name="email" required placeholder="Your email address">
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="checkIn">Check-in Date *</label>
+                                <input type="date" id="checkIn" name="checkIn" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="checkOut">Check-out Date *</label>
+                                <input type="date" id="checkOut" name="checkOut" required>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="adults">Number of Adults *</label>
+                                <select id="adults" name="adults" required>
+                                    <option value="">Select</option>
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                    <option value="5">5+</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="children">Number of Children</label>
+                                <select id="children" name="children">
+                                    <option value="0">0</option>
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4+</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="roomType">Room Type *</label>
+                            <select id="roomType" name="roomType" required>
+                                <option value="">Select Room Type</option>
+                                <option value="Deluxe AC Room">Deluxe AC Room (₹2,500/night)</option>
+                                <option value="Super Deluxe Room">Super Deluxe Room (₹3,500/night)</option>
+                                <option value="Family Suite">Family Suite (₹5,000/night)</option>
+                                <option value="Dormitory / Group Room">Dormitory / Group Room (₹1,200/person)</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="roomRequests">Special Requests</label>
+                            <textarea id="roomRequests" name="requests" rows="4" placeholder="Any special requirements (extra bed, early check-in, etc.)"></textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-full">Submit Booking Request</button>
+
+                        <p class="form-note">* All fields marked with asterisk are required</p>
+                    </form>
+
+                    <!-- Room Booking Success Message -->
+                    <div id="roomSuccessMessage" class="success-message" style="display: none;">
+                        <h4>✓ Thank you! Your room booking request has been received.</h4>
+                        <p>We'll contact you shortly to confirm availability and finalize your reservation.</p>
+                        <div id="roomBookingSummary" class="booking-summary"></div>
+                        <button class="btn btn-secondary" onclick="resetRoomForm()">Make Another Booking</button>
+                    </div>
+                </div>
+
+                <!-- Event / Party Booking Form -->
+                <div class="booking-form-wrapper">
+                    <h3 class="form-title">Event / Party Booking</h3>
+                    <form id="eventBookingForm" class="booking-form">
+                        <div class="form-group">
+                            <label for="eventName">Full Name *</label>
+                            <input type="text" id="eventName" name="name" required placeholder="Enter your full name">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="eventPhone">Phone Number *</label>
+                            <input type="tel" id="eventPhone" name="phone" required placeholder="Your contact number">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="eventEmail">Email Address *</label>
+                            <input type="email" id="eventEmail" name="email" required placeholder="Your email address">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="eventType">Event Type *</label>
+                            <select id="eventType" name="eventType" required>
+                                <option value="">Select Event Type</option>
+                                <option value="Birthday">Birthday Party</option>
+                                <option value="Engagement">Engagement</option>
+                                <option value="Marriage">Marriage Function</option>
+                                <option value="Corporate">Corporate Event</option>
+                                <option value="Pool Party">Pool Party</option>
+                                <option value="Anniversary">Anniversary</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="guests">Expected Number of Guests *</label>
+                            <input type="number" id="guests" name="guests" min="10" placeholder="e.g. 100" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="venue">Preferred Venue *</label>
+                            <select id="venue" name="venue" required>
+                                <option value="">Select Venue</option>
+                                <option value="Garden / Lawn">Garden / Lawn (200-500 guests)</option>
+                                <option value="Party Hall">AC Party Hall (100-250 guests)</option>
+                                <option value="Poolside">Poolside (50-150 guests)</option>
+                                <option value="AC Dining Hall">AC Dining Hall (50-100 guests)</option>
+                            </select>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="eventDate">Event Date *</label>
+                                <input type="date" id="eventDate" name="eventDate" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="timeSlot">Time Slot *</label>
+                                <select id="timeSlot" name="timeSlot" required>
+                                    <option value="">Select Time</option>
+                                    <option value="Morning (9 AM - 1 PM)">Morning (9 AM - 1 PM)</option>
+                                    <option value="Afternoon (1 PM - 5 PM)">Afternoon (1 PM - 5 PM)</option>
+                                    <option value="Evening (5 PM - 10 PM)">Evening (5 PM - 10 PM)</option>
+                                    <option value="Full Day">Full Day</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="eventDetails">Additional Details</label>
+                            <textarea id="eventDetails" name="details" rows="4" placeholder="Tell us more about your event requirements (decoration, catering preferences, special arrangements, etc.)"></textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-full">Submit Event Enquiry</button>
+
+                        <p class="form-note">* All fields marked with asterisk are required</p>
+                    </form>
+
+                    <!-- Event Booking Success Message -->
+                    <div id="eventSuccessMessage" class="success-message" style="display: none;">
+                        <h4>✓ Thank you! Your event enquiry has been submitted.</h4>
+                        <p>Our event coordinator will contact you within 24 hours to discuss your requirements and provide a detailed quotation.</p>
+                        <div id="eventBookingSummary" class="booking-summary"></div>
+                        <button class="btn btn-secondary" onclick="resetEventForm()">Submit Another Enquiry</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- General Enquiry Form -->
+    <section class="section">
+        <div class="container">
+            <h2 class="section-title">General Enquiry</h2>
+            <p class="section-subtitle">Have a question? Send us a message</p>
+
+            <div class="general-enquiry-wrapper">
+                <form id="generalEnquiryForm" class="booking-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="enquiryName">Your Name *</label>
+                            <input type="text" id="enquiryName" name="name" required placeholder="Enter your name">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="enquiryEmail">Your Email *</label>
+                            <input type="email" id="enquiryEmail" name="email" required placeholder="Your email address">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="enquiryPhone">Phone Number</label>
+                            <input type="tel" id="enquiryPhone" name="phone" placeholder="Your contact number">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="enquirySubject">Subject *</label>
+                            <input type="text" id="enquirySubject" name="subject" required placeholder="Subject of enquiry">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="enquiryMessage">Message *</label>
+                        <textarea id="enquiryMessage" name="message" rows="6" required placeholder="Type your message here..."></textarea>
+                    </div>
+
+                    <div class="form-center">
+                        <button type="submit" class="btn btn-primary">Send Message</button>
+                    </div>
+
+                    <p class="form-note">* All fields marked with asterisk are required</p>
+                </form>
+
+                <!-- General Enquiry Success Message -->
+                <div id="enquirySuccessMessage" class="success-message" style="display: none;">
+                    <h4>✓ Thank you! Your message has been sent successfully.</h4>
+                    <p>We'll get back to you as soon as possible.</p>
+                    <button class="btn btn-secondary" onclick="resetEnquiryForm()">Send Another Message</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="section section-alt">
+        <div class="container">
+            <h2 class="section-title">Frequently Asked Questions</h2>
+            <p class="section-subtitle">Quick answers to common questions</p>
+
+            <div class="faq-container">
+                <div class="faq-item">
+                    <h3>What are the check-in and check-out times?</h3>
+                    <p>Check-in time is 12:00 PM (noon) and check-out time is 11:00 AM. Early check-in and late check-out are subject to availability and may incur additional charges.</p>
+                </div>
+
+                <div class="faq-item">
+                    <h3>Is parking available at the resort?</h3>
+                    <p>Yes, we provide free parking for all our guests. Valet parking service is also available on request.</p>
+                </div>
+
+                <div class="faq-item">
+                    <h3>Do you allow pets?</h3>
+                    <p>Yes, pets are allowed with prior notice. Please inform us during booking if you're bringing a pet.</p>
+                </div>
+
+                <div class="faq-item">
+                    <h3>What is your cancellation policy?</h3>
+                    <p>Free cancellation up to 48 hours before check-in. Cancellations within 48 hours will incur a 50% charge. No-shows will be charged in full.</p>
+                </div>
+
+                <div class="faq-item">
+                    <h3>Is Wi-Fi available?</h3>
+                    <p>Yes, high-speed Wi-Fi is available throughout the resort premises free of charge for all guests.</p>
+                </div>
+
+                <div class="faq-item">
+                    <h3>Do you provide airport transfers?</h3>
+                    <p>Yes, we can arrange airport pickup and drop services on request. Additional charges apply.</p>
+                </div>
+
+                <div class="faq-item">
+                    <h3>Are meals included in the room rate?</h3>
+                    <p>Complimentary breakfast is included with all room bookings. Lunch and dinner can be ordered from our restaurant.</p>
+                </div>
+
+                <div class="faq-item">
+                    <h3>Can I customize the event package?</h3>
+                    <p>Yes, all event packages are fully customizable. Our event coordinator will work with you to create a package that suits your needs and budget.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="container">
+            <div class="cta-content">
+                <h2>Need Immediate Assistance?</h2>
+                <p>Call us now to speak with our team</p>
+                <div class="cta-buttons">
+                    <a href="tel:+919876543210" class="btn btn-primary btn-large">Call: +91 98765 43210</a>
+                    <a href="mailto:bookings@vrundavanresort.com" class="btn btn-secondary btn-large">Email Us</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Vrundavan Resort & Restaurant</h3>
+                    <p>Your perfect destination for relaxation, dining, and celebrations in the heart of nature.</p>
+                    <p class="footer-note">Website demo – static front-end only (no real bookings processed).</p>
+                </div>
+
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul class="footer-links">
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="rooms.html">Rooms</a></li>
+                        <li><a href="restaurant.html">Restaurant</a></li>
+                        <li><a href="amenities.html">Amenities</a></li>
+                        <li><a href="events.html">Events & Parties</a></li>
+                        <li><a href="gallery.html">Gallery</a></li>
+                        <li><a href="contact.html">Contact / Booking</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-section">
+                    <h4>Contact Us</h4>
+                    <ul class="footer-contact">
+                        <li>📞 +91 98765 43210</li>
+                        <li>📞 +91 98765 43211</li>
+                        <li>📧 info@vrundavanresort.com</li>
+                        <li>📧 bookings@vrundavanresort.com</li>
+                        <li>📍 Countryside Location</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; <span id="currentYear"></span> Vrundavan Resort & Restaurant. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

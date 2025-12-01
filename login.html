@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login / Register – Vrundavan Resort & Restaurant</title>
+    <meta name="description" content="Login or create an account at Vrundavan Resort to manage your bookings, view reservations, and access exclusive member benefits.">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Header & Navigation -->
+    <header id="header">
+        <nav class="navbar">
+            <div class="container nav-container">
+                <div class="logo">
+                    <a href="index.html">Vrundavan Resort & Restaurant</a>
+                </div>
+
+                <button class="hamburger" id="hamburger" aria-label="Toggle navigation">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+
+                <ul class="nav-links" id="navLinks">
+                    <li><a href="index.html" class="nav-link">Home</a></li>
+                    <li><a href="rooms.html" class="nav-link">Rooms</a></li>
+                    <li><a href="restaurant.html" class="nav-link">Restaurant</a></li>
+                    <li><a href="amenities.html" class="nav-link">Amenities</a></li>
+                    <li><a href="events.html" class="nav-link">Events & Parties</a></li>
+                    <li><a href="gallery.html" class="nav-link">Gallery</a></li>
+                    <li><a href="contact.html" class="nav-link">Contact / Booking</a></li>
+                    <li><a href="login.html" class="nav-link active">Login</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Page Hero -->
+    <section class="page-hero">
+        <div class="hero-overlay"></div>
+        <div class="page-hero-content">
+            <h1>Account Access</h1>
+            <p>Login or create an account to manage your bookings</p>
+        </div>
+    </section>
+
+    <!-- Login Section -->
+    <section class="section login-section">
+        <div class="container">
+            <div class="login-container">
+                <!-- Login Form -->
+                <div id="loginFormContainer" class="auth-form-container active">
+                    <div class="auth-form-wrapper">
+                        <h2 class="auth-title">Welcome Back</h2>
+                        <p class="auth-subtitle">Login to access your account</p>
+
+                        <form id="loginForm" class="auth-form">
+                            <div class="form-group">
+                                <label for="loginEmail">Email Address *</label>
+                                <input type="email" id="loginEmail" name="email" required placeholder="your@email.com">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="loginPassword">Password *</label>
+                                <input type="password" id="loginPassword" name="password" required placeholder="Enter your password">
+                            </div>
+
+                            <div class="form-options">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="rememberMe">
+                                    <span>Remember me</span>
+                                </label>
+                                <a href="#" class="forgot-link" onclick="showForgotPassword(event)">Forgot Password?</a>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary btn-full">Login</button>
+
+                            <p class="form-note">* All fields are required</p>
+                        </form>
+
+                        <div class="auth-switch">
+                            <p>Don't have an account? <a href="#" onclick="showRegister(event)">Sign Up</a></p>
+                        </div>
+                    </div>
+
+                    <!-- Login Success Message -->
+                    <div id="loginSuccessMessage" class="success-message" style="display: none;">
+                        <h4>✓ Login Successful!</h4>
+                        <p>Welcome back! You will be redirected to your dashboard.</p>
+                        <div class="success-actions">
+                            <a href="contact.html" class="btn btn-primary">Go to Bookings</a>
+                            <a href="index.html" class="btn btn-secondary">Go to Home</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Register Form -->
+                <div id="registerFormContainer" class="auth-form-container">
+                    <div class="auth-form-wrapper">
+                        <h2 class="auth-title">Create Account</h2>
+                        <p class="auth-subtitle">Sign up to get started</p>
+
+                        <form id="registerForm" class="auth-form">
+                            <div class="form-group">
+                                <label for="registerName">Full Name *</label>
+                                <input type="text" id="registerName" name="name" required placeholder="Enter your full name">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="registerEmail">Email Address *</label>
+                                <input type="email" id="registerEmail" name="email" required placeholder="your@email.com">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="registerPhone">Phone Number *</label>
+                                <input type="tel" id="registerPhone" name="phone" required placeholder="+91 98765 43210">
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="registerPassword">Password *</label>
+                                    <input type="password" id="registerPassword" name="password" required placeholder="Create password">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="confirmPassword">Confirm Password *</label>
+                                    <input type="password" id="confirmPassword" name="confirmPassword" required placeholder="Confirm password">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="agreeTerms" required>
+                                    <span>I agree to the Terms & Conditions and Privacy Policy</span>
+                                </label>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary btn-full">Create Account</button>
+
+                            <p class="form-note">* All fields are required</p>
+                        </form>
+
+                        <div class="auth-switch">
+                            <p>Already have an account? <a href="#" onclick="showLogin(event)">Login</a></p>
+                        </div>
+                    </div>
+
+                    <!-- Register Success Message -->
+                    <div id="registerSuccessMessage" class="success-message" style="display: none;">
+                        <h4>✓ Account Created Successfully!</h4>
+                        <p>Welcome to Vrundavan Resort! Your account has been created.</p>
+                        <div id="registerSummary" class="booking-summary"></div>
+                        <div class="success-actions">
+                            <a href="#" onclick="showLogin(event)" class="btn btn-primary">Login Now</a>
+                            <a href="index.html" class="btn btn-secondary">Go to Home</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Forgot Password Form -->
+                <div id="forgotPasswordContainer" class="auth-form-container">
+                    <div class="auth-form-wrapper">
+                        <h2 class="auth-title">Forgot Password</h2>
+                        <p class="auth-subtitle">Enter your email to reset your password</p>
+
+                        <form id="forgotPasswordForm" class="auth-form">
+                            <div class="form-group">
+                                <label for="forgotEmail">Email Address *</label>
+                                <input type="email" id="forgotEmail" name="email" required placeholder="your@email.com">
+                            </div>
+
+                            <button type="submit" class="btn btn-primary btn-full">Send Reset Link</button>
+
+                            <p class="form-note">We'll send you an email with instructions to reset your password</p>
+                        </form>
+
+                        <div class="auth-switch">
+                            <p>Remember your password? <a href="#" onclick="showLogin(event)">Back to Login</a></p>
+                        </div>
+                    </div>
+
+                    <!-- Forgot Password Success Message -->
+                    <div id="forgotSuccessMessage" class="success-message" style="display: none;">
+                        <h4>✓ Reset Link Sent!</h4>
+                        <p>We've sent a password reset link to your email address. Please check your inbox and follow the instructions.</p>
+                        <div class="success-actions">
+                            <a href="#" onclick="showLogin(event)" class="btn btn-primary">Back to Login</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Benefits Section -->
+                <div class="login-benefits">
+                    <h3>Member Benefits</h3>
+                    <div class="benefits-list">
+                        <div class="benefit-item">
+                            <span class="benefit-icon">📋</span>
+                            <div>
+                                <h4>Easy Booking Management</h4>
+                                <p>View, modify, or cancel your room and event bookings</p>
+                            </div>
+                        </div>
+
+                        <div class="benefit-item">
+                            <span class="benefit-icon">🎁</span>
+                            <div>
+                                <h4>Exclusive Offers</h4>
+                                <p>Get special discounts and member-only deals</p>
+                            </div>
+                        </div>
+
+                        <div class="benefit-item">
+                            <span class="benefit-icon">⚡</span>
+                            <div>
+                                <h4>Quick Checkout</h4>
+                                <p>Save your details for faster future bookings</p>
+                            </div>
+                        </div>
+
+                        <div class="benefit-item">
+                            <span class="benefit-icon">📜</span>
+                            <div>
+                                <h4>Booking History</h4>
+                                <p>Access your complete reservation history</p>
+                            </div>
+                        </div>
+
+                        <div class="benefit-item">
+                            <span class="benefit-icon">🔔</span>
+                            <div>
+                                <h4>Notifications</h4>
+                                <p>Receive updates about your bookings and special events</p>
+                            </div>
+                        </div>
+
+                        <div class="benefit-item">
+                            <span class="benefit-icon">💳</span>
+                            <div>
+                                <h4>Saved Payment Methods</h4>
+                                <p>Securely save cards for seamless payments</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Security Note -->
+    <section class="section section-alt security-note">
+        <div class="container">
+            <div class="security-content">
+                <div class="security-icon">🔒</div>
+                <div>
+                    <h3>Your Security is Our Priority</h3>
+                    <p>All data is encrypted and stored securely. We never share your information with third parties. This is a demo website - no actual accounts are created.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Vrundavan Resort & Restaurant</h3>
+                    <p>Your perfect destination for relaxation, dining, and celebrations in the heart of nature.</p>
+                    <p class="footer-note">Website demo – static front-end only (no real bookings processed).</p>
+                </div>
+
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul class="footer-links">
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="rooms.html">Rooms</a></li>
+                        <li><a href="restaurant.html">Restaurant</a></li>
+                        <li><a href="amenities.html">Amenities</a></li>
+                        <li><a href="events.html">Events & Parties</a></li>
+                        <li><a href="gallery.html">Gallery</a></li>
+                        <li><a href="contact.html">Contact / Booking</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-section">
+                    <h4>Contact Us</h4>
+                    <ul class="footer-contact">
+                        <li>📞 +91 98765 43210</li>
+                        <li>📞 +91 98765 43211</li>
+                        <li>📧 info@vrundavanresort.com</li>
+                        <li>📧 bookings@vrundavanresort.com</li>
+                        <li>📍 Countryside Location</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; <span id="currentYear"></span> Vrundavan Resort & Restaurant. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
