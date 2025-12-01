@@ -690,3 +690,363 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+// ===========================
+// User Authentication System
+// ===========================
+
+// Check if user is logged in and update navigation on all pages
+document.addEventListener('DOMContentLoaded', function() {
+    updateNavigationState();
+
+    // Logout button handler
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', handleLogout);
+    }
+});
+
+// Update navigation based on login state
+function updateNavigationState() {
+    const currentUser = getCurrentUser();
+    const loginLink = document.getElementById('loginLink');
+    const userNav = document.getElementById('userNav');
+
+    if (currentUser && loginLink && userNav) {
+        // User is logged in - show user info, hide login button
+        loginLink.style.display = 'none';
+        userNav.style.display = 'flex';
+
+        // Update user info
+        const userName = document.getElementById('userName');
+        const userAvatar = document.getElementById('userAvatar');
+
+        if (userName) {
+            userName.textContent = currentUser.name.split(' ')[0]; // First name only
+        }
+
+        if (userAvatar) {
+            userAvatar.textContent = currentUser.name.charAt(0).toUpperCase();
+        }
+    } else if (loginLink && userNav) {
+        // User is not logged in - show login button, hide user info
+        loginLink.style.display = 'inline-block';
+        userNav.style.display = 'none';
+    }
+}
+
+// Get current logged-in user from localStorage
+function getCurrentUser() {
+    const userJson = localStorage.getItem('currentUser');
+    return userJson ? JSON.parse(userJson) : null;
+}
+
+// Save user to localStorage
+function saveUser(user) {
+    localStorage.setItem('currentUser', JSON.stringify(user));
+}
+
+// Logout handler
+function handleLogout() {
+    if (confirm('Are you sure you want to logout?')) {
+        localStorage.removeItem('currentUser');
+        window.location.href = 'index.html';
+    }
+}
+
+// ===========================
+// Updated Login Form Handler with Authentication
+// ===========================
+
+document.addEventListener('DOMContentLoaded', function() {
+    const loginForm = document.getElementById('loginForm');
+    const loginSuccessMessage = document.getElementById('loginSuccessMessage');
+
+    if (loginForm) {
+        loginForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            const rememberMe = document.getElementById('rememberMe').checked;
+
+            // Validation
+            if (!email || !password) {
+                alert('Please enter both email and password.');
+                return;
+            }
+
+            // Email validation
+            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailPattern.test(email)) {
+                alert('Please enter a valid email address.');
+                return;
+            }
+
+            // Check if user exists in registered users
+            const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
+            const user = registeredUsers.find(u => u.email === email && u.password === password);
+
+            if (user) {
+                // Login successful
+                const currentUser = {
+                    name: user.name,
+                    email: user.email,
+                    phone: user.phone,
+                    joinDate: user.joinDate
+                };
+
+                saveUser(currentUser);
+
+                // Hide form and show success
+                loginForm.style.display = 'none';
+                loginSuccessMessage.style.display = 'block';
+
+                // Redirect to account page after 2 seconds
+                setTimeout(function() {
+                    window.location.href = 'account.html';
+                }, 2000);
+            } else {
+                alert('Invalid email or password. Please try again or create a new account.');
+            }
+        });
+    }
+});
+
+// ===========================
+// Updated Register Form Handler with User Storage
+// ===========================
+
+document.addEventListener('DOMContentLoaded', function() {
+    const registerForm = document.getElementById('registerForm');
+    const registerSuccessMessage = document.getElementById('registerSuccessMessage');
+    const registerSummary = document.getElementById('registerSummary');
+
+    if (registerForm) {
+        registerForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const formData = {
+                name: document.getElementById('registerName').value.trim(),
+                email: document.getElementById('registerEmail').value.trim(),
+                phone: document.getElementById('registerPhone').value.trim(),
+                password: document.getElementById('registerPassword').value,
+                confirmPassword: document.getElementById('confirmPassword').value
+            };
+
+            // Validation
+            if (!formData.name || !formData.email || !formData.phone || !formData.password) {
+                alert('Please fill in all required fields.');
+                return;
+            }
+
+            // Email validation
+            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailPattern.test(formData.email)) {
+                alert('Please enter a valid email address.');
+                return;
+            }
+
+            // Password validation
+            if (formData.password.length < 6) {
+                alert('Password must be at least 6 characters long.');
+                return;
+            }
+
+            if (formData.password !== formData.confirmPassword) {
+                alert('Passwords do not match. Please try again.');
+                return;
+            }
+
+            // Terms agreement check
+            const agreeTerms = document.getElementById('agreeTerms').checked;
+            if (!agreeTerms) {
+                alert('Please agree to the Terms & Conditions to continue.');
+                return;
+            }
+
+            // Check if email already exists
+            const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
+            if (registeredUsers.some(u => u.email === formData.email)) {
+                alert('An account with this email already exists. Please login instead.');
+                return;
+            }
+
+            // Save user to registered users list
+            const newUser = {
+                name: formData.name,
+                email: formData.email,
+                phone: formData.phone,
+                password: formData.password, // Note: In production, never store plain passwords!
+                joinDate: new Date().toISOString()
+            };
+
+            registeredUsers.push(newUser);
+            localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
+
+            // Display success message
+            registerForm.style.display = 'none';
+            registerSuccessMessage.style.display = 'block';
+
+            if (registerSummary) {
+                registerSummary.innerHTML = `
+                    <p><strong>Name:</strong> ${formData.name}</p>
+                    <p><strong>Email:</strong> ${formData.email}</p>
+                    <p><strong>Phone:</strong> ${formData.phone}</p>
+                `;
+            }
+
+            registerSuccessMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+            console.log('User registered successfully:', formData.email);
+        });
+    }
+});
+
+// ===========================
+// Account Page Functionality
+// ===========================
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Check if we're on the account page
+    const accountContent = document.getElementById('accountContent');
+    const notLoggedInMessage = document.getElementById('notLoggedInMessage');
+
+    if (accountContent && notLoggedInMessage) {
+        const currentUser = getCurrentUser();
+
+        if (currentUser) {
+            // User is logged in - show account content
+            notLoggedInMessage.style.display = 'none';
+            accountContent.style.display = 'block';
+
+            // Populate user profile data
+            populateAccountData(currentUser);
+
+            // Setup tab switching
+            setupAccountTabs();
+
+            // Setup delete account button
+            const deleteAccountBtn = document.getElementById('deleteAccountBtn');
+            if (deleteAccountBtn) {
+                deleteAccountBtn.addEventListener('click', handleDeleteAccount);
+            }
+        } else {
+            // User is not logged in - show login message
+            notLoggedInMessage.style.display = 'block';
+            accountContent.style.display = 'none';
+        }
+    }
+});
+
+// Populate account page with user data
+function populateAccountData(user) {
+    // Profile avatar and info
+    const profileAvatarLarge = document.getElementById('profileAvatarLarge');
+    const profileName = document.getElementById('profileName');
+    const profileEmail = document.getElementById('profileEmail');
+
+    if (profileAvatarLarge) {
+        profileAvatarLarge.textContent = user.name.charAt(0).toUpperCase();
+    }
+
+    if (profileName) {
+        profileName.textContent = user.name;
+    }
+
+    if (profileEmail) {
+        profileEmail.textContent = user.email;
+    }
+
+    // Profile details
+    const accountName = document.getElementById('accountName');
+    const accountEmail = document.getElementById('accountEmail');
+    const accountPhone = document.getElementById('accountPhone');
+    const accountJoinDate = document.getElementById('accountJoinDate');
+
+    if (accountName) {
+        accountName.textContent = user.name;
+    }
+
+    if (accountEmail) {
+        accountEmail.textContent = user.email;
+    }
+
+    if (accountPhone) {
+        accountPhone.textContent = user.phone || 'Not provided';
+    }
+
+    if (accountJoinDate) {
+        const joinDate = new Date(user.joinDate);
+        accountJoinDate.textContent = joinDate.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+    }
+
+    // Stats (placeholder values for now)
+    const totalBookings = document.getElementById('totalBookings');
+    const upcomingBookings = document.getElementById('upcomingBookings');
+    const totalNights = document.getElementById('totalNights');
+
+    if (totalBookings) totalBookings.textContent = '0';
+    if (upcomingBookings) upcomingBookings.textContent = '0';
+    if (totalNights) totalNights.textContent = '0';
+}
+
+// Setup account page tab switching
+function setupAccountTabs() {
+    const tabLinks = document.querySelectorAll('.account-menu-item');
+    const tabs = {
+        'profile': document.getElementById('profileTab'),
+        'bookings': document.getElementById('bookingsTab'),
+        'settings': document.getElementById('settingsTab')
+    };
+
+    tabLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+
+            const tabName = this.getAttribute('data-tab');
+
+            // Remove active class from all links and tabs
+            tabLinks.forEach(l => l.classList.remove('active'));
+            Object.values(tabs).forEach(t => {
+                if (t) t.classList.remove('active');
+            });
+
+            // Add active class to clicked link and corresponding tab
+            this.classList.add('active');
+            if (tabs[tabName]) {
+                tabs[tabName].classList.add('active');
+            }
+        });
+    });
+}
+
+// Handle account deletion
+function handleDeleteAccount() {
+    const confirmed = confirm('Are you sure you want to delete your account? This action cannot be undone.');
+
+    if (confirmed) {
+        const doubleConfirm = confirm('This will permanently delete all your data. Are you absolutely sure?');
+
+        if (doubleConfirm) {
+            const currentUser = getCurrentUser();
+
+            if (currentUser) {
+                // Remove user from registered users
+                const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
+                const updatedUsers = registeredUsers.filter(u => u.email !== currentUser.email);
+                localStorage.setItem('registeredUsers', JSON.stringify(updatedUsers));
+
+                // Remove current user session
+                localStorage.removeItem('currentUser');
+
+                alert('Your account has been deleted successfully.');
+                window.location.href = 'index.html';
+            }
+        }
+    }
+}

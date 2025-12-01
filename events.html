@@ -16,6 +16,7 @@
         <nav class="navbar">
             <div class="container nav-container">
                 <div class="logo">
+                    <div class="logo-image">🌳</div>
                     <a href="index.html">Vrundavan Resort & Restaurant</a>
                 </div>
 
@@ -33,7 +34,17 @@
                     <li><a href="events.html" class="nav-link active">Events & Parties</a></li>
                     <li><a href="gallery.html" class="nav-link">Gallery</a></li>
                     <li><a href="contact.html" class="nav-link">Contact / Booking</a></li>
-                    <li><a href="login.html" class="nav-link nav-link-login">Login</a></li>
+                    <!-- User Navigation -->
+                    <li id="authNavItem">
+                        <a href="login.html" class="nav-link nav-link-login" id="loginLink">Login</a>
+                        <div class="user-nav" id="userNav" style="display: none;">
+                            <a href="account.html" class="user-info" id="userInfo">
+                                <div class="user-avatar" id="userAvatar">U</div>
+                                <span class="user-name" id="userName">User</span>
+                            </a>
+                            <button class="btn-logout" id="logoutBtn">Logout</button>
+                        </div>
+                    </li>
                 </ul>
             </div>
         </nav>

@@ -77,6 +77,24 @@ body {
     align-items: center;
 }
 
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.logo-image {
+    width: 45px;
+    height: 45px;
+    background: linear-gradient(135deg, var(--primary-green) 0%, var(--accent-green) 100%);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    flex-shrink: 0;
+}
+
 .logo a {
     font-family: var(--font-heading);
     font-size: 1.5rem;
@@ -98,8 +116,10 @@ body {
     color: var(--dark-text);
     font-weight: 500;
     font-size: 0.95rem;
-    transition: color 0.3s ease;
+    transition: all 0.3s ease;
     position: relative;
+    display: inline-block;
+    padding: 8px 0;
 }
 
 .nav-link:hover {
@@ -1883,8 +1903,9 @@ body {
 .nav-link-login {
     background: var(--gold);
     color: var(--white) !important;
-    padding: 8px 20px;
+    padding: 8px 20px !important;
     border-radius: 20px;
+    line-height: 1.2;
 }
 
 .nav-link-login:hover {
@@ -1893,6 +1914,63 @@ body {
 
 .nav-link-login::after {
     display: none;
+}
+
+/* User Account Navigation */
+.user-nav {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--dark-text);
+    text-decoration: none;
+    padding: 5px 15px;
+    border-radius: 20px;
+    background: var(--beige);
+    transition: all 0.3s ease;
+}
+
+.user-info:hover {
+    background: var(--light-green);
+}
+
+.user-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary-green) 0%, var(--accent-green) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.user-name {
+    font-weight: 500;
+    font-size: 0.95rem;
+}
+
+.btn-logout {
+    background: var(--secondary-green);
+    color: var(--white);
+    border: none;
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-logout:hover {
+    background: var(--primary-green);
 }
 
 /* Login Container */
@@ -2145,5 +2223,413 @@ body {
     .nav-link-login {
         padding: 6px 16px;
         font-size: 0.9rem;
+    }
+}
+
+/* ===========================
+   Account Page Styles
+   =========================== */
+
+.account-section {
+    min-height: 70vh;
+}
+
+.account-error {
+    text-align: center;
+    padding: 60px 20px;
+    background: var(--white);
+    border-radius: 10px;
+    box-shadow: 0 2px 10px var(--shadow);
+}
+
+.account-error h3 {
+    font-size: 1.8rem;
+    color: var(--primary-green);
+    margin-bottom: 15px;
+}
+
+.account-error p {
+    color: var(--medium-text);
+    margin-bottom: 25px;
+}
+
+.account-container {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 30px;
+    margin-top: 40px;
+}
+
+/* Account Sidebar */
+.account-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.account-profile-card {
+    background: var(--white);
+    border-radius: 10px;
+    padding: 30px;
+    text-align: center;
+    box-shadow: 0 2px 10px var(--shadow);
+}
+
+.profile-avatar-large {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary-green) 0%, var(--accent-green) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 700;
+    font-size: 36px;
+    margin: 0 auto 20px;
+}
+
+.account-profile-card h3 {
+    font-size: 1.5rem;
+    color: var(--primary-green);
+    margin-bottom: 8px;
+}
+
+.account-profile-card p {
+    color: var(--medium-text);
+    font-size: 0.95rem;
+    margin-bottom: 15px;
+}
+
+.profile-badge {
+    display: inline-block;
+    background: var(--gold);
+    color: var(--white);
+    padding: 5px 20px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.account-menu {
+    background: var(--white);
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0 2px 10px var(--shadow);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.account-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 18px;
+    border-radius: 8px;
+    color: var(--dark-text);
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.account-menu-item span {
+    font-size: 1.3rem;
+}
+
+.account-menu-item:hover {
+    background: var(--light-green);
+    color: var(--secondary-green);
+}
+
+.account-menu-item.active {
+    background: var(--primary-green);
+    color: var(--white);
+}
+
+/* Account Main Content */
+.account-main {
+    background: var(--white);
+    border-radius: 10px;
+    padding: 40px;
+    box-shadow: 0 2px 10px var(--shadow);
+}
+
+.account-title {
+    font-size: 2rem;
+    color: var(--primary-green);
+    margin-bottom: 30px;
+    font-family: var(--font-heading);
+}
+
+.account-tab {
+    display: none;
+}
+
+.account-tab.active {
+    display: block;
+}
+
+/* Profile Info Grid */
+.profile-info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 25px;
+    margin-bottom: 40px;
+}
+
+.profile-info-item label {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--medium-text);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+}
+
+.profile-value {
+    font-size: 1.1rem;
+    color: var(--dark-text);
+    font-weight: 500;
+}
+
+/* Account Stats */
+.account-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+.stat-card {
+    background: var(--beige);
+    padding: 25px;
+    border-radius: 10px;
+    text-align: center;
+}
+
+.stat-value {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--primary-green);
+    font-family: var(--font-heading);
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    color: var(--medium-text);
+    margin-top: 8px;
+}
+
+/* Bookings Section */
+.bookings-info {
+    text-align: center;
+    padding: 40px 20px;
+    background: var(--beige);
+    border-radius: 10px;
+    margin-bottom: 30px;
+}
+
+.bookings-info p {
+    color: var(--medium-text);
+    margin-bottom: 15px;
+}
+
+.booking-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-top: 25px;
+}
+
+.bookings-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Settings Section */
+.settings-section {
+    margin-bottom: 40px;
+    padding-bottom: 30px;
+    border-bottom: 1px solid var(--beige);
+}
+
+.settings-section:last-child {
+    border-bottom: none;
+}
+
+.settings-section h3 {
+    font-size: 1.4rem;
+    color: var(--primary-green);
+    margin-bottom: 20px;
+}
+
+.setting-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    background: var(--beige);
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+
+.setting-info strong {
+    display: block;
+    color: var(--dark-text);
+    margin-bottom: 5px;
+}
+
+.setting-info p {
+    color: var(--medium-text);
+    font-size: 0.9rem;
+}
+
+.setting-note {
+    color: var(--medium-text);
+    font-size: 0.9rem;
+    margin-top: 10px;
+    font-style: italic;
+}
+
+/* Toggle Switch */
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 26px;
+}
+
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: 0.4s;
+    border-radius: 34px;
+}
+
+.toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: 0.4s;
+    border-radius: 50%;
+}
+
+.toggle-switch input:checked + .toggle-slider {
+    background-color: var(--secondary-green);
+}
+
+.toggle-switch input:checked + .toggle-slider:before {
+    transform: translateX(24px);
+}
+
+.btn-danger {
+    background: #d32f2f;
+    color: var(--white);
+    border: none;
+    padding: 12px 30px;
+    border-radius: 5px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-danger:hover {
+    background: #b71c1c;
+}
+
+/* Responsive Account Page */
+@media (max-width: 968px) {
+    .account-container {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .account-sidebar {
+        flex-direction: row;
+        gap: 15px;
+    }
+
+    .account-profile-card {
+        flex: 0 0 auto;
+    }
+
+    .account-menu {
+        flex: 1;
+        flex-direction: row;
+        overflow-x: auto;
+    }
+
+    .account-menu-item {
+        white-space: nowrap;
+    }
+}
+
+@media (max-width: 768px) {
+    .account-main {
+        padding: 25px;
+    }
+
+    .profile-info-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .account-stats {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+    .booking-actions {
+        flex-direction: column;
+    }
+
+    .booking-actions .btn {
+        width: 100%;
+    }
+
+    .account-sidebar {
+        flex-direction: column;
+    }
+
+    .account-menu {
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 480px) {
+    .account-main {
+        padding: 20px;
+    }
+
+    .account-title {
+        font-size: 1.6rem;
+    }
+
+    .stat-value {
+        font-size: 2rem;
+    }
+
+    .setting-item {
+        flex-direction: column;
+        text-align: center;
+        gap: 15px;
     }
 }
