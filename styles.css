@@ -111,6 +111,11 @@ body {
     align-items: center;
 }
 
+.nav-links > li {
+    display: flex;
+    align-items: center;
+}
+
 .nav-link {
     text-decoration: none;
     color: var(--dark-text);
@@ -120,6 +125,8 @@ body {
     position: relative;
     display: inline-block;
     padding: 8px 0;
+    white-space: nowrap;
+    line-height: 1.2;
 }
 
 .nav-link:hover {
@@ -1777,6 +1784,12 @@ body {
         box-shadow: 0 5px 10px var(--shadow);
         transition: left 0.3s ease;
         gap: 15px;
+        align-items: flex-start;
+    }
+
+    .nav-links > li {
+        width: 100%;
+        align-items: flex-start;
     }
 
     .nav-links.active {
@@ -1785,6 +1798,17 @@ body {
 
     .hamburger {
         display: flex;
+    }
+
+    .user-nav {
+        flex-direction: column;
+        align-items: flex-start;
+        width: 100%;
+        gap: 10px;
+    }
+
+    .btn-logout {
+        width: 100%;
     }
 
     .hamburger.active span:nth-child(1) {
@@ -1906,6 +1930,9 @@ body {
     padding: 8px 20px !important;
     border-radius: 20px;
     line-height: 1.2;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
 }
 
 .nav-link-login:hover {
@@ -1921,6 +1948,7 @@ body {
     display: flex;
     align-items: center;
     gap: 15px;
+    white-space: nowrap;
 }
 
 .user-info {
