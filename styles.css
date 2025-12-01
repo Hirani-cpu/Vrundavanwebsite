@@ -1800,15 +1800,9 @@ body {
         display: flex;
     }
 
-    .user-nav {
-        flex-direction: column;
-        align-items: flex-start;
+    .user-info {
         width: 100%;
-        gap: 10px;
-    }
-
-    .btn-logout {
-        width: 100%;
+        justify-content: flex-start;
     }
 
     .hamburger.active span:nth-child(1) {
@@ -1944,15 +1938,8 @@ body {
 }
 
 /* User Account Navigation */
-.user-nav {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    white-space: nowrap;
-}
-
 .user-info {
-    display: flex;
+    display: inline-flex;
     align-items: center;
     gap: 10px;
     color: var(--dark-text);
@@ -1961,10 +1948,16 @@ body {
     border-radius: 20px;
     background: var(--beige);
     transition: all 0.3s ease;
+    white-space: nowrap;
 }
 
 .user-info:hover {
     background: var(--light-green);
+}
+
+.user-info.active {
+    background: var(--light-green);
+    border: 2px solid var(--secondary-green);
 }
 
 .user-avatar {
@@ -1978,27 +1971,12 @@ body {
     color: white;
     font-weight: 600;
     font-size: 14px;
+    flex-shrink: 0;
 }
 
 .user-name {
     font-weight: 500;
     font-size: 0.95rem;
-}
-
-.btn-logout {
-    background: var(--secondary-green);
-    color: var(--white);
-    border: none;
-    padding: 8px 20px;
-    border-radius: 20px;
-    font-size: 0.9rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.btn-logout:hover {
-    background: var(--primary-green);
 }
 
 /* Login Container */

@@ -699,10 +699,10 @@ document.addEventListener('DOMContentLoaded', function() {
 document.addEventListener('DOMContentLoaded', function() {
     updateNavigationState();
 
-    // Logout button handler
-    const logoutBtn = document.getElementById('logoutBtn');
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', handleLogout);
+    // Logout button handler in Account Settings page
+    const logoutBtnSettings = document.getElementById('logoutBtnSettings');
+    if (logoutBtnSettings) {
+        logoutBtnSettings.addEventListener('click', handleLogout);
     }
 });
 
@@ -715,7 +715,7 @@ function updateNavigationState() {
     if (currentUser && loginLink && userNav) {
         // User is logged in - show user info, hide login button
         loginLink.style.display = 'none';
-        userNav.style.display = 'flex';
+        userNav.style.display = 'inline-flex';
 
         // Update user info
         const userName = document.getElementById('userName');
