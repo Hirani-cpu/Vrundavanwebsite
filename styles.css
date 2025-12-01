@@ -2471,6 +2471,16 @@ body {
     margin-bottom: 20px;
 }
 
+.settings-section .btn {
+    display: inline-block;
+    margin-top: 10px;
+}
+
+#logoutBtnSettings {
+    display: inline-block !important;
+    visibility: visible !important;
+}
+
 .setting-item {
     display: flex;
     justify-content: space-between;
