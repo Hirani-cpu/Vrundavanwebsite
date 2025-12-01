@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login – Vrundavan Resort</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+
+    <style>
+        .admin-login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #2d5016 0%, #4a7c2c 50%, #6b9d3e 100%);
+            padding: 20px;
+        }
+
+        .admin-login-card {
+            background: white;
+            border-radius: 15px;
+            padding: 50px 40px;
+            max-width: 450px;
+            width: 100%;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .admin-login-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .admin-logo {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #2d5016 0%, #6b9d3e 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            margin: 0 auto 20px;
+        }
+
+        .admin-login-header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            color: #2d5016;
+            margin-bottom: 10px;
+        }
+
+        .admin-login-header p {
+            color: #666;
+            font-size: 0.95rem;
+        }
+
+        .admin-form-group {
+            margin-bottom: 25px;
+        }
+
+        .admin-form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #2d5016;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .admin-form-group input {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        .admin-form-group input:focus {
+            outline: none;
+            border-color: #4a7c2c;
+            box-shadow: 0 0 0 3px rgba(74, 124, 44, 0.1);
+        }
+
+        .admin-btn-login {
+            width: 100%;
+            padding: 15px;
+            background: #4a7c2c;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .admin-btn-login:hover {
+            background: #2d5016;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(45, 80, 22, 0.3);
+        }
+
+        .admin-btn-login:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .admin-error-message {
+            background: #fee;
+            color: #c33;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+            font-size: 0.9rem;
+        }
+
+        .admin-error-message.show {
+            display: block;
+        }
+
+        .admin-loading {
+            text-align: center;
+            margin-top: 15px;
+            color: #666;
+            display: none;
+        }
+
+        .admin-loading.show {
+            display: block;
+        }
+
+        .back-to-site {
+            text-align: center;
+            margin-top: 25px;
+        }
+
+        .back-to-site a {
+            color: #4a7c2c;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .back-to-site a:hover {
+            color: #2d5016;
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .admin-login-card {
+                padding: 40px 30px;
+            }
+
+            .admin-login-header h1 {
+                font-size: 1.7rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-login-container">
+        <div class="admin-login-card">
+            <div class="admin-login-header">
+                <div class="admin-logo">🔐</div>
+                <h1>Admin Login</h1>
+                <p>Vrundavan Resort & Restaurant</p>
+            </div>
+
+            <div id="adminErrorMessage" class="admin-error-message"></div>
+
+            <form id="adminLoginForm">
+                <div class="admin-form-group">
+                    <label for="adminEmail">Email Address</label>
+                    <input type="email" id="adminEmail" required placeholder="admin@vrundavanresort.com">
+                </div>
+
+                <div class="admin-form-group">
+                    <label for="adminPassword">Password</label>
+                    <input type="password" id="adminPassword" required placeholder="Enter your password">
+                </div>
+
+                <button type="submit" class="admin-btn-login" id="adminLoginBtn">
+                    Login to Dashboard
+                </button>
+
+                <div id="adminLoading" class="admin-loading">
+                    <p>Logging in...</p>
+                </div>
+            </form>
+
+            <div class="back-to-site">
+                <a href="index.html">← Back to Website</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="firebase-config.js"></script>
+    <script src="admin.js"></script>
+</body>
+</html>

@@ -1120,3 +1120,298 @@ function setupPasswordChange() {
     }
 }
 
+// ===========================
+// Firebase Integration for Booking Forms
+// ===========================
+
+// Check if Firebase is available before adding handlers
+if (typeof firebase !== 'undefined' && typeof db !== 'undefined') {
+    console.log('Firebase is initialized, adding booking form handlers...');
+
+    // ===========================
+    // Room Booking Form - Firebase Integration
+    // ===========================
+    document.addEventListener('DOMContentLoaded', function() {
+        const roomBookingForm = document.getElementById('roomBookingForm');
+
+        if (roomBookingForm) {
+            // Remove existing event listener and replace with Firebase version
+            roomBookingForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                // Get form data
+                const formData = {
+                    fullName: document.getElementById('roomName').value.trim(),
+                    phone: document.getElementById('roomPhone').value.trim(),
+                    email: document.getElementById('roomEmail').value.trim(),
+                    checkIn: document.getElementById('checkIn').value,
+                    checkOut: document.getElementById('checkOut').value,
+                    adults: parseInt(document.getElementById('adults').value),
+                    children: parseInt(document.getElementById('children').value),
+                    roomType: document.getElementById('roomType').value,
+                    specialRequests: document.getElementById('roomRequests').value.trim(),
+                    bookingStatus: 'pending',
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+
+                // Simple validation
+                if (!formData.fullName) {
+                    alert('Please enter your full name.');
+                    document.getElementById('roomName').focus();
+                    return;
+                }
+
+                if (!formData.phone) {
+                    alert('Please enter your phone number.');
+                    document.getElementById('roomPhone').focus();
+                    return;
+                }
+
+                if (!formData.email) {
+                    alert('Please enter your email address.');
+                    document.getElementById('roomEmail').focus();
+                    return;
+                }
+
+                if (!formData.checkIn || !formData.checkOut) {
+                    alert('Please select check-in and check-out dates.');
+                    return;
+                }
+
+                // Validate dates
+                const checkInDate = new Date(formData.checkIn);
+                const checkOutDate = new Date(formData.checkOut);
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+
+                if (checkInDate < today) {
+                    alert('Check-in date cannot be in the past.');
+                    document.getElementById('checkIn').focus();
+                    return;
+                }
+
+                if (checkOutDate <= checkInDate) {
+                    alert('Check-out date must be after check-in date.');
+                    document.getElementById('checkOut').focus();
+                    return;
+                }
+
+                if (!formData.adults) {
+                    alert('Please select number of adults.');
+                    document.getElementById('adults').focus();
+                    return;
+                }
+
+                if (!formData.roomType) {
+                    alert('Please select a room type.');
+                    document.getElementById('roomType').focus();
+                    return;
+                }
+
+                // Show loading state
+                const submitButton = roomBookingForm.querySelector('button[type="submit"]');
+                const originalButtonText = submitButton.textContent;
+                submitButton.disabled = true;
+                submitButton.textContent = 'Submitting...';
+
+                // Save to Firestore
+                db.collection('roomBookings')
+                    .add(formData)
+                    .then((docRef) => {
+                        console.log('Room booking saved with ID:', docRef.id);
+
+                        // Calculate nights for display
+                        const nights = Math.ceil((checkOutDate - checkInDate) / (1000 * 60 * 60 * 24));
+
+                        // Format dates for display
+                        const checkInFormatted = formatDate(checkInDate);
+                        const checkOutFormatted = formatDate(checkOutDate);
+
+                        // Create summary
+                        const roomBookingSummary = document.getElementById('roomBookingSummary');
+                        let summaryHTML = `
+                            <p><strong>Booking ID:</strong> ${docRef.id.substring(0, 8).toUpperCase()}</p>
+                            <p><strong>Name:</strong> ${formData.fullName}</p>
+                            <p><strong>Phone:</strong> ${formData.phone}</p>
+                            <p><strong>Email:</strong> ${formData.email}</p>
+                            <p><strong>Check-in:</strong> ${checkInFormatted}</p>
+                            <p><strong>Check-out:</strong> ${checkOutFormatted}</p>
+                            <p><strong>Duration:</strong> ${nights} night${nights > 1 ? 's' : ''}</p>
+                            <p><strong>Guests:</strong> ${formData.adults} Adult${formData.adults > 1 ? 's' : ''}${formData.children > 0 ? ', ' + formData.children + ' Child' + (formData.children > 1 ? 'ren' : '') : ''}</p>
+                            <p><strong>Room Type:</strong> ${formData.roomType}</p>
+                        `;
+
+                        if (formData.specialRequests) {
+                            summaryHTML += `<p><strong>Special Requests:</strong> ${formData.specialRequests}</p>`;
+                        }
+
+                        roomBookingSummary.innerHTML = summaryHTML;
+
+                        // Hide form and show success message
+                        roomBookingForm.style.display = 'none';
+                        document.getElementById('roomSuccessMessage').style.display = 'block';
+
+                        // Scroll to success message
+                        document.getElementById('roomSuccessMessage').scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+                        // Reset form
+                        roomBookingForm.reset();
+                        submitButton.disabled = false;
+                        submitButton.textContent = originalButtonText;
+                    })
+                    .catch((error) => {
+                        console.error('Error saving room booking:', error);
+                        alert('Error submitting booking. Please try again or contact us directly.');
+                        submitButton.disabled = false;
+                        submitButton.textContent = originalButtonText;
+                    });
+            }, {once: false, capture: true}); // Capture phase to override existing handler
+        }
+    });
+
+    // ===========================
+    // Event Booking Form - Firebase Integration
+    // ===========================
+    document.addEventListener('DOMContentLoaded', function() {
+        const eventBookingForm = document.getElementById('eventBookingForm');
+
+        if (eventBookingForm) {
+            // Remove existing event listener and replace with Firebase version
+            eventBookingForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                // Get form data
+                const formData = {
+                    fullName: document.getElementById('eventName').value.trim(),
+                    phone: document.getElementById('eventPhone').value.trim(),
+                    email: document.getElementById('eventEmail').value.trim(),
+                    eventType: document.getElementById('eventType').value,
+                    guests: parseInt(document.getElementById('guests').value),
+                    preferredArea: document.getElementById('venue').value,
+                    eventDate: document.getElementById('eventDate').value,
+                    timeSlot: document.getElementById('timeSlot').value,
+                    message: document.getElementById('eventDetails').value.trim(),
+                    bookingStatus: 'pending',
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+
+                // Simple validation
+                if (!formData.fullName) {
+                    alert('Please enter your full name.');
+                    document.getElementById('eventName').focus();
+                    return;
+                }
+
+                if (!formData.phone) {
+                    alert('Please enter your phone number.');
+                    document.getElementById('eventPhone').focus();
+                    return;
+                }
+
+                if (!formData.email) {
+                    alert('Please enter your email address.');
+                    document.getElementById('eventEmail').focus();
+                    return;
+                }
+
+                if (!formData.eventType) {
+                    alert('Please select an event type.');
+                    document.getElementById('eventType').focus();
+                    return;
+                }
+
+                if (!formData.guests || formData.guests < 10) {
+                    alert('Please enter a valid number of expected guests (minimum 10).');
+                    document.getElementById('guests').focus();
+                    return;
+                }
+
+                if (!formData.preferredArea) {
+                    alert('Please select a preferred venue.');
+                    document.getElementById('venue').focus();
+                    return;
+                }
+
+                if (!formData.eventDate) {
+                    alert('Please select an event date.');
+                    document.getElementById('eventDate').focus();
+                    return;
+                }
+
+                // Validate event date is not in the past
+                const eventDate = new Date(formData.eventDate);
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+
+                if (eventDate < today) {
+                    alert('Event date cannot be in the past.');
+                    document.getElementById('eventDate').focus();
+                    return;
+                }
+
+                if (!formData.timeSlot) {
+                    alert('Please select a preferred time slot.');
+                    document.getElementById('timeSlot').focus();
+                    return;
+                }
+
+                // Show loading state
+                const submitButton = eventBookingForm.querySelector('button[type="submit"]');
+                const originalButtonText = submitButton.textContent;
+                submitButton.disabled = true;
+                submitButton.textContent = 'Submitting...';
+
+                // Save to Firestore
+                db.collection('eventBookings')
+                    .add(formData)
+                    .then((docRef) => {
+                        console.log('Event booking saved with ID:', docRef.id);
+
+                        // Format event date for display
+                        const eventDateFormatted = formatDate(eventDate);
+
+                        // Create summary
+                        const eventBookingSummary = document.getElementById('eventBookingSummary');
+                        let summaryHTML = `
+                            <p><strong>Booking ID:</strong> ${docRef.id.substring(0, 8).toUpperCase()}</p>
+                            <p><strong>Name:</strong> ${formData.fullName}</p>
+                            <p><strong>Phone:</strong> ${formData.phone}</p>
+                            <p><strong>Email:</strong> ${formData.email}</p>
+                            <p><strong>Event Type:</strong> ${formData.eventType}</p>
+                            <p><strong>Expected Guests:</strong> ${formData.guests}</p>
+                            <p><strong>Preferred Venue:</strong> ${formData.preferredArea}</p>
+                            <p><strong>Event Date:</strong> ${eventDateFormatted}</p>
+                            <p><strong>Time Slot:</strong> ${formData.timeSlot}</p>
+                        `;
+
+                        if (formData.message) {
+                            summaryHTML += `<p><strong>Additional Details:</strong> ${formData.message}</p>`;
+                        }
+
+                        eventBookingSummary.innerHTML = summaryHTML;
+
+                        // Hide form and show success message
+                        eventBookingForm.style.display = 'none';
+                        document.getElementById('eventSuccessMessage').style.display = 'block';
+
+                        // Scroll to success message
+                        document.getElementById('eventSuccessMessage').scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+                        // Reset form
+                        eventBookingForm.reset();
+                        submitButton.disabled = false;
+                        submitButton.textContent = originalButtonText;
+                    })
+                    .catch((error) => {
+                        console.error('Error saving event booking:', error);
+                        alert('Error submitting booking. Please try again or contact us directly.');
+                        submitButton.disabled = false;
+                        submitButton.textContent = originalButtonText;
+                    });
+            }, {once: false, capture: true}); // Capture phase to override existing handler
+        }
+    });
+} else {
+    console.log('Firebase not initialized - booking forms will work without database integration');
+}
+
