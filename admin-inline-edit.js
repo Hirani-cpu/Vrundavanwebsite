@@ -617,8 +617,10 @@
             const newText = document.getElementById('textContent').value;
             element.textContent = newText;
 
-            // Save to Firestore
-            const elementId = generateId();
+            // Save to Firestore with persistent ID (check if element already has ID, reuse it)
+            const elementId = element.dataset.editId || generateId();
+            element.dataset.editId = elementId; // Save ID to element for future edits
+
             saveToFirestore('pageText', elementId, {
                 text: newText,
                 tagName: tagName,

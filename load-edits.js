@@ -51,14 +51,21 @@
 
             snapshot.forEach((doc) => {
                 const data = doc.data();
-                console.log('📝 Loading text edit:', data.tagName, data.text.substring(0, 50));
+                const editId = doc.id; // Use document ID as the edit ID
+                console.log('📝 Loading text edit:', editId, data.tagName, data.text.substring(0, 50));
 
-                // Find matching element by tag name and approximate content
-                const elements = document.querySelectorAll(data.tagName);
-                elements.forEach((el) => {
-                    // This is a simple approach - you might want to use data-edit-id for better matching
-                    el.textContent = data.text;
-                });
+                // Try to find element by data-edit-id first (most accurate)
+                let element = document.querySelector(`[data-edit-id="${editId}"]`);
+
+                if (element) {
+                    // Element already has the ID, update it
+                    element.textContent = data.text;
+                    console.log('✅ Updated element by ID:', editId);
+                } else {
+                    // Element doesn't have ID yet - this shouldn't happen often
+                    // Just skip it, the element will get an ID when admin edits it
+                    console.log('⚠️ No element found for ID:', editId);
+                }
             });
 
             console.log(`✅ Loaded ${snapshot.size} text edits`);
