@@ -512,56 +512,6 @@ function showForgotPassword(e) {
 }
 
 // ===========================
-// Login Form Handler
-// ===========================
-
-document.addEventListener('DOMContentLoaded', function() {
-    const loginForm = document.getElementById('loginForm');
-
-    if (loginForm) {
-        loginForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-
-            const email = document.getElementById('loginEmail').value.trim();
-            const password = document.getElementById('loginPassword').value;
-
-            // Validation
-            if (!email) {
-                alert('Please enter your email address.');
-                document.getElementById('loginEmail').focus();
-                return;
-            }
-
-            if (!password) {
-                alert('Please enter your password.');
-                document.getElementById('loginPassword').focus();
-                return;
-            }
-
-            // Simple email validation
-            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailPattern.test(email)) {
-                alert('Please enter a valid email address.');
-                document.getElementById('loginEmail').focus();
-                return;
-            }
-
-            // Hide form and show success
-            loginForm.style.display = 'none';
-            document.getElementById('loginSuccessMessage').style.display = 'block';
-
-            // Scroll to success message
-            document.getElementById('loginSuccessMessage').scrollIntoView({ behavior: 'smooth', block: 'center' });
-
-            // Simulate redirect after 3 seconds
-            setTimeout(function() {
-                console.log('User logged in with:', email);
-            }, 3000);
-        });
-    }
-});
-
-// ===========================
 // Register Form Handler
 // ===========================
 
@@ -788,32 +738,90 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
 
-            // Check if user exists in registered users
-            const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
-            const user = registeredUsers.find(u => u.email === email && u.password === password);
+            // FIRST: Try Firebase Auth for admin accounts
+            if (auth) {
+                auth.signInWithEmailAndPassword(email, password)
+                    .then((userCredential) => {
+                        // Firebase Auth success - this is an admin account
+                        console.log('✅ Admin logged in via Firebase Auth:', userCredential.user.email);
 
-            if (user) {
-                // Login successful
-                const currentUser = {
-                    userId: user.userId || user.email, // Use email as userId if not set
-                    name: user.name,
-                    email: user.email,
-                    phone: user.phone,
-                    joinDate: user.joinDate
-                };
+                        const currentUser = {
+                            userId: userCredential.user.uid,
+                            name: userCredential.user.displayName || email.split('@')[0],
+                            email: userCredential.user.email,
+                            phone: userCredential.user.phoneNumber || '',
+                            joinDate: new Date().toISOString()
+                        };
 
-                saveUser(currentUser);
+                        saveUser(currentUser);
+                        localStorage.setItem('adminLoggedIn', 'true');
+                        localStorage.setItem('adminEmail', userCredential.user.email);
 
-                // Hide form and show success
-                loginForm.style.display = 'none';
-                loginSuccessMessage.style.display = 'block';
+                        // Hide form and show success
+                        loginForm.style.display = 'none';
+                        loginSuccessMessage.style.display = 'block';
 
-                // Redirect to account page after 2 seconds
-                setTimeout(function() {
-                    window.location.href = 'account.html';
-                }, 2000);
+                        // Redirect to account page
+                        setTimeout(function() {
+                            window.location.href = 'account.html';
+                        }, 2000);
+                    })
+                    .catch((error) => {
+                        // Firebase Auth failed - try localStorage for regular users
+                        console.log('Not a Firebase Auth user, checking localStorage...');
+
+                        const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
+                        const user = registeredUsers.find(u => u.email === email && u.password === password);
+
+                        if (user) {
+                            // Login successful via localStorage
+                            const currentUser = {
+                                userId: user.userId || user.email,
+                                name: user.name,
+                                email: user.email,
+                                phone: user.phone,
+                                joinDate: user.joinDate
+                            };
+
+                            saveUser(currentUser);
+
+                            // Hide form and show success
+                            loginForm.style.display = 'none';
+                            loginSuccessMessage.style.display = 'block';
+
+                            // Redirect to account page
+                            setTimeout(function() {
+                                window.location.href = 'account.html';
+                            }, 2000);
+                        } else {
+                            // Both auth methods failed
+                            alert('Invalid email or password. Please try again or create a new account.');
+                        }
+                    });
             } else {
-                alert('Invalid email or password. Please try again or create a new account.');
+                // Firebase Auth not available - use localStorage only
+                const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
+                const user = registeredUsers.find(u => u.email === email && u.password === password);
+
+                if (user) {
+                    const currentUser = {
+                        userId: user.userId || user.email,
+                        name: user.name,
+                        email: user.email,
+                        phone: user.phone,
+                        joinDate: user.joinDate
+                    };
+
+                    saveUser(currentUser);
+                    loginForm.style.display = 'none';
+                    loginSuccessMessage.style.display = 'block';
+
+                    setTimeout(function() {
+                        window.location.href = 'account.html';
+                    }, 2000);
+                } else {
+                    alert('Invalid email or password. Please try again or create a new account.');
+                }
             }
         });
     }
