@@ -983,6 +983,60 @@ function loadSiteSettings() {
         });
 }
 
+// Compress logo image for fast upload
+async function compressLogoImage(file, maxWidth = 400, quality = 0.7) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = (event) => {
+            const img = new Image();
+            img.src = event.target.result;
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                let width = img.width;
+                let height = img.height;
+
+                // Resize if image is too large
+                if (width > maxWidth || height > maxWidth) {
+                    if (width > height) {
+                        height = (height * maxWidth) / width;
+                        width = maxWidth;
+                    } else {
+                        width = (width * maxWidth) / height;
+                        height = maxWidth;
+                    }
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+
+                // Convert to blob with compression
+                canvas.toBlob(
+                    (blob) => {
+                        if (!blob) {
+                            reject(new Error('Failed to compress logo'));
+                            return;
+                        }
+                        const compressedFile = new File([blob], 'logo.jpg', {
+                            type: 'image/jpeg',
+                            lastModified: Date.now()
+                        });
+                        console.log(`Logo compressed: ${(file.size / 1024).toFixed(0)}KB → ${(compressedFile.size / 1024).toFixed(0)}KB`);
+                        resolve(compressedFile);
+                    },
+                    'image/jpeg',
+                    quality
+                );
+            };
+            img.onerror = () => reject(new Error('Failed to load image'));
+        };
+        reader.onerror = () => reject(new Error('Failed to read file'));
+    });
+}
+
 // Save site settings to Firebase
 async function saveSiteSettings() {
     const form = document.getElementById('siteSettingsForm');
@@ -999,14 +1053,19 @@ async function saveSiteSettings() {
 
         // Upload logo if a new file was selected
         if (logoUpload.files && logoUpload.files[0]) {
-            saveButton.textContent = '📤 Uploading logo...';
+            saveButton.textContent = '⚡ Compressing logo...';
             const logoFile = logoUpload.files[0];
+
+            // Compress logo for FAST upload (400px, 70% quality = ~20-50KB)
+            const compressedLogo = await compressLogoImage(logoFile, 400, 0.7);
+
+            saveButton.textContent = '📤 Uploading logo...';
 
             // Upload to Firebase Storage
             const storageRef = storage.ref();
-            const logoRef = storageRef.child(`siteSettings/logo-${Date.now()}.${logoFile.name.split('.').pop()}`);
+            const logoRef = storageRef.child(`siteSettings/logo-${Date.now()}.jpg`);
 
-            const snapshot = await logoRef.put(logoFile);
+            const snapshot = await logoRef.put(compressedLogo);
             logoUrl = await snapshot.ref.getDownloadURL();
             console.log('✓ Logo uploaded:', logoUrl);
 
@@ -1040,7 +1099,10 @@ async function saveSiteSettings() {
         // Save to Firebase
         await db.collection('siteSettings').doc('main').set(settings);
 
-        console.log('✓ Settings saved successfully');
+        // INSTANT UPDATE: Save to localStorage cache for zero-delay loading
+        localStorage.setItem('siteSettings', JSON.stringify(settings));
+
+        console.log('✓ Settings saved successfully (Firebase + Cache)');
         saveButton.disabled = false;
         saveButton.textContent = '💾 Save Settings';
 

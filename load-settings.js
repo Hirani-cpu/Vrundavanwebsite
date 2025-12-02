@@ -17,7 +17,20 @@
 
     // Load and apply settings
     function loadAndApplySettings() {
-        console.log('🔧 Loading site settings...');
+        // INSTANT LOAD: Use cached settings first for ZERO delay
+        const cachedSettings = localStorage.getItem('siteSettings');
+        if (cachedSettings) {
+            try {
+                const settings = JSON.parse(cachedSettings);
+                console.log('⚡ INSTANT: Using cached settings');
+                applySettings(settings);
+            } catch (e) {
+                console.error('Cache parse error:', e);
+            }
+        }
+
+        // Then update from Firebase in background
+        console.log('🔧 Loading site settings from Firebase...');
 
         db.collection('siteSettings')
             .doc('main')
@@ -25,7 +38,12 @@
             .then((doc) => {
                 if (doc.exists) {
                     const settings = doc.data();
-                    console.log('✓ Settings loaded successfully');
+                    console.log('✓ Settings loaded from Firebase');
+
+                    // Save to cache for next time
+                    localStorage.setItem('siteSettings', JSON.stringify(settings));
+
+                    // Apply settings (will update if different from cache)
                     applySettings(settings);
                 } else {
                     console.log('⚠️ No custom settings found. Using defaults.');
