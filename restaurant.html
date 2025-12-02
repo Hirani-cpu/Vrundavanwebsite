@@ -209,6 +209,23 @@
             background: #2d5016;
         }
     </style>
+
+    <!-- INSTANT LOAD: Pre-apply cached settings BEFORE page renders (ZERO flash) -->
+    <script>
+        (function() {
+            const cached = localStorage.getItem('siteSettings');
+            if (cached) {
+                try {
+                    const s = JSON.parse(cached);
+                    window.__cachedSettings = s;
+                    if (s.siteLogoUrl) {
+                        document.write('<link rel="preload" as="image" href="' + s.siteLogoUrl + '" crossorigin="anonymous">');
+                        document.write('<style>.logo-image{background-image:url(' + s.siteLogoUrl + ');background-size:contain;background-repeat:no-repeat;background-position:center;}</style>');
+                    }
+                } catch(e) {}
+            }
+        })();
+    </script>
 </head>
 <body>
     <!-- Header & Navigation -->
@@ -217,8 +234,13 @@
             <div class="container nav-container">
                 <div class="logo">
                     <div class="logo-image">🌳</div>
-                    <a href="index.html">Vrundavan Resort & Restaurant</a>
+                    <a href="index.html" id="logoText">Vrundavan Resort & Restaurant</a>
                 </div>
+                <script>
+                    if (window.__cachedSettings && window.__cachedSettings.siteName) {
+                        document.getElementById('logoText').textContent = window.__cachedSettings.siteName;
+                    }
+                </script>
 
                 <button class="hamburger" id="hamburger" aria-label="Toggle navigation">
                     <span></span>

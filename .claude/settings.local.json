@@ -11,7 +11,11 @@
       "Bash(for file in index.html contact.html restaurant.html amenities.html events.html gallery.html account.html)",
       "Bash(do grep -q \"load-settings.js\" \"$file\")",
       "Bash(echo:*)",
-      "Bash(done)"
+      "Bash(done)",
+      "Bash(python -m http.server:*)",
+      "Bash(timeout /t)",
+      "Bash(start http://localhost:8000/index.html)",
+      "Bash(for file in rooms.html contact.html restaurant.html amenities.html events.html gallery.html account.html)"
     ],
     "deny": [],
     "ask": []

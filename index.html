@@ -9,6 +9,25 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <!-- INSTANT LOAD: Pre-apply cached settings BEFORE page renders (ZERO flash) -->
+    <script>
+        (function() {
+            const cached = localStorage.getItem('siteSettings');
+            if (cached) {
+                try {
+                    const s = JSON.parse(cached);
+                    // Store in global for instant access
+                    window.__cachedSettings = s;
+                    // Pre-inject logo into head for instant display
+                    if (s.siteLogoUrl) {
+                        document.write('<link rel="preload" as="image" href="' + s.siteLogoUrl + '" crossorigin="anonymous">');
+                        document.write('<style>.logo-image{background-image:url(' + s.siteLogoUrl + ');background-size:contain;background-repeat:no-repeat;background-position:center;}</style>');
+                    }
+                } catch(e) {}
+            }
+        })();
+    </script>
 </head>
 <body>
     <!-- Header & Navigation -->
@@ -18,8 +37,14 @@
                 <!-- Logo -->
                 <div class="logo">
                     <div class="logo-image">🌳</div>
-                    <a href="index.html">Vrundavan Resort & Restaurant</a>
+                    <a href="index.html" id="logoText">Vrundavan Resort & Restaurant</a>
                 </div>
+                <script>
+                    // INSTANT: Apply cached name immediately (before DOM loads)
+                    if (window.__cachedSettings && window.__cachedSettings.siteName) {
+                        document.getElementById('logoText').textContent = window.__cachedSettings.siteName;
+                    }
+                </script>
 
                 <!-- Hamburger Menu Icon (Mobile) -->
                 <button class="hamburger" id="hamburger" aria-label="Toggle navigation">
