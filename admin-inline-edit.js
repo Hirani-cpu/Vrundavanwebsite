@@ -453,16 +453,38 @@
             if (descElement) descElement.textContent = description;
 
             // Upload image if provided
+            let imageUrl = card.style.backgroundImage?.match(/url\(["']?([^"']*)["']?\)/)?.[1] || '';
             if (file) {
                 const compressedFile = await compressImage(file, 800, 0.8);
-                const imageUrl = await uploadToFirebase(compressedFile, 'cards');
+                imageUrl = await uploadToFirebase(compressedFile, 'cards');
 
                 if (card.style.backgroundImage !== undefined) {
                     card.style.backgroundImage = `url('${imageUrl}')`;
                 }
             }
 
-            alert('✅ Card updated successfully!');
+            // Save to Firestore with the card's ID
+            const cardId = card.dataset.editId || generateId();
+            card.dataset.editId = cardId;
+
+            // Determine collection based on card type
+            let collection = 'cardContent';
+            if (card.classList.contains('amenity-card')) {
+                collection = 'amenities';
+            } else if (card.classList.contains('venue-detail-card') || card.classList.contains('event-type-card')) {
+                collection = 'eventContent';
+            }
+
+            await saveToFirestore(collection, cardId, {
+                icon: icon || '',
+                title: title,
+                description: description,
+                imageUrl: imageUrl,
+                pageUrl: window.location.pathname,
+                updatedAt: new Date().toISOString()
+            });
+
+            alert('✅ Card updated and saved to database!');
             closeModal();
         } catch (error) {
             console.error('Error saving card:', error);
@@ -497,7 +519,18 @@
                 element.src = imageUrl;
             }
 
-            alert('✅ Image updated successfully!');
+            // Save to Firestore
+            const elementId = element.dataset.editId || generateId();
+            element.dataset.editId = elementId;
+
+            await saveToFirestore('pageContent', elementId, {
+                imageUrl: imageUrl,
+                pageType: window.location.pathname,
+                elementType: 'image',
+                updatedAt: new Date().toISOString()
+            });
+
+            alert('✅ Image updated and saved to database!');
             closeModal();
         } catch (error) {
             console.error('Error saving image:', error);
