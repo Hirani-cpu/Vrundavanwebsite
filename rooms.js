@@ -172,7 +172,7 @@ function createRoomCard(room, roomId) {
 
     return `
         <div class="room-detail-card-compact">
-            <div class="room-detail-image-compact" id="${roomId}-image" style="position: relative; overflow: hidden;" data-room-id="${roomId}">
+            <div class="room-detail-image-compact" id="${roomId}-image" data-room-id="${roomId}">
                 ${imageHTML}
                 ${room.badge ? `<span class="room-badge ${room.badgeClass || ''}">${room.badge}</span>` : ''}
                 ${imageCounter}
