@@ -650,19 +650,32 @@ async function editRoom(roomId) {
         const previewDiv = document.getElementById('roomImagePreview');
         if (room.imageUrls && room.imageUrls.length > 0) {
             previewDiv.innerHTML = '';
+
+            // Add warning banner
+            const warningDiv = document.createElement('div');
+            warningDiv.style.cssText = 'background: #fff3cd; border: 2px solid #ffc107; padding: 10px; border-radius: 6px; margin-bottom: 10px;';
+            warningDiv.innerHTML = `
+                <strong style="color: #856404;">⚠️ OLD IMAGES DETECTED (${room.imageUrls.length} images)</strong>
+                <div style="margin-top: 8px; font-size: 0.9rem; color: #856404;">
+                    <strong>To REPLACE with NEW images:</strong> Select new files below and click Save<br>
+                    <strong>To KEEP old images:</strong> Don't select files and click Save
+                </div>
+            `;
+            previewDiv.appendChild(warningDiv);
+
+            // Show existing images with RED borders
+            const imagesContainer = document.createElement('div');
+            imagesContainer.style.cssText = 'display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 10px;';
             room.imageUrls.forEach((url, index) => {
                 const div = document.createElement('div');
                 div.style.cssText = 'position: relative; display: inline-block;';
                 div.innerHTML = `
-                    <img src="${url}" style="width: 120px; height: 80px; object-fit: cover; border-radius: 6px; border: 2px solid #4a7c2c;">
-                    <span style="position: absolute; top: 5px; right: 5px; background: #4a7c2c; color: white; padding: 2px 6px; border-radius: 3px; font-size: 0.7rem;">${index + 1}</span>
+                    <img src="${url}?t=${Date.now()}" style="width: 120px; height: 80px; object-fit: cover; border-radius: 6px; border: 3px solid #dc3545;">
+                    <span style="position: absolute; top: 5px; right: 5px; background: #dc3545; color: white; padding: 3px 8px; border-radius: 3px; font-size: 0.75rem; font-weight: bold;">OLD #${index + 1}</span>
                 `;
-                previewDiv.appendChild(div);
+                imagesContainer.appendChild(div);
             });
-            const info = document.createElement('div');
-            info.style.cssText = 'width: 100%; margin-top: 10px; font-size: 0.8rem; color: #666;';
-            info.innerHTML = `Current: ${room.imageUrls.length} image(s)<br><small>Select new files to replace all images, or leave empty to keep existing images</small>`;
-            previewDiv.appendChild(info);
+            previewDiv.appendChild(imagesContainer);
         }
 
         document.getElementById('roomModal').style.display = 'block';
