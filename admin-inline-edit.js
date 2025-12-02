@@ -1,133 +1,264 @@
 // ===========================
-// Admin Inline Editing System
-// Allows admins to edit content directly on pages
+// Admin Inline Editing System V2
+// Click to edit EVERYTHING on the page
 // ===========================
 
 (function() {
     'use strict';
 
     let isAdmin = false;
-    let currentEditElement = null;
+    let adminIndicator = null;
 
     // Check if current user is admin
     function checkAdminStatus() {
-        // Check Firebase Auth
-        if (auth) {
+        console.log('🔍 Checking admin status...');
+
+        // Check Firebase Auth FIRST
+        if (typeof auth !== 'undefined' && auth) {
             auth.onAuthStateChanged((user) => {
                 if (user) {
                     isAdmin = true;
-                    console.log('✏️ Admin editing mode enabled');
-                    initializeAdminEditing();
+                    console.log('✅ Admin mode activated via Firebase Auth:', user.email);
+                    showAdminMode();
                 } else {
-                    // Check localStorage
-                    const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
-                    const adminEmails = ['admin@vrundavanresort.com', 'vishal@vrundavanresort.com'];
-
-                    if (currentUser.email && adminEmails.includes(currentUser.email.toLowerCase())) {
-                        isAdmin = true;
-                        console.log('✏️ Admin editing mode enabled (localStorage)');
-                        initializeAdminEditing();
-                    }
+                    checkLocalStorageAdmin();
                 }
             });
         } else {
-            // No auth, check localStorage only
-            const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
-            const adminEmails = ['admin@vrundavanresort.com', 'vishal@vrundavanresort.com'];
+            // No Firebase Auth, check localStorage
+            setTimeout(() => checkLocalStorageAdmin(), 500);
+        }
+    }
 
-            if (currentUser.email && adminEmails.includes(currentUser.email.toLowerCase())) {
-                isAdmin = true;
-                console.log('✏️ Admin editing mode enabled (localStorage)');
-                initializeAdminEditing();
+    function checkLocalStorageAdmin() {
+        const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+        const adminLoggedIn = localStorage.getItem('adminLoggedIn');
+        const adminEmails = ['admin@vrundavanresort.com', 'vishal@vrundavanresort.com'];
+
+        if ((currentUser.email && adminEmails.includes(currentUser.email.toLowerCase())) || adminLoggedIn === 'true') {
+            isAdmin = true;
+            console.log('✅ Admin mode activated via localStorage:', currentUser.email);
+            showAdminMode();
+        } else {
+            console.log('❌ Not logged in as admin');
+        }
+    }
+
+    // Show admin mode indicator and initialize editing
+    function showAdminMode() {
+        if (!isAdmin) return;
+
+        // Create admin mode banner
+        createAdminBanner();
+
+        // Wait for page to fully load
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeAllEditing);
+        } else {
+            setTimeout(initializeAllEditing, 1000);
+        }
+    }
+
+    // Create admin mode indicator banner
+    function createAdminBanner() {
+        if (document.getElementById('adminModeBanner')) return;
+
+        const banner = document.createElement('div');
+        banner.id = 'adminModeBanner';
+        banner.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(135deg, #4a7c2c 0%, #2d5016 100%);
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            z-index: 999999;
+            font-family: 'Poppins', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        `;
+        banner.innerHTML = `
+            ✏️ ADMIN EDITING MODE - Click any ✏️ pencil icon to edit content
+            <button id="adminModeToggle" style="
+                margin-left: 20px;
+                padding: 5px 15px;
+                background: white;
+                color: #2d5016;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+                font-weight: 600;
+            ">Refresh Editors</button>
+        `;
+        document.body.insertBefore(banner, document.body.firstChild);
+        document.body.style.paddingTop = '50px';
+
+        document.getElementById('adminModeToggle').onclick = initializeAllEditing;
+        adminIndicator = banner;
+    }
+
+    // Initialize ALL editing capabilities
+    function initializeAllEditing() {
+        console.log('🎨 Initializing admin editing for ALL elements...');
+
+        // Remove existing edit buttons first
+        document.querySelectorAll('.admin-edit-btn').forEach(btn => btn.remove());
+
+        // Add edit buttons to EVERYTHING
+        addEditToSections();
+        addEditToHeadings();
+        addEditToImages();
+        addEditToCards();
+        addEditToHeroSection();
+
+        console.log('✅ Admin editing initialized!');
+    }
+
+    // Add edit to all major sections
+    function addEditToSections() {
+        const sections = document.querySelectorAll('section, .section, .container');
+        console.log(`Found ${sections.length} sections`);
+
+        sections.forEach((section, index) => {
+            if (!section.querySelector('.admin-edit-btn') && section.offsetHeight > 50) {
+                const btn = createEditButton('section');
+                btn.onclick = () => openSectionEditor(section);
+                section.style.position = 'relative';
+                section.appendChild(btn);
+            }
+        });
+    }
+
+    // Add edit to all headings
+    function addEditToHeadings() {
+        const headings = document.querySelectorAll('h1, h2, h3, h4, .section-title, .hero-title, .welcome-heading');
+        console.log(`Found ${headings.length} headings`);
+
+        headings.forEach((heading) => {
+            if (!heading.closest('.admin-edit-btn') && heading.textContent.trim()) {
+                const wrapper = document.createElement('span');
+                wrapper.style.cssText = 'position: relative; display: inline-block;';
+
+                heading.parentNode.insertBefore(wrapper, heading);
+                wrapper.appendChild(heading);
+
+                const btn = createEditButton('text', 'small');
+                btn.onclick = () => openTextEditor(heading);
+                wrapper.appendChild(btn);
+            }
+        });
+    }
+
+    // Add edit to all images
+    function addEditToImages() {
+        // Hero sections
+        const heroes = document.querySelectorAll('.hero, .hero-home, .cta-section');
+        console.log(`Found ${heroes.length} hero sections`);
+
+        heroes.forEach((hero) => {
+            if (!hero.querySelector('.admin-edit-btn')) {
+                const btn = createEditButton('image');
+                btn.onclick = () => openImageEditor(hero);
+                hero.style.position = 'relative';
+                hero.appendChild(btn);
+            }
+        });
+
+        // Image elements
+        const images = document.querySelectorAll('img');
+        console.log(`Found ${images.length} images`);
+
+        images.forEach((img) => {
+            if (!img.closest('.admin-edit-btn') && img.offsetHeight > 50) {
+                const wrapper = img.parentElement;
+                if (wrapper && !wrapper.querySelector('.admin-edit-btn')) {
+                    const btn = createEditButton('image', 'small');
+                    btn.onclick = () => openImageEditorForImg(img);
+                    wrapper.style.position = 'relative';
+                    wrapper.appendChild(btn);
+                }
+            }
+        });
+    }
+
+    // Add edit to all card-like elements
+    function addEditToCards() {
+        const cards = document.querySelectorAll(
+            '.amenity-card, .event-type-card, .venue-detail-card, .feature-card, ' +
+            '.room-detail-card, .room-detail-card-compact, .service-card, .cta-card'
+        );
+        console.log(`Found ${cards.length} cards`);
+
+        cards.forEach((card) => {
+            if (!card.querySelector('.admin-edit-btn')) {
+                const btn = createEditButton('card');
+                btn.onclick = () => openCardEditor(card);
+                card.style.position = 'relative';
+                card.appendChild(btn);
+            }
+        });
+    }
+
+    // Add edit to hero section specifically
+    function addEditToHeroSection() {
+        const heroContent = document.querySelector('.hero-content');
+        if (heroContent) {
+            const title = heroContent.querySelector('.hero-title, h1');
+            const subtitle = heroContent.querySelector('.hero-subtitle, p');
+
+            if (title && !title.querySelector('.admin-edit-btn')) {
+                const btn = createEditButton('text', 'small');
+                btn.onclick = () => openTextEditor(title);
+                title.style.position = 'relative';
+                title.style.display = 'inline-block';
+                title.appendChild(btn);
+            }
+
+            if (subtitle && !subtitle.querySelector('.admin-edit-btn')) {
+                const btn = createEditButton('text', 'small');
+                btn.onclick = () => openTextEditor(subtitle);
+                subtitle.style.position = 'relative';
+                subtitle.style.display = 'inline-block';
+                subtitle.appendChild(btn);
             }
         }
     }
 
-    // Initialize admin editing UI
-    function initializeAdminEditing() {
-        if (!isAdmin) return;
-
-        // Add edit buttons to editable elements
-        setTimeout(() => {
-            addEditButtonsToImages();
-            addEditButtonsToAmenities();
-            addEditButtonsToEvents();
-        }, 1000); // Wait for page content to load
-    }
-
-    // Add edit buttons to hero/feature images
-    function addEditButtonsToImages() {
-        const editableImages = document.querySelectorAll('[data-admin-editable="image"]');
-
-        editableImages.forEach((element) => {
-            if (element.querySelector('.admin-edit-btn')) return; // Already has button
-
-            const editBtn = createEditButton('image');
-            editBtn.onclick = () => openImageEditor(element);
-
-            // Position button relative to parent
-            element.style.position = 'relative';
-            element.appendChild(editBtn);
-        });
-    }
-
-    // Add edit buttons to amenity cards
-    function addEditButtonsToAmenities() {
-        const amenityCards = document.querySelectorAll('[data-admin-editable="amenity"]');
-
-        amenityCards.forEach((card) => {
-            if (card.querySelector('.admin-edit-btn')) return;
-
-            const editBtn = createEditButton('amenity');
-            editBtn.onclick = () => openAmenityEditor(card);
-
-            card.style.position = 'relative';
-            card.appendChild(editBtn);
-        });
-    }
-
-    // Add edit buttons to event sections
-    function addEditButtonsToEvents() {
-        const eventSections = document.querySelectorAll('[data-admin-editable="event"]');
-
-        eventSections.forEach((section) => {
-            if (section.querySelector('.admin-edit-btn')) return;
-
-            const editBtn = createEditButton('event');
-            editBtn.onclick = () => openEventEditor(section);
-
-            section.style.position = 'relative';
-            section.appendChild(editBtn);
-        });
-    }
-
     // Create edit button
-    function createEditButton(type = 'default') {
+    function createEditButton(type = 'default', size = 'normal') {
         const btn = document.createElement('button');
         btn.className = 'admin-edit-btn';
         btn.innerHTML = '✏️';
-        btn.title = 'Edit (Admin Only)';
+        btn.title = `Edit ${type} (Admin Only)`;
 
-        // Styles
+        const isSmall = size === 'small';
+
         btn.style.cssText = `
             position: absolute;
-            top: 10px;
-            right: 10px;
+            top: ${isSmall ? '5px' : '10px'};
+            right: ${isSmall ? '5px' : '10px'};
             background: rgba(255, 255, 255, 0.95);
             border: 2px solid #4a7c2c;
             border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            font-size: 18px;
+            width: ${isSmall ? '30px' : '40px'};
+            height: ${isSmall ? '30px' : '40px'};
+            font-size: ${isSmall ? '14px' : '18px'};
             cursor: pointer;
-            z-index: 1000;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            z-index: 10000;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
             transition: all 0.3s ease;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         `;
 
         btn.onmouseover = () => {
             btn.style.background = '#4a7c2c';
-            btn.style.transform = 'scale(1.1)';
+            btn.style.transform = 'scale(1.15)';
         };
 
         btn.onmouseout = () => {
@@ -138,158 +269,211 @@
         return btn;
     }
 
-    // Open image editor modal
-    function openImageEditor(element) {
-        currentEditElement = element;
-        const currentImage = element.style.backgroundImage?.match(/url\(["']?([^"']*)["']?\)/)?.[1] ||
-                           element.querySelector('img')?.src || '';
+    // Open text editor
+    function openTextEditor(element) {
+        const currentText = element.textContent || element.innerText || '';
+        const tagName = element.tagName.toLowerCase();
 
-        const modal = createModal('Edit Image', `
+        const modal = createModal('Edit Text', `
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 8px; font-weight: 600;">Element Type:</label>
+                <input type="text" value="${tagName}" disabled style="width: 100%; padding: 10px; background: #f5f5f5; border: 2px solid #e0e0e0; border-radius: 8px;">
+            </div>
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 8px; font-weight: 600;">Text Content:</label>
+                <textarea id="textContent" rows="5" style="width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px; resize: vertical; font-family: inherit;">${currentText}</textarea>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <button id="saveText" style="flex: 1; padding: 12px; background: #4a7c2c; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">Save Text</button>
+                <button id="cancelText" style="flex: 1; padding: 12px; background: #ccc; color: #333; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">Cancel</button>
+            </div>
+        `);
+
+        document.getElementById('saveText').onclick = () => {
+            const newText = document.getElementById('textContent').value;
+            element.textContent = newText;
+
+            // Save to Firestore
+            const elementId = generateId();
+            saveToFirestore('pageText', elementId, {
+                text: newText,
+                tagName: tagName,
+                pageUrl: window.location.pathname,
+                updatedAt: new Date().toISOString()
+            }).then(() => {
+                alert('✅ Text updated successfully!');
+                closeModal();
+            }).catch(err => {
+                console.error('Error saving:', err);
+                alert('Text updated on page, but could not save to database.');
+                closeModal();
+            });
+        };
+
+        document.getElementById('cancelText').onclick = () => closeModal();
+    }
+
+    // Open image editor
+    function openImageEditor(element) {
+        const currentBg = element.style.backgroundImage?.match(/url\(["']?([^"']*)["']?\)/)?.[1] || '';
+
+        const modal = createModal('Edit Background Image', `
             <div style="margin-bottom: 20px;">
                 <label style="display: block; margin-bottom: 10px; font-weight: 600;">Current Image:</label>
-                <div style="width: 100%; height: 200px; background: #f5f5f5; border-radius: 8px; background-image: url('${currentImage}'); background-size: cover; background-position: center;"></div>
+                <div style="width: 100%; height: 200px; background: #f5f5f5; border-radius: 8px; background-image: ${element.style.backgroundImage || 'none'}; background-size: cover; background-position: center;"></div>
             </div>
             <div style="margin-bottom: 20px;">
                 <label style="display: block; margin-bottom: 10px; font-weight: 600;">Upload New Image:</label>
-                <input type="file" id="adminImageUpload" accept="image/*" style="width: 100%; padding: 10px; border: 2px dashed #4a7c2c; border-radius: 8px;">
-                <p style="font-size: 0.9rem; color: #666; margin-top: 8px;">Recommended: 1920x1080px for hero images, 500x500px for cards</p>
+                <input type="file" id="imageUpload" accept="image/*" style="width: 100%; padding: 10px; border: 2px dashed #4a7c2c; border-radius: 8px;">
             </div>
             <div style="display: flex; gap: 10px;">
-                <button id="adminSaveImage" style="flex: 1; padding: 12px; background: #4a7c2c; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">Save Image</button>
-                <button id="adminCancelImage" style="flex: 1; padding: 12px; background: #ccc; color: #333; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">Cancel</button>
+                <button id="saveImage" style="flex: 1; padding: 12px; background: #4a7c2c; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">Upload & Save</button>
+                <button id="cancelImage" style="flex: 1; padding: 12px; background: #ccc; color: #333; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">Cancel</button>
             </div>
         `);
 
-        document.getElementById('adminSaveImage').onclick = () => saveImage(element);
-        document.getElementById('adminCancelImage').onclick = () => closeModal();
+        document.getElementById('saveImage').onclick = () => saveImage(element, 'background');
+        document.getElementById('cancelImage').onclick = () => closeModal();
     }
 
-    // Open amenity editor modal
-    function openAmenityEditor(card) {
-        currentEditElement = card;
-
-        const title = card.querySelector('h3, .amenity-name')?.textContent || '';
-        const description = card.querySelector('p, .amenity-description')?.textContent || '';
-        const icon = card.querySelector('.amenity-icon')?.textContent || '📍';
-        const currentImage = card.style.backgroundImage?.match(/url\(["']?([^"']*)["']?\)/)?.[1] ||
-                           card.querySelector('img')?.src || '';
-
-        const modal = createModal('Edit Amenity', `
+    // Open image editor for <img> tags
+    function openImageEditorForImg(img) {
+        const modal = createModal('Edit Image', `
             <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 10px; font-weight: 600;">Current Image:</label>
+                <img src="${img.src}" style="width: 100%; height: auto; max-height: 200px; object-fit: contain; border-radius: 8px;">
+            </div>
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 10px; font-weight: 600;">Upload New Image:</label>
+                <input type="file" id="imageUpload" accept="image/*" style="width: 100%; padding: 10px; border: 2px dashed #4a7c2c; border-radius: 8px;">
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <button id="saveImage" style="flex: 1; padding: 12px; background: #4a7c2c; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">Upload & Save</button>
+                <button id="cancelImage" style="flex: 1; padding: 12px; background: #ccc; color: #333; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">Cancel</button>
+            </div>
+        `);
+
+        document.getElementById('saveImage').onclick = () => saveImage(img, 'src');
+        document.getElementById('cancelImage').onclick = () => closeModal();
+    }
+
+    // Open card editor (comprehensive)
+    function openCardEditor(card) {
+        const title = card.querySelector('h1, h2, h3, h4, .amenity-name, .event-title, .room-name')?.textContent || '';
+        const description = card.querySelector('p, .amenity-description, .event-description, .room-description')?.textContent || '';
+        const icon = card.querySelector('.amenity-icon, .event-type-icon')?.textContent || '';
+
+        const modal = createModal('Edit Card Content', `
+            ${icon ? `<div style="margin-bottom: 20px;">
                 <label style="display: block; margin-bottom: 8px; font-weight: 600;">Icon (Emoji):</label>
-                <input type="text" id="amenityIcon" value="${icon}" style="width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 24px;" maxlength="2">
-            </div>
+                <input type="text" id="cardIcon" value="${icon}" style="width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 24px;" maxlength="2">
+            </div>` : ''}
             <div style="margin-bottom: 20px;">
                 <label style="display: block; margin-bottom: 8px; font-weight: 600;">Title:</label>
-                <input type="text" id="amenityTitle" value="${title}" style="width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px;">
+                <input type="text" id="cardTitle" value="${title}" style="width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px;">
             </div>
             <div style="margin-bottom: 20px;">
                 <label style="display: block; margin-bottom: 8px; font-weight: 600;">Description:</label>
-                <textarea id="amenityDescription" rows="3" style="width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px; resize: vertical;">${description}</textarea>
-            </div>
-            <div style="margin-bottom: 20px;">
-                <label style="display: block; margin-bottom: 8px; font-weight: 600;">Current Image:</label>
-                <div style="width: 100%; height: 150px; background: #f5f5f5; border-radius: 8px; background-image: url('${currentImage}'); background-size: cover; background-position: center;"></div>
+                <textarea id="cardDescription" rows="4" style="width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px; resize: vertical;">${description}</textarea>
             </div>
             <div style="margin-bottom: 20px;">
                 <label style="display: block; margin-bottom: 8px; font-weight: 600;">Upload New Image (Optional):</label>
-                <input type="file" id="amenityImageUpload" accept="image/*" style="width: 100%; padding: 10px; border: 2px dashed #4a7c2c; border-radius: 8px;">
+                <input type="file" id="cardImageUpload" accept="image/*" style="width: 100%; padding: 10px; border: 2px dashed #4a7c2c; border-radius: 8px;">
             </div>
             <div style="display: flex; gap: 10px;">
-                <button id="adminSaveAmenity" style="flex: 1; padding: 12px; background: #4a7c2c; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">Save Changes</button>
-                <button id="adminCancelAmenity" style="flex: 1; padding: 12px; background: #ccc; color: #333; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">Cancel</button>
+                <button id="saveCard" style="flex: 1; padding: 12px; background: #4a7c2c; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">Save Changes</button>
+                <button id="cancelCard" style="flex: 1; padding: 12px; background: #ccc; color: #333; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">Cancel</button>
             </div>
         `);
 
-        document.getElementById('adminSaveAmenity').onclick = () => saveAmenity(card);
-        document.getElementById('adminCancelAmenity').onclick = () => closeModal();
+        document.getElementById('saveCard').onclick = () => saveCard(card);
+        document.getElementById('cancelCard').onclick = () => closeModal();
     }
 
-    // Open event editor modal
-    function openEventEditor(section) {
-        currentEditElement = section;
+    // Open section editor
+    function openSectionEditor(section) {
+        const headings = Array.from(section.querySelectorAll('h1, h2, h3, h4')).map(h => h.textContent).join(', ') || 'No headings';
 
-        const title = section.querySelector('h2, h3, .event-title')?.textContent || '';
-        const description = section.querySelector('p, .event-description')?.textContent || '';
-        const currentImage = section.style.backgroundImage?.match(/url\(["']?([^"']*)["']?\)/)?.[1] ||
-                           section.querySelector('img')?.src || '';
-
-        const modal = createModal('Edit Event Section', `
+        const modal = createModal('Edit Section', `
             <div style="margin-bottom: 20px;">
-                <label style="display: block; margin-bottom: 8px; font-weight: 600;">Title:</label>
-                <input type="text" id="eventTitle" value="${title}" style="width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px;">
+                <label style="display: block; margin-bottom: 8px; font-weight: 600;">Section Contains:</label>
+                <input type="text" value="${headings}" disabled style="width: 100%; padding: 10px; background: #f5f5f5; border: 2px solid #e0e0e0; border-radius: 8px;">
             </div>
             <div style="margin-bottom: 20px;">
-                <label style="display: block; margin-bottom: 8px; font-weight: 600;">Description:</label>
-                <textarea id="eventDescription" rows="4" style="width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px; resize: vertical;">${description}</textarea>
+                <p style="color: #666; font-size: 0.95rem;">This section contains multiple elements. You can:</p>
+                <ul style="color: #666; font-size: 0.95rem; margin-top: 10px;">
+                    <li>Click individual text ✏️ icons to edit text</li>
+                    <li>Click card ✏️ icons to edit cards</li>
+                    <li>Upload a background image here</li>
+                </ul>
             </div>
             <div style="margin-bottom: 20px;">
-                <label style="display: block; margin-bottom: 8px; font-weight: 600;">Current Image:</label>
-                <div style="width: 100%; height: 150px; background: #f5f5f5; border-radius: 8px; background-image: url('${currentImage}'); background-size: cover; background-position: center;"></div>
-            </div>
-            <div style="margin-bottom: 20px;">
-                <label style="display: block; margin-bottom: 8px; font-weight: 600;">Upload New Image (Optional):</label>
-                <input type="file" id="eventImageUpload" accept="image/*" style="width: 100%; padding: 10px; border: 2px dashed #4a7c2c; border-radius: 8px;">
+                <label style="display: block; margin-bottom: 8px; font-weight: 600;">Section Background Image (Optional):</label>
+                <input type="file" id="sectionImageUpload" accept="image/*" style="width: 100%; padding: 10px; border: 2px dashed #4a7c2c; border-radius: 8px;">
             </div>
             <div style="display: flex; gap: 10px;">
-                <button id="adminSaveEvent" style="flex: 1; padding: 12px; background: #4a7c2c; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">Save Changes</button>
-                <button id="adminCancelEvent" style="flex: 1; padding: 12px; background: #ccc; color: #333; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">Cancel</button>
+                <button id="saveSection" style="flex: 1; padding: 12px; background: #4a7c2c; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">Upload Image</button>
+                <button id="cancelSection" style="flex: 1; padding: 12px; background: #ccc; color: #333; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">Cancel</button>
             </div>
         `);
 
-        document.getElementById('adminSaveEvent').onclick = () => saveEvent(section);
-        document.getElementById('adminCancelEvent').onclick = () => closeModal();
+        document.getElementById('saveSection').onclick = () => saveImage(section, 'background');
+        document.getElementById('cancelSection').onclick = () => closeModal();
     }
 
-    // Create modal
-    function createModal(title, content) {
-        // Remove existing modal if any
-        const existingModal = document.getElementById('adminEditModal');
-        if (existingModal) existingModal.remove();
+    // Save card
+    async function saveCard(card) {
+        const iconInput = document.getElementById('cardIcon');
+        const icon = iconInput ? iconInput.value : null;
+        const title = document.getElementById('cardTitle').value;
+        const description = document.getElementById('cardDescription').value;
+        const fileInput = document.getElementById('cardImageUpload');
+        const file = fileInput?.files[0];
 
-        const modal = document.createElement('div');
-        modal.id = 'adminEditModal';
-        modal.style.cssText = `
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            z-index: 10000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        `;
+        if (!title) {
+            alert('Please enter a title.');
+            return;
+        }
 
-        modal.innerHTML = `
-            <div style="background: white; border-radius: 15px; padding: 30px; max-width: 600px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 40px rgba(0,0,0,0.3);">
-                <h2 style="margin: 0 0 20px 0; color: #2d5016; font-family: 'Playfair Display', serif;">${title}</h2>
-                ${content}
-            </div>
-        `;
+        try {
+            const btn = document.getElementById('saveCard');
+            btn.textContent = 'Saving...';
+            btn.disabled = true;
 
-        document.body.appendChild(modal);
+            // Update text
+            if (icon) {
+                const iconElement = card.querySelector('.amenity-icon, .event-type-icon');
+                if (iconElement) iconElement.textContent = icon;
+            }
 
-        // Close on background click
-        modal.onclick = (e) => {
-            if (e.target === modal) closeModal();
-        };
+            const titleElement = card.querySelector('h1, h2, h3, h4, .amenity-name, .event-title, .room-name');
+            if (titleElement) titleElement.textContent = title;
 
-        return modal;
-    }
+            const descElement = card.querySelector('p, .amenity-description, .event-description, .room-description');
+            if (descElement) descElement.textContent = description;
 
-    // Close modal
-    function closeModal() {
-        const modal = document.getElementById('adminEditModal');
-        if (modal) modal.remove();
-        currentEditElement = null;
+            // Upload image if provided
+            if (file) {
+                const compressedFile = await compressImage(file, 800, 0.8);
+                const imageUrl = await uploadToFirebase(compressedFile, 'cards');
+
+                if (card.style.backgroundImage !== undefined) {
+                    card.style.backgroundImage = `url('${imageUrl}')`;
+                }
+            }
+
+            alert('✅ Card updated successfully!');
+            closeModal();
+        } catch (error) {
+            console.error('Error saving card:', error);
+            alert('Error: ' + error.message);
+            document.getElementById('saveCard').disabled = false;
+        }
     }
 
     // Save image
-    async function saveImage(element) {
-        const fileInput = document.getElementById('adminImageUpload');
+    async function saveImage(element, updateType) {
+        const fileInput = document.getElementById('imageUpload') || document.getElementById('sectionImageUpload');
         const file = fileInput?.files[0];
 
         if (!file) {
@@ -298,167 +482,30 @@
         }
 
         try {
-            const btn = document.getElementById('adminSaveImage');
+            const btn = document.getElementById('saveImage') || document.getElementById('saveSection');
             btn.textContent = 'Uploading...';
             btn.disabled = true;
 
-            // Compress and upload image
             const compressedFile = await compressImage(file, 1920, 0.8);
-            const imageUrl = await uploadToFirebase(compressedFile, 'page-content');
+            const imageUrl = await uploadToFirebase(compressedFile, 'images');
 
-            // Update element
-            if (element.style.backgroundImage !== undefined) {
+            if (updateType === 'background') {
                 element.style.backgroundImage = `url('${imageUrl}')`;
-            } else {
-                const img = element.querySelector('img');
-                if (img) img.src = imageUrl;
+                element.style.backgroundSize = 'cover';
+                element.style.backgroundPosition = 'center';
+            } else if (updateType === 'src') {
+                element.src = imageUrl;
             }
-
-            // Save to Firestore
-            const elementId = element.dataset.editId || generateId();
-            element.dataset.editId = elementId;
-
-            await saveToFirestore('pageContent', elementId, {
-                imageUrl: imageUrl,
-                pageType: window.location.pathname,
-                elementType: 'image',
-                updatedAt: new Date().toISOString()
-            });
 
             alert('✅ Image updated successfully!');
             closeModal();
         } catch (error) {
             console.error('Error saving image:', error);
             alert('Error uploading image: ' + error.message);
-            document.getElementById('adminSaveImage').disabled = false;
         }
     }
 
-    // Save amenity
-    async function saveAmenity(card) {
-        const icon = document.getElementById('amenityIcon').value;
-        const title = document.getElementById('amenityTitle').value;
-        const description = document.getElementById('amenityDescription').value;
-        const fileInput = document.getElementById('amenityImageUpload');
-        const file = fileInput?.files[0];
-
-        if (!title) {
-            alert('Please enter a title.');
-            return;
-        }
-
-        try {
-            const btn = document.getElementById('adminSaveAmenity');
-            btn.textContent = 'Saving...';
-            btn.disabled = true;
-
-            let imageUrl = null;
-            if (file) {
-                const compressedFile = await compressImage(file, 800, 0.8);
-                imageUrl = await uploadToFirebase(compressedFile, 'amenities');
-            }
-
-            // Update card
-            const iconElement = card.querySelector('.amenity-icon');
-            const titleElement = card.querySelector('h3, .amenity-name');
-            const descElement = card.querySelector('p, .amenity-description');
-
-            if (iconElement) iconElement.textContent = icon;
-            if (titleElement) titleElement.textContent = title;
-            if (descElement) descElement.textContent = description;
-
-            if (imageUrl) {
-                if (card.style.backgroundImage !== undefined) {
-                    card.style.backgroundImage = `url('${imageUrl}')`;
-                } else {
-                    const img = card.querySelector('img');
-                    if (img) img.src = imageUrl;
-                }
-            }
-
-            // Save to Firestore
-            const amenityId = card.dataset.editId || generateId();
-            card.dataset.editId = amenityId;
-
-            await saveToFirestore('amenities', amenityId, {
-                icon: icon,
-                title: title,
-                description: description,
-                imageUrl: imageUrl || card.style.backgroundImage?.match(/url\(["']?([^"']*)["']?\)/)?.[1] || '',
-                pageType: window.location.pathname,
-                updatedAt: new Date().toISOString()
-            });
-
-            alert('✅ Amenity updated successfully!');
-            closeModal();
-        } catch (error) {
-            console.error('Error saving amenity:', error);
-            alert('Error saving amenity: ' + error.message);
-            document.getElementById('adminSaveAmenity').disabled = false;
-        }
-    }
-
-    // Save event
-    async function saveEvent(section) {
-        const title = document.getElementById('eventTitle').value;
-        const description = document.getElementById('eventDescription').value;
-        const fileInput = document.getElementById('eventImageUpload');
-        const file = fileInput?.files[0];
-
-        if (!title) {
-            alert('Please enter a title.');
-            return;
-        }
-
-        try {
-            const btn = document.getElementById('adminSaveEvent');
-            btn.textContent = 'Saving...';
-            btn.disabled = true;
-
-            let imageUrl = null;
-            if (file) {
-                const compressedFile = await compressImage(file, 1200, 0.8);
-                imageUrl = await uploadToFirebase(compressedFile, 'events');
-            }
-
-            // Update section
-            const titleElement = section.querySelector('h2, h3, .event-title');
-            const descElement = section.querySelector('p, .event-description');
-
-            if (titleElement) titleElement.textContent = title;
-            if (descElement) descElement.textContent = description;
-
-            if (imageUrl) {
-                if (section.style.backgroundImage !== undefined) {
-                    section.style.backgroundImage = `url('${imageUrl}')`;
-                } else {
-                    const img = section.querySelector('img');
-                    if (img) img.src = imageUrl;
-                }
-            }
-
-            // Save to Firestore
-            const eventId = section.dataset.editId || generateId();
-            section.dataset.editId = eventId;
-
-            await saveToFirestore('eventContent', eventId, {
-                title: title,
-                description: description,
-                imageUrl: imageUrl || section.style.backgroundImage?.match(/url\(["']?([^"']*)["']?\)/)?.[1] || '',
-                pageType: window.location.pathname,
-                updatedAt: new Date().toISOString()
-            });
-
-            alert('✅ Event content updated successfully!');
-            closeModal();
-        } catch (error) {
-            console.error('Error saving event:', error);
-            alert('Error saving event: ' + error.message);
-            document.getElementById('adminSaveEvent').disabled = false;
-        }
-    }
-
-    // Compress image
+    // Helper: Compress image
     function compressImage(file, maxWidth = 1200, quality = 0.8) {
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
@@ -503,9 +550,9 @@
         });
     }
 
-    // Upload to Firebase Storage
+    // Helper: Upload to Firebase
     async function uploadToFirebase(file, folder) {
-        if (!storage) {
+        if (typeof storage === 'undefined' || !storage) {
             throw new Error('Firebase Storage not initialized');
         }
 
@@ -518,22 +565,65 @@
         return downloadURL;
     }
 
-    // Save to Firestore
+    // Helper: Save to Firestore
     async function saveToFirestore(collection, docId, data) {
-        if (!db) {
-            console.warn('Firestore not initialized, data not saved to cloud');
+        if (typeof db === 'undefined' || !db) {
+            console.warn('Firestore not initialized');
             return;
         }
 
         await db.collection(collection).doc(docId).set(data, { merge: true });
     }
 
-    // Generate unique ID
+    // Helper: Generate ID
     function generateId() {
         return 'edit_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
     }
 
-    // Initialize when DOM is ready
+    // Create modal
+    function createModal(title, content) {
+        const existingModal = document.getElementById('adminEditModal');
+        if (existingModal) existingModal.remove();
+
+        const modal = document.createElement('div');
+        modal.id = 'adminEditModal';
+        modal.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 999998;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        `;
+
+        modal.innerHTML = `
+            <div style="background: white; border-radius: 15px; padding: 30px; max-width: 600px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 40px rgba(0,0,0,0.3);">
+                <h2 style="margin: 0 0 20px 0; color: #2d5016; font-family: 'Playfair Display', serif;">${title}</h2>
+                ${content}
+            </div>
+        `;
+
+        document.body.appendChild(modal);
+
+        modal.onclick = (e) => {
+            if (e.target === modal) closeModal();
+        };
+
+        return modal;
+    }
+
+    // Close modal
+    function closeModal() {
+        const modal = document.getElementById('adminEditModal');
+        if (modal) modal.remove();
+    }
+
+    // Initialize
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', checkAdminStatus);
     } else {
@@ -543,6 +633,6 @@
     // Expose for debugging
     window.adminInlineEdit = {
         isAdmin: () => isAdmin,
-        refresh: initializeAdminEditing
+        refresh: initializeAllEditing
     };
 })();
