@@ -1,0 +1,41 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Room Bookings - Anyone can create, only authenticated users can read/update/delete
+    match /roomBookings/{document=**} {
+      allow create: if true;  // Anyone can submit bookings
+      allow read, update, delete: if request.auth != null;
+    }
+
+    // Event Bookings - Anyone can create, only authenticated users can read/update/delete
+    match /eventBookings/{document=**} {
+      allow create: if true;  // Anyone can submit bookings
+      allow read, update, delete: if request.auth != null;
+    }
+
+    // Rooms Management - Only authenticated users can manage
+    match /rooms/{document=**} {
+      allow read: if true;  // Anyone can view rooms on the website
+      allow create, update, delete: if request.auth != null;  // Only admins can manage
+    }
+
+    // Menu Categories - Only authenticated users can manage
+    match /menuCategories/{document=**} {
+      allow read: if true;  // Anyone can view menu on the website
+      allow create, update, delete: if request.auth != null;  // Only admins can manage
+    }
+
+    // Menu Items - Only authenticated users can manage
+    match /menuItems/{document=**} {
+      allow read: if true;  // Anyone can view menu on the website
+      allow create, update, delete: if request.auth != null;  // Only admins can manage
+    }
+
+    // Gallery - Only authenticated users can manage
+    match /gallery/{document=**} {
+      allow read: if true;  // Anyone can view gallery on the website
+      allow create, update, delete: if request.auth != null;  // Only admins can manage
+    }
+  }
+}

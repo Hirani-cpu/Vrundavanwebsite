@@ -9,6 +9,18 @@ let currentEditingGalleryId = null;
 // Wait for DOM to be ready
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Admin-manage.js: DOM loaded, setting up event listeners...');
+
+    // Check Firebase Auth status
+    firebase.auth().onAuthStateChanged((user) => {
+        if (user) {
+            console.log('✅ Firebase Auth: User is authenticated:', user.email);
+            console.log('User UID:', user.uid);
+        } else {
+            console.warn('⚠️ Firebase Auth: No user authenticated! Admin functions may not work.');
+            console.log('Please login via admin.html first.');
+        }
+    });
+
     setTimeout(setupManagementEventListeners, 100); // Small delay to ensure all elements are ready
 });
 
