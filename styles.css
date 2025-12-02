@@ -686,6 +686,11 @@ body {
     color: var(--light-text);
 }
 
+/* Room image background - subtle grey gradient */
+.room-detail-image-compact {
+    background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
+}
+
 /* Policies Section */
 .policies-grid {
     display: grid;

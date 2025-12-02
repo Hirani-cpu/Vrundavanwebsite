@@ -165,7 +165,7 @@ function createRoomCard(room, roomId) {
     // Use img tag with decoding hint for faster rendering
     let imageHTML = '';
     if (images.length > 0) {
-        imageHTML = `<img src="${images[0]}" alt="${room.name}" data-images='${JSON.stringify(images)}' decoding="async" style="width: 100%; height: 100%; object-fit: cover;">`;
+        imageHTML = `<img src="${images[0]}" alt="${room.name}" data-images='${JSON.stringify(images)}' decoding="async" style="width: 100%; height: 100%; object-fit: contain;">`;
     } else {
         imageHTML = `<div style="width: 100%; height: 100%; background: ${room.gradient || 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'};"></div>`;
     }
