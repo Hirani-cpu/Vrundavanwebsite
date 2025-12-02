@@ -184,13 +184,13 @@
             <p class="section-subtitle">Choose the perfect setting for your celebration</p>
 
             <div class="venues-container">
-                <div class="venue-detail-card">
-                    <div class="venue-image" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                <div class="venue-detail-card" data-admin-editable="event" data-edit-id="venue-garden">
+                    <div class="venue-image" data-admin-editable="image" data-edit-id="venue-garden-image" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
                         <div class="venue-capacity-badge">200-500 Guests</div>
                     </div>
                     <div class="venue-content">
-                        <h3>🌳 Garden / Lawn</h3>
-                        <p>Our expansive outdoor garden is perfect for large celebrations, weddings, and events. Surrounded by lush greenery and natural beauty, this venue provides a stunning backdrop for your special day.</p>
+                        <h3 class="event-title">🌳 Garden / Lawn</h3>
+                        <p class="event-description">Our expansive outdoor garden is perfect for large celebrations, weddings, and events. Surrounded by lush greenery and natural beauty, this venue provides a stunning backdrop for your special day.</p>
                         <div class="venue-features">
                             <div class="venue-feature">✓ 15,000+ sq ft open space</div>
                             <div class="venue-feature">✓ Beautiful landscaping</div>
@@ -203,13 +203,13 @@
                     </div>
                 </div>
 
-                <div class="venue-detail-card">
-                    <div class="venue-image" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                <div class="venue-detail-card" data-admin-editable="event" data-edit-id="venue-hall">
+                    <div class="venue-image" data-admin-editable="image" data-edit-id="venue-hall-image" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
                         <div class="venue-capacity-badge">100-250 Guests</div>
                     </div>
                     <div class="venue-content">
-                        <h3>🎪 AC Party Hall</h3>
-                        <p>Our fully air-conditioned banquet hall offers year-round comfort for indoor events. With elegant interiors and modern facilities, it's perfect for sophisticated celebrations.</p>
+                        <h3 class="event-title">🎪 AC Party Hall</h3>
+                        <p class="event-description">Our fully air-conditioned banquet hall offers year-round comfort for indoor events. With elegant interiors and modern facilities, it's perfect for sophisticated celebrations.</p>
                         <div class="venue-features">
                             <div class="venue-feature">✓ 5,000 sq ft air-conditioned hall</div>
                             <div class="venue-feature">✓ Elegant interior design</div>
@@ -464,5 +464,6 @@
     <script src="firebase-config.js"></script>
     <script src="load-settings.js"></script>
     <script src="script.js"></script>
+    <script src="admin-inline-edit.js"></script>
 </body>
 </html>
