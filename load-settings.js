@@ -205,6 +205,23 @@
             }
         }
 
+        // Update Social Media Links in Footer
+        if (settings.facebookUrl) {
+            const facebookLink = document.getElementById('facebookLink');
+            if (facebookLink) {
+                facebookLink.href = settings.facebookUrl;
+                facebookLink.style.display = 'block';
+            }
+        }
+
+        if (settings.instagramUrl) {
+            const instagramLink = document.getElementById('instagramLink');
+            if (instagramLink) {
+                instagramLink.href = settings.instagramUrl;
+                instagramLink.style.display = 'block';
+            }
+        }
+
         console.log('✓ Settings applied to page');
     }
 
