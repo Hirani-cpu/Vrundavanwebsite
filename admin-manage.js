@@ -9,49 +9,74 @@ let currentEditingGalleryId = null;
 // Firebase Storage upload function
 async function uploadImageToStorage(file, folder) {
     return new Promise((resolve, reject) => {
+        console.log('Starting upload...', { file: file.name, size: file.size, type: file.type });
+
         // Check file size (max 5MB)
         if (file.size > 5 * 1024 * 1024) {
-            reject(new Error('File size must be less than 5MB'));
+            const error = new Error('File size must be less than 5MB');
+            console.error('File too large:', file.size);
+            reject(error);
             return;
         }
 
         // Check file type
         if (!file.type.startsWith('image/')) {
-            reject(new Error('File must be an image'));
+            const error = new Error('File must be an image');
+            console.error('Invalid file type:', file.type);
+            reject(error);
             return;
         }
 
-        // Create unique filename
-        const timestamp = Date.now();
-        const filename = `${folder}/${timestamp}_${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
+        try {
+            // Create unique filename
+            const timestamp = Date.now();
+            const filename = `${folder}/${timestamp}_${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
+            console.log('Uploading to:', filename);
 
-        // Get Firebase Storage reference
-        const storage = firebase.storage();
-        const storageRef = storage.ref();
-        const fileRef = storageRef.child(filename);
-
-        // Upload file
-        const uploadTask = fileRef.put(file);
-
-        uploadTask.on('state_changed',
-            (snapshot) => {
-                // Progress
-                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                console.log('Upload is ' + progress + '% done');
-            },
-            (error) => {
-                // Error
-                console.error('Upload error:', error);
-                reject(error);
-            },
-            () => {
-                // Success - get download URL
-                uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
-                    console.log('File uploaded successfully:', downloadURL);
-                    resolve(downloadURL);
-                });
+            // Get Firebase Storage reference
+            if (typeof firebase === 'undefined' || !firebase.storage) {
+                throw new Error('Firebase Storage not initialized');
             }
-        );
+
+            const storage = firebase.storage();
+            const storageRef = storage.ref();
+            const fileRef = storageRef.child(filename);
+
+            console.log('Storage reference created, starting upload...');
+
+            // Upload file
+            const uploadTask = fileRef.put(file);
+
+            uploadTask.on('state_changed',
+                (snapshot) => {
+                    // Progress
+                    const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                    console.log('Upload progress: ' + Math.round(progress) + '%');
+                },
+                (error) => {
+                    // Error
+                    console.error('Upload error:', error);
+                    console.error('Error code:', error.code);
+                    console.error('Error message:', error.message);
+                    reject(error);
+                },
+                async () => {
+                    // Success - get download URL
+                    try {
+                        console.log('Upload complete, getting download URL...');
+                        const downloadURL = await uploadTask.snapshot.ref.getDownloadURL();
+                        console.log('File uploaded successfully:', downloadURL);
+                        resolve(downloadURL);
+                    } catch (urlError) {
+                        console.error('Error getting download URL:', urlError);
+                        reject(urlError);
+                    }
+                }
+            );
+        } catch (error) {
+            console.error('Error in upload function:', error);
+            reject(error);
+        }
     });
 }
 

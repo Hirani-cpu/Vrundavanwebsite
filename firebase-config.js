@@ -23,7 +23,11 @@ const db = firebase.firestore();
 // Initialize Auth
 const auth = firebase.auth();
 
+// Initialize Storage
+const storage = firebase.storage();
+
 // Export for use in other files
 window.db = db;
 window.auth = auth;
+window.storage = storage;
 window.firebase = firebase;
