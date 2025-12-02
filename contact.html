@@ -123,96 +123,10 @@
     <!-- Booking Forms Section -->
     <section class="section section-alt">
         <div class="container">
-            <h2 class="section-title">Make a Reservation</h2>
-            <p class="section-subtitle">Fill out the form below and we'll get back to you shortly</p>
+            <h2 class="section-title">Event & Party Reservations</h2>
+            <p class="section-subtitle">For room bookings, please visit our <a href="rooms.html" style="color: #4a7c2c; font-weight: 600;">Rooms Page</a> and click "Book Now" on your preferred room.</p>
 
-            <div class="booking-container">
-                <!-- Room Booking Form -->
-                <div class="booking-form-wrapper">
-                    <h3 class="form-title">Room Booking</h3>
-                    <form id="roomBookingForm" class="booking-form">
-                        <div class="form-group">
-                            <label for="roomName">Full Name *</label>
-                            <input type="text" id="roomName" name="name" required placeholder="Enter your full name">
-                        </div>
-
-                        <div class="form-group">
-                            <label for="roomPhone">Phone Number *</label>
-                            <input type="tel" id="roomPhone" name="phone" required placeholder="Your contact number">
-                        </div>
-
-                        <div class="form-group">
-                            <label for="roomEmail">Email Address *</label>
-                            <input type="email" id="roomEmail" name="email" required placeholder="Your email address">
-                        </div>
-
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="checkIn">Check-in Date *</label>
-                                <input type="date" id="checkIn" name="checkIn" required>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="checkOut">Check-out Date *</label>
-                                <input type="date" id="checkOut" name="checkOut" required>
-                            </div>
-                        </div>
-
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="adults">Number of Adults *</label>
-                                <select id="adults" name="adults" required>
-                                    <option value="">Select</option>
-                                    <option value="1">1</option>
-                                    <option value="2">2</option>
-                                    <option value="3">3</option>
-                                    <option value="4">4</option>
-                                    <option value="5">5+</option>
-                                </select>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="children">Number of Children</label>
-                                <select id="children" name="children">
-                                    <option value="0">0</option>
-                                    <option value="1">1</option>
-                                    <option value="2">2</option>
-                                    <option value="3">3</option>
-                                    <option value="4">4+</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="roomType">Room Type *</label>
-                            <select id="roomType" name="roomType" required>
-                                <option value="">Select Room Type</option>
-                                <option value="Deluxe AC Room">Deluxe AC Room (₹2,500/night)</option>
-                                <option value="Super Deluxe Room">Super Deluxe Room (₹3,500/night)</option>
-                                <option value="Family Suite">Family Suite (₹5,000/night)</option>
-                                <option value="Dormitory / Group Room">Dormitory / Group Room (₹1,200/person)</option>
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="roomRequests">Special Requests</label>
-                            <textarea id="roomRequests" name="requests" rows="4" placeholder="Any special requirements (extra bed, early check-in, etc.)"></textarea>
-                        </div>
-
-                        <button type="submit" class="btn btn-primary btn-full">Submit Booking Request</button>
-
-                        <p class="form-note">* All fields marked with asterisk are required</p>
-                    </form>
-
-                    <!-- Room Booking Success Message -->
-                    <div id="roomSuccessMessage" class="success-message" style="display: none;">
-                        <h4>✓ Thank you! Your room booking request has been received.</h4>
-                        <p>We'll contact you shortly to confirm availability and finalize your reservation.</p>
-                        <div id="roomBookingSummary" class="booking-summary"></div>
-                        <button class="btn btn-secondary" onclick="resetRoomForm()">Make Another Booking</button>
-                    </div>
-                </div>
-
+            <div class="booking-container" style="max-width: 700px; margin: 0 auto;">
                 <!-- Event / Party Booking Form -->
                 <div class="booking-form-wrapper">
                     <h3 class="form-title">Event / Party Booking</h3>

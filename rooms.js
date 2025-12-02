@@ -164,9 +164,115 @@ function createRoomCard(room, roomId) {
                         <span class="price-label-compact">From</span>
                         <span class="room-price-compact">₹${room.price}<span class="price-unit">/${room.priceUnit || 'night'}</span></span>
                     </div>
-                    <a href="contact.html" class="btn btn-primary btn-compact">Book Now</a>
+                    <button class="btn btn-primary btn-compact" onclick="openBookingModal('${room.name}', ${room.price}, '${room.priceUnit || 'night'}')">Book Now</button>
                 </div>
             </div>
         </div>
     `;
 }
+
+// Room Booking Modal Functions
+function openBookingModal(roomName, price, priceUnit) {
+    document.getElementById('selectedRoomName').value = roomName;
+    document.getElementById('selectedRoomPrice').value = price;
+    document.getElementById('displayRoomName').value = roomName;
+    document.getElementById('displayRoomPrice').value = `₹${price}/${priceUnit}`;
+    document.getElementById('bookingModalTitle').textContent = `Book ${roomName}`;
+
+    // Set minimum check-in date to today
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('checkInDate').min = today;
+    document.getElementById('checkOutDate').min = today;
+
+    // Show modal
+    document.getElementById('roomBookingModal').style.display = 'block';
+
+    // Reset form
+    document.getElementById('roomBookingForm').reset();
+    document.getElementById('displayRoomName').value = roomName;
+    document.getElementById('displayRoomPrice').value = `₹${price}/${priceUnit}`;
+    document.getElementById('roomBookingForm').style.display = 'block';
+    document.getElementById('bookingSuccessMessage').style.display = 'none';
+}
+
+function closeBookingModal() {
+    document.getElementById('roomBookingModal').style.display = 'none';
+    document.getElementById('roomBookingForm').reset();
+}
+
+// Handle booking form submission
+document.addEventListener('DOMContentLoaded', function() {
+    const bookingForm = document.getElementById('roomBookingForm');
+    if (bookingForm) {
+        bookingForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const roomName = document.getElementById('selectedRoomName').value;
+            const roomPrice = document.getElementById('selectedRoomPrice').value;
+            const guestName = document.getElementById('guestName').value;
+            const guestEmail = document.getElementById('guestEmail').value;
+            const guestPhone = document.getElementById('guestPhone').value;
+            const checkIn = document.getElementById('checkInDate').value;
+            const checkOut = document.getElementById('checkOutDate').value;
+            const numGuests = document.getElementById('numGuests').value;
+            const specialRequests = document.getElementById('specialRequests').value;
+
+            // Calculate number of nights
+            const checkInDate = new Date(checkIn);
+            const checkOutDate = new Date(checkOut);
+            const nights = Math.ceil((checkOutDate - checkInDate) / (1000 * 60 * 60 * 24));
+            const totalPrice = nights * roomPrice;
+
+            if (nights <= 0) {
+                alert('Check-out date must be after check-in date');
+                return;
+            }
+
+            try {
+                // Save to Firebase
+                const db = firebase.firestore();
+                await db.collection('bookings').add({
+                    roomName: roomName,
+                    roomPrice: roomPrice,
+                    guestName: guestName,
+                    guestEmail: guestEmail,
+                    guestPhone: guestPhone,
+                    checkInDate: checkIn,
+                    checkOutDate: checkOut,
+                    numberOfGuests: numGuests,
+                    numberOfNights: nights,
+                    totalPrice: totalPrice,
+                    specialRequests: specialRequests,
+                    status: 'pending',
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                // Show success message with summary
+                document.getElementById('roomBookingForm').style.display = 'none';
+                document.getElementById('bookingSuccessMessage').style.display = 'block';
+                document.getElementById('bookingSummary').innerHTML = `
+                    <strong>Booking Summary:</strong><br>
+                    Room: ${roomName}<br>
+                    Guest: ${guestName}<br>
+                    Check-in: ${checkIn}<br>
+                    Check-out: ${checkOut}<br>
+                    Nights: ${nights}<br>
+                    Guests: ${numGuests}<br>
+                    Total Price: ₹${totalPrice.toLocaleString()}
+                `;
+
+            } catch (error) {
+                console.error('Error saving booking:', error);
+                alert('Error submitting booking. Please try again or call us directly.');
+            }
+        });
+    }
+
+    // Close modal when clicking outside
+    window.onclick = function(event) {
+        const modal = document.getElementById('roomBookingModal');
+        if (event.target === modal) {
+            closeBookingModal();
+        }
+    };
+});

@@ -288,15 +288,81 @@
         </div>
     </section>
 
+    <!-- Room Booking Modal -->
+    <div id="roomBookingModal" class="modal" style="display: none;">
+        <div class="modal-content" style="max-width: 600px;">
+            <span class="close" onclick="closeBookingModal()">&times;</span>
+            <h2 id="bookingModalTitle">Book Room</h2>
+            <form id="roomBookingForm" style="margin-top: 20px;">
+                <input type="hidden" id="selectedRoomName">
+                <input type="hidden" id="selectedRoomPrice">
+
+                <div class="form-group">
+                    <label>Room Type</label>
+                    <input type="text" id="displayRoomName" readonly style="background: #f5f5f5; cursor: not-allowed;">
+                </div>
+
+                <div class="form-group">
+                    <label>Price per Night</label>
+                    <input type="text" id="displayRoomPrice" readonly style="background: #f5f5f5; cursor: not-allowed;">
+                </div>
+
+                <div class="form-group">
+                    <label for="guestName">Full Name *</label>
+                    <input type="text" id="guestName" required placeholder="Enter your full name">
+                </div>
+
+                <div class="form-group">
+                    <label for="guestEmail">Email *</label>
+                    <input type="email" id="guestEmail" required placeholder="your.email@example.com">
+                </div>
+
+                <div class="form-group">
+                    <label for="guestPhone">Phone Number *</label>
+                    <input type="tel" id="guestPhone" required placeholder="+91 98765 43210">
+                </div>
+
+                <div class="form-group">
+                    <label for="checkInDate">Check-in Date *</label>
+                    <input type="date" id="checkInDate" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="checkOutDate">Check-out Date *</label>
+                    <input type="date" id="checkOutDate" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="numGuests">Number of Guests *</label>
+                    <input type="number" id="numGuests" min="1" required placeholder="2">
+                </div>
+
+                <div class="form-group">
+                    <label for="specialRequests">Special Requests (Optional)</label>
+                    <textarea id="specialRequests" rows="3" placeholder="Any special requirements..."></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-full">Submit Booking Request</button>
+            </form>
+
+            <div id="bookingSuccessMessage" style="display: none; text-align: center; padding: 40px;">
+                <h3 style="color: #4a7c2c; margin-bottom: 15px;">✓ Booking Request Submitted!</h3>
+                <p style="margin-bottom: 20px;">We'll contact you shortly to confirm your reservation.</p>
+                <div id="bookingSummary" style="background: #f9f9f9; padding: 20px; border-radius: 8px; margin-bottom: 20px; text-align: left;"></div>
+                <button class="btn btn-secondary" onclick="closeBookingModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
     <!-- CTA Section -->
     <section class="cta-section">
         <div class="container">
             <div class="cta-content">
                 <h2>Ready to Book Your Stay?</h2>
-                <p>Contact us now to check availability and make your reservation</p>
+                <p>Choose a room above and click "Book Now" to make your reservation</p>
                 <div class="cta-buttons">
-                    <a href="contact.html" class="btn btn-primary btn-large">Book a Room</a>
                     <a href="tel:+919876543210" class="btn btn-secondary btn-large">Call: +91 98765 43210</a>
+                    <a href="contact.html" class="btn btn-primary btn-large">General Inquiry</a>
                 </div>
             </div>
         </div>
