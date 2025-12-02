@@ -48,7 +48,7 @@
         });
 
         // Assign IDs to paragraphs
-        const paragraphs = document.querySelectorAll('p, .amenity-description, .event-description, .room-description, .venue-content p, .amenity-detailed-content p, .highlight-item p, .service-feature p, .intro-text p');
+        const paragraphs = document.querySelectorAll('p, .amenity-description, .event-description, .room-description, .venue-content p, .amenity-detailed-content p, .highlight-item p, .service-feature p, .intro-text p, .package-price, .package-subtitle');
         paragraphs.forEach((p, index) => {
             if (!p.dataset.editId && !p.closest('.footer') && p.textContent.trim()) {
                 p.dataset.editId = generatePersistentId(p, 'paragraph', index);

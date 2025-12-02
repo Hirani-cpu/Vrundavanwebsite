@@ -394,7 +394,7 @@
         });
 
         // Add edit to ALL paragraphs (descriptions, content, etc.)
-        const paragraphs = document.querySelectorAll('p, .amenity-description, .event-description, .room-description, .venue-content p, .amenity-detailed-content p, .highlight-item p, .service-feature p, .intro-text p');
+        const paragraphs = document.querySelectorAll('p, .amenity-description, .event-description, .room-description, .venue-content p, .amenity-detailed-content p, .highlight-item p, .service-feature p, .intro-text p, .package-price, .package-subtitle');
         console.log(`Found ${paragraphs.length} paragraphs`);
 
         paragraphs.forEach((p, index) => {
