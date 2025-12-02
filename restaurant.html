@@ -220,7 +220,7 @@
                     window.__cachedSettings = s;
                     if (s.siteLogoUrl) {
                         document.write('<link rel="preload" as="image" href="' + s.siteLogoUrl + '" crossorigin="anonymous">');
-                        document.write('<style>.logo-image{background-image:url(' + s.siteLogoUrl + ');background-size:contain;background-repeat:no-repeat;background-position:center;}</style>');
+                        document.write('<style>.logo-image{background-image:url(' + s.siteLogoUrl + ');background-size:contain;background-repeat:no-repeat;background-position:center;font-size:0;}</style>');
                     }
                 } catch(e) {}
             }
