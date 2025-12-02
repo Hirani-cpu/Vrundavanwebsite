@@ -11,6 +11,10 @@ async function loadRooms() {
     const noRooms = document.getElementById('noRooms');
 
     try {
+        // Clear any existing slideshow intervals
+        Object.values(slideshowIntervals).forEach(interval => clearInterval(interval));
+        slideshowIntervals = {};
+
         const db = firebase.firestore();
         const roomsSnapshot = await db.collection('rooms').orderBy('order', 'asc').get();
 
@@ -21,19 +25,33 @@ async function loadRooms() {
             return;
         }
 
+        // Clear container
         roomsContainer.innerHTML = '';
 
+        // Build all room cards first
+        const roomCards = [];
+        const roomsData = [];
+
         roomsSnapshot.forEach((doc, index) => {
             const room = doc.data();
+            roomsData.push({ room, index });
             const roomCard = createRoomCard(room, `room-${index}`);
-            roomsContainer.innerHTML += roomCard;
+            roomCards.push(roomCard);
         });
 
-        // Start slideshows for rooms with multiple images
-        roomsSnapshot.forEach((doc, index) => {
-            const room = doc.data();
+        // Insert all cards at once
+        roomsContainer.innerHTML = roomCards.join('');
+
+        // Start slideshows after DOM is updated with cache-busted URLs
+        const cacheBuster = Date.now();
+        roomsData.forEach(({ room, index }) => {
             if (room.imageUrls && room.imageUrls.length > 1) {
-                startSlideshow(`room-${index}`, room.imageUrls);
+                // Add cache buster to slideshow images too
+                const cachedUrls = room.imageUrls.map(url => {
+                    const separator = url.includes('?') ? '&' : '?';
+                    return `${url}${separator}t=${cacheBuster}`;
+                });
+                startSlideshow(`room-${index}`, cachedUrls);
             }
         });
 
@@ -71,6 +89,17 @@ function createRoomCard(room, roomId) {
     } else if (room.imageUrl) {
         images = [room.imageUrl];
     }
+
+    // Add cache buster to prevent old images from showing
+    const cacheBuster = Date.now();
+    const addCacheBuster = (url) => {
+        if (!url) return url;
+        const separator = url.includes('?') ? '&' : '?';
+        return `${url}${separator}t=${cacheBuster}`;
+    };
+
+    // Apply cache buster to all images
+    images = images.map(url => addCacheBuster(url));
 
     // Determine background style - use first image if available, otherwise use gradient
     let backgroundStyle = '';
