@@ -20,8 +20,11 @@ firebase.initializeApp(firebaseConfig);
 // Initialize Firestore
 const db = firebase.firestore();
 
-// Initialize Auth
-const auth = firebase.auth();
+// Initialize Auth (only if auth SDK is loaded)
+let auth = null;
+if (firebase.auth) {
+    auth = firebase.auth();
+}
 
 // Initialize Storage
 const storage = firebase.storage();

@@ -34,6 +34,12 @@ async function loadRooms() {
 
         roomsSnapshot.forEach((doc, index) => {
             const room = doc.data();
+            console.log(`🏨 Room ${index + 1}: "${room.name}"`, {
+                id: doc.id,
+                imageCount: room.imageUrls ? room.imageUrls.length : 0,
+                imageUrls: room.imageUrls,
+                firstImage: room.imageUrls && room.imageUrls[0] ? room.imageUrls[0].substring(0, 100) + '...' : 'none'
+            });
             roomsData.push({ room, index });
             const roomCard = createRoomCard(room, `room-${index}`);
             roomCards.push(roomCard);
