@@ -150,7 +150,8 @@ function setupTabs() {
                 'events': 'eventsTab',
                 'manage-rooms': 'manageRoomsTab',
                 'manage-menu': 'manageMenuTab',
-                'manage-gallery': 'manageGalleryTab'
+                'manage-gallery': 'manageGalleryTab',
+                'site-settings': 'siteSettingsTab'
             };
 
             const contentId = tabMap[tabName];
@@ -167,6 +168,9 @@ function setupTabs() {
             }
             if (tabName === 'manage-gallery' && typeof loadGalleryList === 'function') {
                 loadGalleryList();
+            }
+            if (tabName === 'site-settings' && typeof loadSiteSettings === 'function') {
+                loadSiteSettings();
             }
         });
     });
@@ -897,14 +901,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // ===========================
     // Site Settings Functionality
     // ===========================
-
-    // Load settings when Site Settings tab is clicked
-    const siteSettingsTab = document.querySelector('[data-tab="site-settings"]');
-    if (siteSettingsTab) {
-        siteSettingsTab.addEventListener('click', function() {
-            loadSiteSettings();
-        });
-    }
 
     // Site Settings Form Submit
     const siteSettingsForm = document.getElementById('siteSettingsForm');
