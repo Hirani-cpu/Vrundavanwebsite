@@ -131,39 +131,59 @@
         }
 
         // Update Contact Information in Footer
-        if (settings.contactPhone1 || settings.contactPhone2) {
-            const contactLists = document.querySelectorAll('.footer-contact');
-            contactLists.forEach(list => {
-                const phoneItems = list.querySelectorAll('li');
-                if (phoneItems.length >= 2) {
-                    if (settings.contactPhone1) phoneItems[0].textContent = `📞 ${settings.contactPhone1}`;
-                    if (settings.contactPhone2) phoneItems[1].textContent = `📞 ${settings.contactPhone2}`;
-                }
-            });
-        }
+        const contactLists = document.querySelectorAll('.footer-contact');
+        contactLists.forEach(list => {
+            const allItems = list.querySelectorAll('li');
 
-        if (settings.contactEmail1 || settings.contactEmail2) {
-            const contactLists = document.querySelectorAll('.footer-contact');
-            contactLists.forEach(list => {
-                const emailItems = Array.from(list.querySelectorAll('li')).filter(li => li.textContent.includes('@'));
-                if (emailItems.length >= 1 && settings.contactEmail1) {
+            // Find phone items (those with 📞)
+            const phoneItems = Array.from(allItems).filter(li => li.textContent.includes('📞'));
+            if (phoneItems.length >= 1) {
+                if (settings.contactPhone1 && settings.contactPhone1.trim()) {
+                    phoneItems[0].textContent = `📞 ${settings.contactPhone1}`;
+                    phoneItems[0].style.display = '';
+                } else {
+                    phoneItems[0].style.display = 'none';
+                }
+            }
+            if (phoneItems.length >= 2) {
+                if (settings.contactPhone2 && settings.contactPhone2.trim()) {
+                    phoneItems[1].textContent = `📞 ${settings.contactPhone2}`;
+                    phoneItems[1].style.display = '';
+                } else {
+                    phoneItems[1].style.display = 'none';
+                }
+            }
+
+            // Find email items (those with 📧 or @)
+            const emailItems = Array.from(allItems).filter(li => li.textContent.includes('📧') || li.textContent.includes('@'));
+            if (emailItems.length >= 1) {
+                if (settings.contactEmail1 && settings.contactEmail1.trim()) {
                     emailItems[0].textContent = `📧 ${settings.contactEmail1}`;
+                    emailItems[0].style.display = '';
+                } else {
+                    emailItems[0].style.display = 'none';
                 }
-                if (emailItems.length >= 2 && settings.contactEmail2) {
+            }
+            if (emailItems.length >= 2) {
+                if (settings.contactEmail2 && settings.contactEmail2.trim()) {
                     emailItems[1].textContent = `📧 ${settings.contactEmail2}`;
+                    emailItems[1].style.display = '';
+                } else {
+                    emailItems[1].style.display = 'none';
                 }
-            });
-        }
+            }
 
-        if (settings.contactAddress) {
-            const contactLists = document.querySelectorAll('.footer-contact');
-            contactLists.forEach(list => {
-                const addressItems = Array.from(list.querySelectorAll('li')).filter(li => li.textContent.includes('📍'));
-                if (addressItems.length > 0) {
+            // Find address items (those with 📍)
+            const addressItems = Array.from(allItems).filter(li => li.textContent.includes('📍'));
+            if (addressItems.length > 0) {
+                if (settings.contactAddress && settings.contactAddress.trim()) {
                     addressItems[0].textContent = `📍 ${settings.contactAddress}`;
+                    addressItems[0].style.display = '';
+                } else {
+                    addressItems[0].style.display = 'none';
                 }
-            });
-        }
+            }
+        });
 
         // Update phone links (CTA sections, contact page, etc.)
         if (settings.contactPhone1) {
