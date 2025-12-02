@@ -113,6 +113,19 @@
                     };
                     localStorage.setItem('currentUser', JSON.stringify(currentUser));
 
+                    // Check if registered user is admin and set/clear flags accordingly
+                    const adminEmails = ['admin@vrundavanresort.com', 'vishal@vrundavanresort.com'];
+                    if (adminEmails.includes(email.toLowerCase())) {
+                        localStorage.setItem('adminLoggedIn', 'true');
+                        localStorage.setItem('adminEmail', email);
+                        console.log('✅ Admin account created');
+                    } else {
+                        // IMPORTANT: Clear admin flags for non-admin users
+                        localStorage.removeItem('adminLoggedIn');
+                        localStorage.removeItem('adminEmail');
+                        console.log('ℹ️ Regular user account created (not admin)');
+                    }
+
                     // Show success message
                     const summaryHTML = `
                         <p><strong>Name:</strong> ${name}</p>
@@ -220,11 +233,17 @@
                         };
                         localStorage.setItem('currentUser', JSON.stringify(currentUser));
 
-                        // Check if admin
+                        // Check if admin and set/clear flags accordingly
                         const adminEmails = ['admin@vrundavanresort.com', 'vishal@vrundavanresort.com'];
                         if (adminEmails.includes(email.toLowerCase()) || userData.role === 'admin') {
                             localStorage.setItem('adminLoggedIn', 'true');
                             localStorage.setItem('adminEmail', email);
+                            console.log('✅ Admin user logged in');
+                        } else {
+                            // IMPORTANT: Clear admin flags for non-admin users
+                            localStorage.removeItem('adminLoggedIn');
+                            localStorage.removeItem('adminEmail');
+                            console.log('ℹ️ Regular user logged in (not admin)');
                         }
 
                         console.log('✅ User profile loaded from Firestore');
@@ -249,6 +268,20 @@
                         });
 
                         localStorage.setItem('currentUser', JSON.stringify(currentUser));
+
+                        // Check if user is admin and set/clear flags accordingly
+                        const adminEmails = ['admin@vrundavanresort.com', 'vishal@vrundavanresort.com'];
+                        if (adminEmails.includes(user.email.toLowerCase())) {
+                            localStorage.setItem('adminLoggedIn', 'true');
+                            localStorage.setItem('adminEmail', user.email);
+                            console.log('✅ Admin user (profile auto-created)');
+                        } else {
+                            // IMPORTANT: Clear admin flags for non-admin users
+                            localStorage.removeItem('adminLoggedIn');
+                            localStorage.removeItem('adminEmail');
+                            console.log('ℹ️ Regular user (profile auto-created, not admin)');
+                        }
+
                         console.log('✅ User profile created in Firestore');
                     }
 
