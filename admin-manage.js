@@ -144,6 +144,7 @@ function setupManagementEventListeners() {
             currentEditingRoomId = null;
             document.getElementById('roomModalTitle').textContent = 'Add New Room';
             document.getElementById('roomForm').reset();
+            document.getElementById('roomImagePreview').innerHTML = ''; // Clear image preview
             document.getElementById('roomModal').style.display = 'block';
         });
     } else {
@@ -182,6 +183,12 @@ function setupManagementEventListeners() {
                     );
                     imageUrls = await Promise.all(uploadPromises);
                     console.log(`✓ All ${imageUrls.length} images uploaded`);
+                } else if (!currentEditingRoomId) {
+                    // New room MUST have images
+                    alert('Please select at least one image for the room');
+                    saveRoomBtn.disabled = false;
+                    saveRoomBtn.textContent = 'Save Room';
+                    return;
                 }
 
                 // If editing and no new images selected, keep existing images
@@ -205,22 +212,23 @@ function setupManagementEventListeners() {
                 };
 
                 console.log('💾 Saving room data:', {
+                    mode: currentEditingRoomId ? '✏️ EDITING' : '➕ ADDING NEW',
+                    roomId: currentEditingRoomId || 'NEW',
                     name: roomData.name,
                     imageCount: roomData.imageUrls.length,
-                    imageUrls: roomData.imageUrls,
-                    isEdit: !!currentEditingRoomId
+                    imageUrls: roomData.imageUrls
                 });
 
                 saveRoomBtn.textContent = 'Saving...';
 
                 if (currentEditingRoomId) {
                     await db.collection('rooms').doc(currentEditingRoomId).update(roomData);
-                    console.log('✅ Room updated:', currentEditingRoomId);
-                    alert('Room updated successfully!');
+                    console.log('✅ Room UPDATED:', currentEditingRoomId);
+                    alert('✅ Room updated successfully!');
                 } else {
                     const docRef = await db.collection('rooms').add(roomData);
-                    console.log('✅ Room added with ID:', docRef.id);
-                    alert('Room added successfully!');
+                    console.log('✅ NEW Room added with ID:', docRef.id);
+                    alert('✅ New room added successfully!');
                 }
                 document.getElementById('roomModal').style.display = 'none';
                 document.getElementById('roomForm').reset();
