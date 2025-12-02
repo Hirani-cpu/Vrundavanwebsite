@@ -5,7 +5,13 @@
       "Bash(git add:*)",
       "Bash(git commit:*)",
       "Bash(git push:*)",
-      "Bash(start index.html)"
+      "Bash(start index.html)",
+      "Bash(start rooms.html)",
+      "Bash(powershell:*)",
+      "Bash(for file in index.html contact.html restaurant.html amenities.html events.html gallery.html account.html)",
+      "Bash(do grep -q \"load-settings.js\" \"$file\")",
+      "Bash(echo:*)",
+      "Bash(done)"
     ],
     "deny": [],
     "ask": []

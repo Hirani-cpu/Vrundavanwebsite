@@ -736,11 +736,20 @@
                             </div>
 
                             <div class="form-group">
-                                <label for="siteLogo">Logo Emoji/Icon</label>
-                                <input type="text" id="siteLogo" placeholder="🌳 (any emoji or leave blank for default)" maxlength="5">
-                                <small style="color: #666; display: block; margin-top: 5px;">
-                                    Use an emoji that represents your brand. <a href="https://emojipedia.org" target="_blank">Find emojis here</a>
-                                </small>
+                                <label>Logo Image</label>
+                                <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 10px;">
+                                    <div id="currentLogoPreview" style="width: 80px; height: 80px; border: 2px solid #ddd; border-radius: 8px; display: flex; align-items: center; justify-content: center; background: #f9f9f9; font-size: 2rem;">
+                                        🌳
+                                    </div>
+                                    <div style="flex: 1;">
+                                        <input type="file" id="logoImageUpload" accept="image/*" style="display: block; margin-bottom: 5px;">
+                                        <small style="color: #666; display: block;">
+                                            Upload a logo image (PNG, JPG, or WebP recommended)<br>
+                                            Ideal size: 200×200px or square image
+                                        </small>
+                                    </div>
+                                </div>
+                                <input type="hidden" id="siteLogoUrl">
                             </div>
                         </div>
 

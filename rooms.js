@@ -251,7 +251,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 const userId = currentUser ? currentUser.userId : null;
                 const userEmail = currentUser ? currentUser.email : null;
 
-                console.log('Current user:', currentUser ? userEmail + ' (userId: ' + userId + ')' : 'Not logged in (guest booking)');
+                console.log('🔍 DEBUG: Current user object:', currentUser);
+                console.log('🔍 DEBUG: userId:', userId);
+                console.log('🔍 DEBUG: Will link booking to userId:', userId ? 'YES' : 'NO');
 
                 const db = firebase.firestore();
                 const bookingData = {
@@ -281,9 +283,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     console.log('⚠️ Guest booking (not linked to account)');
                 }
 
+                console.log('🔍 DEBUG: Final booking data being saved:', bookingData);
+
                 const docRef = await db.collection('roomBookings').add(bookingData);
 
                 console.log('✅ Booking saved with ID:', docRef.id);
+                console.log('✅ Booking has userId:', bookingData.userId ? 'YES - ' + bookingData.userId : 'NO - GUEST BOOKING');
 
                 // Show success message with summary
                 document.getElementById('roomBookingForm').style.display = 'none';

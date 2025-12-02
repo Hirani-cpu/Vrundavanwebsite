@@ -938,7 +938,14 @@ function loadSiteSettings() {
                 // Populate form with existing settings
                 document.getElementById('siteName').value = settings.siteName || '';
                 document.getElementById('siteTagline').value = settings.siteTagline || '';
-                document.getElementById('siteLogo').value = settings.siteLogo || '';
+                document.getElementById('siteLogoUrl').value = settings.siteLogoUrl || '';
+
+                // Show logo preview
+                const logoPreview = document.getElementById('currentLogoPreview');
+                if (settings.siteLogoUrl) {
+                    logoPreview.innerHTML = `<img src="${settings.siteLogoUrl}" style="width: 100%; height: 100%; object-fit: contain; border-radius: 6px;">`;
+                }
+
                 document.getElementById('contactPhone1').value = settings.contactPhone1 || '';
                 document.getElementById('contactPhone2').value = settings.contactPhone2 || '';
                 document.getElementById('contactEmail1').value = settings.contactEmail1 || '';
@@ -977,58 +984,79 @@ function loadSiteSettings() {
 }
 
 // Save site settings to Firebase
-function saveSiteSettings() {
+async function saveSiteSettings() {
     const form = document.getElementById('siteSettingsForm');
     const successMessage = document.getElementById('settingsSaveSuccess');
     const saveButton = form.querySelector('button[type="submit"]');
+    const logoUpload = document.getElementById('logoImageUpload');
 
     // Disable button during save
     saveButton.disabled = true;
     saveButton.textContent = '💾 Saving...';
 
-    const settings = {
-        siteName: document.getElementById('siteName').value.trim(),
-        siteTagline: document.getElementById('siteTagline').value.trim(),
-        siteLogo: document.getElementById('siteLogo').value.trim() || '🌳',
-        contactPhone1: document.getElementById('contactPhone1').value.trim(),
-        contactPhone2: document.getElementById('contactPhone2').value.trim(),
-        contactEmail1: document.getElementById('contactEmail1').value.trim(),
-        contactEmail2: document.getElementById('contactEmail2').value.trim(),
-        contactAddress: document.getElementById('contactAddress').value.trim(),
-        contactWhatsApp: document.getElementById('contactWhatsApp').value.trim(),
-        checkInTime: document.getElementById('checkInTime').value.trim(),
-        checkOutTime: document.getElementById('checkOutTime').value.trim(),
-        restaurantHours: document.getElementById('restaurantHours').value.trim(),
-        socialFacebook: document.getElementById('socialFacebook').value.trim(),
-        socialInstagram: document.getElementById('socialInstagram').value.trim(),
-        socialTwitter: document.getElementById('socialTwitter').value.trim(),
-        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-    };
+    try {
+        let logoUrl = document.getElementById('siteLogoUrl').value; // Keep existing logo if no new upload
 
-    console.log('Saving settings:', settings);
+        // Upload logo if a new file was selected
+        if (logoUpload.files && logoUpload.files[0]) {
+            saveButton.textContent = '📤 Uploading logo...';
+            const logoFile = logoUpload.files[0];
 
-    // Save to Firebase
-    db.collection('siteSettings')
-        .doc('main')
-        .set(settings)
-        .then(() => {
-            console.log('✓ Settings saved successfully');
-            saveButton.disabled = false;
-            saveButton.textContent = '💾 Save Settings';
+            // Upload to Firebase Storage
+            const storageRef = storage.ref();
+            const logoRef = storageRef.child(`siteSettings/logo-${Date.now()}.${logoFile.name.split('.').pop()}`);
 
-            // Show success message
-            successMessage.style.display = 'block';
-            setTimeout(() => {
-                successMessage.style.display = 'none';
-            }, 5000);
+            const snapshot = await logoRef.put(logoFile);
+            logoUrl = await snapshot.ref.getDownloadURL();
+            console.log('✓ Logo uploaded:', logoUrl);
 
-            // Scroll to success message
-            successMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        })
-        .catch((error) => {
-            console.error('Error saving settings:', error);
-            alert('Error saving settings: ' + error.message);
-            saveButton.disabled = false;
-            saveButton.textContent = '💾 Save Settings';
-        });
+            // Update preview
+            document.getElementById('currentLogoPreview').innerHTML = `<img src="${logoUrl}" style="width: 100%; height: 100%; object-fit: contain; border-radius: 6px;">`;
+        }
+
+        saveButton.textContent = '💾 Saving settings...';
+
+        const settings = {
+            siteName: document.getElementById('siteName').value.trim(),
+            siteTagline: document.getElementById('siteTagline').value.trim(),
+            siteLogoUrl: logoUrl || '',
+            contactPhone1: document.getElementById('contactPhone1').value.trim(),
+            contactPhone2: document.getElementById('contactPhone2').value.trim(),
+            contactEmail1: document.getElementById('contactEmail1').value.trim(),
+            contactEmail2: document.getElementById('contactEmail2').value.trim(),
+            contactAddress: document.getElementById('contactAddress').value.trim(),
+            contactWhatsApp: document.getElementById('contactWhatsApp').value.trim(),
+            checkInTime: document.getElementById('checkInTime').value.trim(),
+            checkOutTime: document.getElementById('checkOutTime').value.trim(),
+            restaurantHours: document.getElementById('restaurantHours').value.trim(),
+            socialFacebook: document.getElementById('socialFacebook').value.trim(),
+            socialInstagram: document.getElementById('socialInstagram').value.trim(),
+            socialTwitter: document.getElementById('socialTwitter').value.trim(),
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        };
+
+        console.log('Saving settings:', settings);
+
+        // Save to Firebase
+        await db.collection('siteSettings').doc('main').set(settings);
+
+        console.log('✓ Settings saved successfully');
+        saveButton.disabled = false;
+        saveButton.textContent = '💾 Save Settings';
+
+        // Show success message
+        successMessage.style.display = 'block';
+        setTimeout(() => {
+            successMessage.style.display = 'none';
+        }, 5000);
+
+        // Scroll to success message
+        successMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+    } catch (error) {
+        console.error('Error saving settings:', error);
+        alert('Error saving settings: ' + error.message);
+        saveButton.disabled = false;
+        saveButton.textContent = '💾 Save Settings';
+    }
 }

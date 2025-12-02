@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Booking Modal</title>
+</head>
+<body>
+    <h1>Test Book Now Button</h1>
+    <button onclick="testFunction()">Test Button 1</button>
+    <button onclick="window.openBookingModal('Test Room', 5000, 'night')">Test Button 2</button>
+
+    <div id="roomBookingModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5);">
+        <div style="background: white; margin: 100px auto; padding: 20px; max-width: 500px;">
+            <h2 id="bookingModalTitle">Modal</h2>
+            <p>Modal opened successfully!</p>
+            <button onclick="window.closeBookingModal()">Close</button>
+        </div>
+    </div>
+
+    <script>
+        function testFunction() {
+            alert('Test function works!');
+        }
+
+        window.openBookingModal = function(roomName, price, priceUnit) {
+            console.log('Opening booking modal for:', roomName, price, priceUnit);
+            alert('Opening modal for: ' + roomName);
+            document.getElementById('bookingModalTitle').textContent = 'Book ' + roomName;
+            document.getElementById('roomBookingModal').style.display = 'block';
+        };
+
+        window.closeBookingModal = function() {
+            document.getElementById('roomBookingModal').style.display = 'none';
+        };
+
+        console.log('Functions defined:', typeof window.openBookingModal, typeof window.closeBookingModal);
+    </script>
+</body>
+</html>
