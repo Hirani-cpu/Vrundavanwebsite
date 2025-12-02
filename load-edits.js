@@ -66,6 +66,29 @@
         console.log('✅ IDs assigned');
     }
 
+    // Apply cached edits from localStorage (instant, no flash)
+    function applyCachedEdits() {
+        const pageUrl = window.location.pathname;
+        const cacheKey = `textEdits_${pageUrl}`;
+        const cached = JSON.parse(localStorage.getItem(cacheKey) || '{}');
+
+        const cachedCount = Object.keys(cached).length;
+        if (cachedCount === 0) {
+            console.log('📦 No cached edits found');
+            return;
+        }
+
+        console.log(`📦 Applying ${cachedCount} cached edits instantly...`);
+
+        Object.keys(cached).forEach(elementId => {
+            const element = document.querySelector(`[data-edit-id="${elementId}"]`);
+            if (element) {
+                element.textContent = cached[elementId];
+                console.log('⚡ Applied cached edit:', elementId);
+            }
+        });
+    }
+
     // Load all saved edits
     function loadSavedEdits() {
         const currentPage = window.location.pathname;
@@ -74,7 +97,10 @@
         // FIRST: Assign persistent IDs to all text elements
         assignPersistentIds();
 
-        // THEN: Load saved edits
+        // SECOND: Apply cached edits INSTANTLY (no waiting for Firebase)
+        applyCachedEdits();
+
+        // THIRD: Load from Firebase in background (to sync any changes from other devices)
         loadTextEdits(currentPage);
 
         // Load saved images
@@ -102,24 +128,34 @@
                 return;
             }
 
+            const cacheKey = `textEdits_${pageUrl}`;
+            const cached = JSON.parse(localStorage.getItem(cacheKey) || '{}');
+
             snapshot.forEach((doc) => {
                 const data = doc.data();
                 const editId = doc.id; // Use document ID as the edit ID
-                console.log('📝 Loading text edit:', editId, data.tagName, data.text.substring(0, 50));
+                console.log('📝 Loading text edit from Firebase:', editId, data.tagName, data.text.substring(0, 50));
 
                 // Try to find element by data-edit-id first (most accurate)
                 let element = document.querySelector(`[data-edit-id="${editId}"]`);
 
                 if (element) {
-                    // Element already has the ID, update it
-                    element.textContent = data.text;
-                    console.log('✅ Updated element by ID:', editId);
+                    // Only update if Firebase has different text than what's currently displayed
+                    if (element.textContent !== data.text) {
+                        element.textContent = data.text;
+                        console.log('🔄 Synced from Firebase:', editId);
+                    }
+
+                    // Update cache with latest from Firebase
+                    cached[editId] = data.text;
                 } else {
-                    // Element doesn't have ID yet - this shouldn't happen often
-                    // Just skip it, the element will get an ID when admin edits it
                     console.log('⚠️ No element found for ID:', editId);
                 }
             });
+
+            // Save updated cache
+            localStorage.setItem(cacheKey, JSON.stringify(cached));
+            console.log('💾 Cache updated with Firebase data');
 
             console.log(`✅ Loaded ${snapshot.size} text edits`);
         } catch (error) {

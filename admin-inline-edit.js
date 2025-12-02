@@ -644,6 +644,9 @@
             closeModal();
             showToast('✅ Text updated!', 'success');
 
+            // Cache in localStorage for instant load on next page refresh
+            cacheTextEdit(elementId, newText);
+
             // Save to Firebase in background (non-blocking)
             saveToFirestore('pageText', elementId, {
                 text: newText,
@@ -1086,6 +1089,20 @@
         }
 
         return `${type}_${Math.abs(hash)}_${index}`;
+    }
+
+    // Cache text edit in localStorage for instant load
+    function cacheTextEdit(elementId, text) {
+        try {
+            const pageUrl = window.location.pathname;
+            const cacheKey = `textEdits_${pageUrl}`;
+            const cached = JSON.parse(localStorage.getItem(cacheKey) || '{}');
+            cached[elementId] = text;
+            localStorage.setItem(cacheKey, JSON.stringify(cached));
+            console.log('📦 Cached text edit:', elementId);
+        } catch (err) {
+            console.error('Error caching text:', err);
+        }
     }
 
     // Show toast notification (non-blocking)
