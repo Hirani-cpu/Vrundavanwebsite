@@ -1,6 +1,6 @@
 // Admin Management Functions for Rooms, Menu, and Gallery
 
-const db = firebase.firestore();
+// Use the db variable from dashboard.js (already declared there)
 let currentEditingRoomId = null;
 let currentEditingCategoryId = null;
 let currentEditingMenuItemId = null;
