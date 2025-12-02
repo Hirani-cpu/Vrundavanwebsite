@@ -77,27 +77,55 @@ async function loadMenu() {
 }
 
 function createCategoryCard(category, items) {
+    const categoryId = 'category-' + Math.random().toString(36).substr(2, 9);
+
     const itemsHTML = items.map(item => {
-        const badgeHTML = item.type ? `<span class="badge-${item.type.toLowerCase()}">${item.type}</span>` : '';
+        const badgeHTML = item.type === 'VEG'
+            ? '<span class="badge-veg">🥬 VEG</span>'
+            : item.type === 'NON-VEG'
+            ? '<span class="badge-nonveg">🍗 NON-VEG</span>'
+            : '';
 
         return `
-            <div class="menu-item">
-                <div class="menu-item-header">
-                    <h4>${item.name}</h4>
-                    <span class="menu-price">₹${item.price}</span>
+            <div class="menu-item-compact">
+                <div class="menu-item-row">
+                    <div class="menu-item-info">
+                        <h4 class="menu-item-name">${item.name} ${badgeHTML}</h4>
+                        ${item.description ? `<p class="menu-item-desc">${item.description}</p>` : ''}
+                    </div>
+                    <span class="menu-item-price">₹${item.price}</span>
                 </div>
-                <p>${item.description || ''}</p>
-                ${badgeHTML}
             </div>
         `;
     }).join('');
 
     return `
-        <div class="menu-category ${category.specialClass || ''}">
-            <h3 class="category-title">${category.icon || ''} ${category.name}</h3>
-            <div class="${category.itemsClass || 'menu-items'}">
+        <div class="menu-category-modern ${category.specialClass || ''}">
+            <div class="category-header-modern" onclick="toggleCategory('${categoryId}')">
+                <div class="category-title-wrapper">
+                    <span class="category-icon">${category.icon || '📋'}</span>
+                    <h3 class="category-title-modern">${category.name}</h3>
+                    <span class="item-count">${items.length} items</span>
+                </div>
+                <span class="toggle-icon" id="${categoryId}-icon">▼</span>
+            </div>
+            <div class="menu-items-grid" id="${categoryId}" style="display: block;">
                 ${itemsHTML}
             </div>
         </div>
     `;
+}
+
+// Toggle category visibility
+function toggleCategory(categoryId) {
+    const categoryContent = document.getElementById(categoryId);
+    const icon = document.getElementById(categoryId + '-icon');
+
+    if (categoryContent.style.display === 'none') {
+        categoryContent.style.display = 'block';
+        icon.textContent = '▼';
+    } else {
+        categoryContent.style.display = 'none';
+        icon.textContent = '▶';
+    }
 }

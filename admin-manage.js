@@ -424,17 +424,22 @@ async function loadMenuList() {
 
         for (const catDoc of categoriesSnapshot.docs) {
             const category = catDoc.data();
-            const categoryCard = `
-                <div class="item-card" style="grid-column: 1 / -1; background: #f8f9fa;">
-                    <h3>${category.icon || ''} ${category.name}</h3>
-                    <p><strong>Order:</strong> ${category.order}</p>
-                    <div class="item-card-actions">
-                        <button class="btn-edit" data-category-id="${catDoc.id}">Edit Category</button>
-                        <button class="btn-delete-item" data-category-id="${catDoc.id}">Delete Category</button>
+
+            // Category header
+            const categoryHeader = `
+                <div class="category-header" style="background: linear-gradient(135deg, #4a7c2c 0%, #2d5016 100%); color: white; padding: 15px 20px; border-radius: 8px; margin: 20px 0 10px 0; display: flex; justify-content: space-between; align-items: center;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="font-size: 1.5rem;">${category.icon || '📋'}</span>
+                        <h3 style="margin: 0; font-size: 1.2rem;">${category.name}</h3>
+                        <span style="background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 20px; font-size: 0.85rem;">Order: ${category.order}</span>
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn-edit" data-category-id="${catDoc.id}" style="padding: 8px 15px; background: white; color: #4a7c2c; border: none; border-radius: 5px; cursor: pointer; font-weight: 600;">✏️ Edit</button>
+                        <button class="btn-delete-item" data-category-id="${catDoc.id}" style="padding: 8px 15px; background: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: 600;">🗑️ Delete</button>
                     </div>
                 </div>
             `;
-            menuList.innerHTML += categoryCard;
+            menuList.innerHTML += categoryHeader;
 
             let itemsSnapshot;
             try {
@@ -450,22 +455,57 @@ async function loadMenuList() {
                     .get();
             }
 
-            itemsSnapshot.forEach(itemDoc => {
-                const item = itemDoc.data();
-                const itemCard = `
-                    <div class="item-card">
-                        <h3>${item.name}</h3>
-                        <p><strong>Price:</strong> ₹${item.price}</p>
-                        <p><strong>Type:</strong> ${item.type || 'None'}</p>
-                        <p style="font-size: 0.85rem; color: #666;">${item.description || ''}</p>
-                        <div class="item-card-actions">
-                            <button class="btn-edit" data-menu-item-id="${itemDoc.id}">Edit</button>
-                            <button class="btn-delete-item" data-menu-item-id="${itemDoc.id}">Delete</button>
-                        </div>
-                    </div>
+            if (itemsSnapshot.empty) {
+                menuList.innerHTML += '<p style="text-align: center; color: #999; padding: 20px; background: #f8f9fa; border-radius: 5px; margin-bottom: 10px;">No items in this category yet.</p>';
+            } else {
+                // Create table for menu items
+                let tableHTML = `
+                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border-radius: 8px; overflow: hidden;">
+                        <thead>
+                            <tr style="background: #f8f9fa; border-bottom: 2px solid #dee2e6;">
+                                <th style="padding: 12px; text-align: left; font-weight: 600; color: #2d5016; width: 5%;">#</th>
+                                <th style="padding: 12px; text-align: left; font-weight: 600; color: #2d5016; width: 35%;">Item Name</th>
+                                <th style="padding: 12px; text-align: left; font-weight: 600; color: #2d5016; width: 10%;">Price</th>
+                                <th style="padding: 12px; text-align: left; font-weight: 600; color: #2d5016; width: 10%;">Type</th>
+                                <th style="padding: 12px; text-align: left; font-weight: 600; color: #2d5016; width: 30%;">Description</th>
+                                <th style="padding: 12px; text-align: center; font-weight: 600; color: #2d5016; width: 10%;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
                 `;
-                menuList.innerHTML += itemCard;
-            });
+
+                let itemIndex = 1;
+                itemsSnapshot.forEach(itemDoc => {
+                    const item = itemDoc.data();
+                    const typeBadge = item.type === 'VEG'
+                        ? '<span style="background: #28a745; color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600;">🥬 VEG</span>'
+                        : item.type === 'NON-VEG'
+                        ? '<span style="background: #dc3545; color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600;">🍗 NON-VEG</span>'
+                        : '<span style="color: #999;">-</span>';
+
+                    tableHTML += `
+                        <tr style="border-bottom: 1px solid #f0f0f0;">
+                            <td style="padding: 12px; color: #666;">${itemIndex}</td>
+                            <td style="padding: 12px; font-weight: 500; color: #2d5016;">${item.name}</td>
+                            <td style="padding: 12px; font-weight: 600; color: #4a7c2c;">₹${item.price}</td>
+                            <td style="padding: 12px;">${typeBadge}</td>
+                            <td style="padding: 12px; font-size: 0.85rem; color: #666;">${item.description || '-'}</td>
+                            <td style="padding: 12px; text-align: center;">
+                                <button class="btn-edit" data-menu-item-id="${itemDoc.id}" style="padding: 6px 12px; background: #4a7c2c; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.85rem; margin-right: 5px;">✏️</button>
+                                <button class="btn-delete-item" data-menu-item-id="${itemDoc.id}" style="padding: 6px 12px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.85rem;">🗑️</button>
+                            </td>
+                        </tr>
+                    `;
+                    itemIndex++;
+                });
+
+                tableHTML += `
+                        </tbody>
+                    </table>
+                `;
+
+                menuList.innerHTML += tableHTML;
+            }
         }
 
         attachMenuEventListeners();
