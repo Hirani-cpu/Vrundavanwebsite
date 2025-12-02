@@ -94,12 +94,23 @@ function startSlideshow(roomId, images) {
     const imgElement = imageContainer.querySelector('img');
     if (!imgElement) return;
 
+    // Get images from data attribute (more reliable)
+    let slideshowImages = images;
+    try {
+        const dataImages = imgElement.getAttribute('data-images');
+        if (dataImages) {
+            slideshowImages = JSON.parse(dataImages);
+        }
+    } catch (e) {
+        console.error('Error parsing images:', e);
+    }
+
     // Change image every 3 seconds
     slideshowIntervals[roomId] = setInterval(() => {
-        currentIndex = (currentIndex + 1) % images.length;
-        imgElement.src = images[currentIndex];
+        currentIndex = (currentIndex + 1) % slideshowImages.length;
+        imgElement.src = slideshowImages[currentIndex];
         if (counterElement) {
-            counterElement.textContent = `${currentIndex + 1}/${images.length}`;
+            counterElement.textContent = `${currentIndex + 1}/${slideshowImages.length}`;
         }
     }, 3000);
 }
@@ -121,17 +132,17 @@ function createRoomCard(room, roomId) {
     // Image counter badge (only show if multiple images)
     const imageCounter = images.length > 1 ? `<span class="image-counter" id="${roomId}-counter">1/${images.length}</span>` : '';
 
-    // Use img tag with lazy loading for better caching
+    // Use img tag - NO lazy loading for instant display
     let imageHTML = '';
     if (images.length > 0) {
-        imageHTML = `<img src="${images[0]}" alt="${room.name}" loading="lazy" style="width: 100%; height: 100%; object-fit: cover;">`;
+        imageHTML = `<img src="${images[0]}" alt="${room.name}" data-images='${JSON.stringify(images)}' style="width: 100%; height: 100%; object-fit: cover;">`;
     } else {
         imageHTML = `<div style="width: 100%; height: 100%; background: ${room.gradient || 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'};"></div>`;
     }
 
     return `
         <div class="room-detail-card-compact">
-            <div class="room-detail-image-compact" id="${roomId}-image" style="position: relative; overflow: hidden;">
+            <div class="room-detail-image-compact" id="${roomId}-image" style="position: relative; overflow: hidden;" data-room-id="${roomId}">
                 ${imageHTML}
                 ${room.badge ? `<span class="room-badge ${room.badgeClass || ''}">${room.badge}</span>` : ''}
                 ${imageCounter}

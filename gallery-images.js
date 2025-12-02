@@ -79,10 +79,10 @@ function renderGallery(imagesSnapshot, galleryContainer, galleryLoadingSection, 
 
 function createGallerySection(categoryName, images, sectionClass) {
     const imagesHTML = images.map(image => {
-        // Use img tag with lazy loading for better browser caching
+        // Use img tag - NO lazy loading for instant display
         let imageHTML = '';
         if (image.imageUrl) {
-            imageHTML = `<img src="${image.imageUrl}" alt="${image.title || 'Gallery image'}" loading="lazy" style="width: 100%; height: 100%; object-fit: cover; border-radius: 15px;">`;
+            imageHTML = `<img src="${image.imageUrl}" alt="${image.title || 'Gallery image'}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 15px;">`;
         } else {
             imageHTML = `<div style="width: 100%; height: 100%; background: ${image.gradient || 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'}; border-radius: 15px;"></div>`;
         }
