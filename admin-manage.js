@@ -6,32 +6,74 @@ let currentEditingCategoryId = null;
 let currentEditingMenuItemId = null;
 let currentEditingGalleryId = null;
 
-// Firebase Storage upload function
-async function uploadImageToStorage(file, folder) {
+// Fast image compression function - compresses images to ~200KB for instant uploads
+async function compressImage(file, maxWidth = 1200, quality = 0.8) {
     return new Promise((resolve, reject) => {
-        console.log('Starting upload...', { file: file.name, size: file.size, type: file.type });
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = (event) => {
+            const img = new Image();
+            img.src = event.target.result;
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                let width = img.width;
+                let height = img.height;
 
-        // Check file size (max 5MB)
-        if (file.size > 5 * 1024 * 1024) {
-            const error = new Error('File size must be less than 5MB');
-            console.error('File too large:', file.size);
-            reject(error);
-            return;
-        }
+                // Resize if image is too large
+                if (width > maxWidth) {
+                    height = (height * maxWidth) / width;
+                    width = maxWidth;
+                }
 
-        // Check file type
-        if (!file.type.startsWith('image/')) {
-            const error = new Error('File must be an image');
-            console.error('Invalid file type:', file.type);
-            reject(error);
-            return;
-        }
+                canvas.width = width;
+                canvas.height = height;
 
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+
+                // Convert to blob with compression
+                canvas.toBlob(
+                    (blob) => {
+                        if (!blob) {
+                            reject(new Error('Failed to compress image'));
+                            return;
+                        }
+                        // Create new file from blob
+                        const compressedFile = new File([blob], file.name, {
+                            type: 'image/jpeg',
+                            lastModified: Date.now()
+                        });
+                        console.log(`Compressed: ${(file.size / 1024).toFixed(0)}KB → ${(compressedFile.size / 1024).toFixed(0)}KB`);
+                        resolve(compressedFile);
+                    },
+                    'image/jpeg',
+                    quality
+                );
+            };
+            img.onerror = () => reject(new Error('Failed to load image'));
+        };
+        reader.onerror = () => reject(new Error('Failed to read file'));
+    });
+}
+
+// Firebase Storage upload function with compression
+async function uploadImageToStorage(file, folder) {
+    return new Promise(async (resolve, reject) => {
         try {
+            console.log('Original file:', { name: file.name, size: (file.size / 1024).toFixed(0) + 'KB' });
+
+            // Check file type
+            if (!file.type.startsWith('image/')) {
+                reject(new Error('File must be an image'));
+                return;
+            }
+
+            // Compress image for faster upload (reduces to ~200KB)
+            const compressedFile = await compressImage(file);
+
             // Create unique filename
             const timestamp = Date.now();
             const filename = `${folder}/${timestamp}_${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
-            console.log('Uploading to:', filename);
 
             // Get Firebase Storage reference
             if (typeof firebase === 'undefined' || !firebase.storage) {
@@ -42,39 +84,30 @@ async function uploadImageToStorage(file, folder) {
             const storageRef = storage.ref();
             const fileRef = storageRef.child(filename);
 
-            console.log('Storage reference created, starting upload...');
-
-            // Upload file
-            const uploadTask = fileRef.put(file);
+            // Upload compressed file
+            const uploadTask = fileRef.put(compressedFile);
 
             uploadTask.on('state_changed',
                 (snapshot) => {
-                    // Progress
                     const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                    console.log('Upload progress: ' + Math.round(progress) + '%');
+                    if (progress % 25 === 0) console.log(`Upload: ${Math.round(progress)}%`);
                 },
                 (error) => {
-                    // Error
                     console.error('Upload error:', error);
-                    console.error('Error code:', error.code);
-                    console.error('Error message:', error.message);
                     reject(error);
                 },
                 async () => {
-                    // Success - get download URL
                     try {
-                        console.log('Upload complete, getting download URL...');
                         const downloadURL = await uploadTask.snapshot.ref.getDownloadURL();
-                        console.log('File uploaded successfully:', downloadURL);
+                        console.log('✓ Uploaded successfully');
                         resolve(downloadURL);
                     } catch (urlError) {
-                        console.error('Error getting download URL:', urlError);
                         reject(urlError);
                     }
                 }
             );
         } catch (error) {
-            console.error('Error in upload function:', error);
+            console.error('Error:', error);
             reject(error);
         }
     });
@@ -140,15 +173,15 @@ function setupManagementEventListeners() {
             try {
                 // Show saving message
                 saveRoomBtn.disabled = true;
-                saveRoomBtn.textContent = 'Uploading images...';
+                saveRoomBtn.textContent = 'Compressing & uploading...';
 
-                // Upload all selected images
+                // Upload all images in parallel for speed (instead of sequential)
                 if (imageFiles && imageFiles.length > 0) {
-                    for (let i = 0; i < imageFiles.length; i++) {
-                        saveRoomBtn.textContent = `Uploading image ${i + 1} of ${imageFiles.length}...`;
-                        const url = await uploadImageToStorage(imageFiles[i], 'rooms');
-                        imageUrls.push(url);
-                    }
+                    const uploadPromises = Array.from(imageFiles).map(file =>
+                        uploadImageToStorage(file, 'rooms')
+                    );
+                    imageUrls = await Promise.all(uploadPromises);
+                    console.log(`✓ All ${imageUrls.length} images uploaded`);
                 }
 
                 // If editing and no new images selected, keep existing images
@@ -387,7 +420,7 @@ function setupManagementEventListeners() {
             try {
                 // Show saving message
                 saveGalleryImageBtn.disabled = true;
-                saveGalleryImageBtn.textContent = 'Uploading...';
+                saveGalleryImageBtn.textContent = 'Compressing & uploading...';
 
                 // Upload image if selected
                 if (imageFile) {
