@@ -79,16 +79,17 @@ function renderGallery(imagesSnapshot, galleryContainer, galleryLoadingSection, 
 
 function createGallerySection(categoryName, images, sectionClass) {
     const imagesHTML = images.map(image => {
-        // Use image URL if available, otherwise use gradient
-        let backgroundStyle = '';
+        // Use img tag with lazy loading for better browser caching
+        let imageHTML = '';
         if (image.imageUrl) {
-            backgroundStyle = `background: url('${image.imageUrl}') center/cover;`;
+            imageHTML = `<img src="${image.imageUrl}" alt="${image.title || 'Gallery image'}" loading="lazy" style="width: 100%; height: 100%; object-fit: cover; border-radius: 15px;">`;
         } else {
-            backgroundStyle = `background: ${image.gradient || 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'};`;
+            imageHTML = `<div style="width: 100%; height: 100%; background: ${image.gradient || 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'}; border-radius: 15px;"></div>`;
         }
 
         return `
-            <div class="gallery-item" style="${backgroundStyle}">
+            <div class="gallery-item" style="position: relative; overflow: hidden;">
+                ${imageHTML}
                 <div class="gallery-overlay">
                     <span>${image.title || 'Image'}</span>
                 </div>

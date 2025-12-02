@@ -76,31 +76,28 @@ function renderRooms(roomsSnapshot, roomsContainer, roomsLoading, noRooms) {
     // Insert all cards at once
     roomsContainer.innerHTML = roomCards.join('');
 
-    // Start slideshows after DOM is updated with cache-busted URLs
-    const cacheBuster = Date.now();
+    // Start slideshows after DOM is updated (no cache busters for speed)
     roomsData.forEach(({ room, index }) => {
         if (room.imageUrls && room.imageUrls.length > 1) {
-            // Add cache buster to slideshow images too
-            const cachedUrls = room.imageUrls.map(url => {
-                const separator = url.includes('?') ? '&' : '?';
-                return `${url}${separator}t=${cacheBuster}`;
-            });
-            startSlideshow(`room-${index}`, cachedUrls);
+            startSlideshow(`room-${index}`, room.imageUrls);
         }
     });
 }
 
 function startSlideshow(roomId, images) {
     let currentIndex = 0;
-    const imageElement = document.getElementById(`${roomId}-image`);
+    const imageContainer = document.getElementById(`${roomId}-image`);
     const counterElement = document.getElementById(`${roomId}-counter`);
 
-    if (!imageElement) return;
+    if (!imageContainer) return;
+
+    const imgElement = imageContainer.querySelector('img');
+    if (!imgElement) return;
 
     // Change image every 3 seconds
     slideshowIntervals[roomId] = setInterval(() => {
         currentIndex = (currentIndex + 1) % images.length;
-        imageElement.style.backgroundImage = `url('${images[currentIndex]}')`;
+        imgElement.src = images[currentIndex];
         if (counterElement) {
             counterElement.textContent = `${currentIndex + 1}/${images.length}`;
         }
@@ -119,31 +116,23 @@ function createRoomCard(room, roomId) {
         images = [room.imageUrl];
     }
 
-    // Add cache buster to prevent old images from showing
-    const cacheBuster = Date.now();
-    const addCacheBuster = (url) => {
-        if (!url) return url;
-        const separator = url.includes('?') ? '&' : '?';
-        return `${url}${separator}t=${cacheBuster}`;
-    };
-
-    // Apply cache buster to all images
-    images = images.map(url => addCacheBuster(url));
-
-    // Determine background style - use first image if available, otherwise use gradient
-    let backgroundStyle = '';
-    if (images.length > 0) {
-        backgroundStyle = `background: url('${images[0]}') center/cover no-repeat;`;
-    } else {
-        backgroundStyle = `background: ${room.gradient || 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'};`;
-    }
+    // Don't add cache buster - let browser cache images for speed
 
     // Image counter badge (only show if multiple images)
     const imageCounter = images.length > 1 ? `<span class="image-counter" id="${roomId}-counter">1/${images.length}</span>` : '';
 
+    // Use img tag with lazy loading for better caching
+    let imageHTML = '';
+    if (images.length > 0) {
+        imageHTML = `<img src="${images[0]}" alt="${room.name}" loading="lazy" style="width: 100%; height: 100%; object-fit: cover;">`;
+    } else {
+        imageHTML = `<div style="width: 100%; height: 100%; background: ${room.gradient || 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'};"></div>`;
+    }
+
     return `
         <div class="room-detail-card-compact">
-            <div class="room-detail-image-compact" id="${roomId}-image" style="${backgroundStyle}">
+            <div class="room-detail-image-compact" id="${roomId}-image" style="position: relative; overflow: hidden;">
+                ${imageHTML}
                 ${room.badge ? `<span class="room-badge ${room.badgeClass || ''}">${room.badge}</span>` : ''}
                 ${imageCounter}
             </div>
