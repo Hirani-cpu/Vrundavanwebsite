@@ -147,6 +147,7 @@ function setupTabs() {
             const tabMap = {
                 'rooms': 'roomsTab',
                 'events': 'eventsTab',
+                'messages': 'messagesTab',
                 'manage-rooms': 'manageRoomsTab',
                 'manage-menu': 'manageMenuTab',
                 'manage-gallery': 'manageGalleryTab',
@@ -159,6 +160,9 @@ function setupTabs() {
             }
 
             // Load data for management tabs
+            if (tabName === 'messages' && typeof loadMessages === 'function') {
+                loadMessages();
+            }
             if (tabName === 'manage-rooms' && typeof loadRoomsList === 'function') {
                 loadRoomsList();
             }
@@ -1327,11 +1331,3 @@ const refreshMessagesBtn = document.getElementById('refreshMessages');
 if (refreshMessagesBtn) {
     refreshMessagesBtn.addEventListener('click', loadMessages);
 }
-
-// Load messages when tab is opened
-document.addEventListener('DOMContentLoaded', function() {
-    const messagesTab = document.querySelector('[data-tab="messages"]');
-    if (messagesTab) {
-        messagesTab.addEventListener('click', loadMessages);
-    }
-});
