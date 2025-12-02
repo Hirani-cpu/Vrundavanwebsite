@@ -1136,3 +1136,202 @@ async function saveSiteSettings() {
         saveButton.textContent = '💾 Save Settings';
     }
 }
+
+// ===========================
+// Messages Management
+// ===========================
+
+// Load messages from Firebase
+function loadMessages() {
+    const loadingEl = document.getElementById('messagesLoading');
+    const tableEl = document.getElementById('messagesTable');
+    const noMessagesEl = document.getElementById('noMessages');
+    const tableBody = document.getElementById('messagesTableBody');
+
+    // Show loading
+    loadingEl.style.display = 'block';
+    tableEl.style.display = 'none';
+    noMessagesEl.style.display = 'none';
+
+    console.log('Fetching messages from Firestore...');
+
+    db.collection('messages')
+        .orderBy('timestamp', 'desc')
+        .get()
+        .then((querySnapshot) => {
+            console.log('Messages query successful. Count:', querySnapshot.size);
+
+            // Clear table
+            tableBody.innerHTML = '';
+
+            if (querySnapshot.empty) {
+                loadingEl.style.display = 'none';
+                noMessagesEl.style.display = 'block';
+            } else {
+                querySnapshot.forEach((doc) => {
+                    const message = doc.data();
+                    const row = createMessageRow(message, doc.id);
+                    tableBody.appendChild(row);
+                });
+
+                loadingEl.style.display = 'none';
+                tableEl.style.display = 'block';
+            }
+        })
+        .catch((error) => {
+            console.error('Error loading messages:', error);
+            loadingEl.innerHTML = '<p style="color: red;">Error loading messages. Please refresh.</p>';
+        });
+}
+
+// Create table row for message
+function createMessageRow(message, docId) {
+    const row = document.createElement('tr');
+    row.style.cursor = 'pointer';
+
+    // Highlight unread messages
+    if (message.status === 'unread') {
+        row.style.backgroundColor = '#f0f9ff';
+        row.style.fontWeight = '600';
+    }
+
+    const timestamp = message.timestamp ? message.timestamp.toDate() : new Date(message.createdAt);
+    const formattedDate = timestamp.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+
+    const statusBadge = message.status === 'unread'
+        ? '<span style="background: #3b82f6; color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem;">New</span>'
+        : '<span style="background: #6b7280; color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem;">Read</span>';
+
+    // Truncate long messages
+    const truncatedMessage = message.message.length > 50
+        ? message.message.substring(0, 50) + '...'
+        : message.message;
+
+    row.innerHTML = `
+        <td>${formattedDate}</td>
+        <td>${message.name || 'N/A'}</td>
+        <td><a href="mailto:${message.email}" style="color: #2d5016;">${message.email}</a></td>
+        <td>${message.phone || 'N/A'}</td>
+        <td style="font-weight: 600;">${message.subject}</td>
+        <td title="${message.message}">${truncatedMessage}</td>
+        <td>${statusBadge}</td>
+        <td>
+            <button class="btn-view" onclick="viewMessage('${docId}')" style="margin-right: 5px;">👁️ View</button>
+            <button class="btn-delete" onclick="deleteMessage('${docId}')">🗑️ Delete</button>
+        </td>
+    `;
+
+    // Mark as read when clicked
+    row.addEventListener('click', function(e) {
+        if (!e.target.closest('button')) {
+            viewMessage(docId);
+        }
+    });
+
+    return row;
+}
+
+// View full message
+window.viewMessage = async function(messageId) {
+    try {
+        const doc = await db.collection('messages').doc(messageId).get();
+
+        if (!doc.exists) {
+            alert('Message not found');
+            return;
+        }
+
+        const message = doc.data();
+
+        // Mark as read
+        if (message.status === 'unread') {
+            await db.collection('messages').doc(messageId).update({
+                status: 'read'
+            });
+        }
+
+        const timestamp = message.timestamp ? message.timestamp.toDate() : new Date(message.createdAt);
+        const formattedDate = timestamp.toLocaleDateString('en-US', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+
+        const modalContent = `
+            <div style="padding: 20px;">
+                <h3 style="color: #2d5016; margin-bottom: 20px;">📬 ${message.subject}</h3>
+
+                <div style="background: #f9fafb; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                    <p style="margin: 5px 0;"><strong>From:</strong> ${message.name}</p>
+                    <p style="margin: 5px 0;"><strong>Email:</strong> <a href="mailto:${message.email}">${message.email}</a></p>
+                    <p style="margin: 5px 0;"><strong>Phone:</strong> ${message.phone || 'Not provided'}</p>
+                    <p style="margin: 5px 0;"><strong>Date:</strong> ${formattedDate}</p>
+                </div>
+
+                <div style="background: white; padding: 15px; border: 1px solid #e5e7eb; border-radius: 8px;">
+                    <p style="margin: 0; white-space: pre-wrap;">${message.message}</p>
+                </div>
+
+                <div style="margin-top: 20px; text-align: right;">
+                    <a href="mailto:${message.email}?subject=Re: ${encodeURIComponent(message.subject)}" class="btn-primary" style="display: inline-block; padding: 10px 20px; text-decoration: none;">
+                        ✉️ Reply via Email
+                    </a>
+                </div>
+            </div>
+        `;
+
+        // Show in modal (reuse booking modal)
+        document.getElementById('modalTitle').textContent = 'Message Details';
+        document.getElementById('modalBody').innerHTML = modalContent;
+        document.getElementById('adminNotes').style.display = 'none';
+        document.querySelector('.modal-actions').style.display = 'none';
+        document.getElementById('bookingModal').style.display = 'flex';
+
+        // Reload messages to update read status
+        loadMessages();
+
+    } catch (error) {
+        console.error('Error viewing message:', error);
+        alert('Error loading message: ' + error.message);
+    }
+};
+
+// Delete message
+window.deleteMessage = async function(messageId) {
+    if (!confirm('Are you sure you want to delete this message? This action cannot be undone.')) {
+        return;
+    }
+
+    try {
+        await db.collection('messages').doc(messageId).delete();
+        console.log('✅ Message deleted');
+        alert('Message deleted successfully');
+        loadMessages();
+    } catch (error) {
+        console.error('❌ Error deleting message:', error);
+        alert('Error deleting message: ' + error.message);
+    }
+};
+
+// Refresh messages button
+const refreshMessagesBtn = document.getElementById('refreshMessages');
+if (refreshMessagesBtn) {
+    refreshMessagesBtn.addEventListener('click', loadMessages);
+}
+
+// Load messages when tab is opened
+document.addEventListener('DOMContentLoaded', function() {
+    const messagesTab = document.querySelector('[data-tab="messages"]');
+    if (messagesTab) {
+        messagesTab.addEventListener('click', loadMessages);
+    }
+});

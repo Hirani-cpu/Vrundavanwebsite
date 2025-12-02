@@ -297,7 +297,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const enquirySuccessMessage = document.getElementById('enquirySuccessMessage');
 
     if (generalEnquiryForm) {
-        generalEnquiryForm.addEventListener('submit', function(e) {
+        generalEnquiryForm.addEventListener('submit', async function(e) {
             e.preventDefault();
 
             // Get form data
@@ -334,12 +334,42 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
 
-            // Hide form and show success message
-            generalEnquiryForm.style.display = 'none';
-            enquirySuccessMessage.style.display = 'block';
+            // Show loading state
+            const submitBtn = generalEnquiryForm.querySelector('button[type="submit"]');
+            const originalBtnText = submitBtn.textContent;
+            submitBtn.textContent = 'Sending...';
+            submitBtn.disabled = true;
 
-            // Scroll to success message
-            enquirySuccessMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            try {
+                // Save message to Firebase
+                await db.collection('messages').add({
+                    name: formData.name,
+                    email: formData.email,
+                    phone: formData.phone || '',
+                    subject: formData.subject,
+                    message: formData.message,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    status: 'unread',
+                    createdAt: new Date().toISOString()
+                });
+
+                console.log('✅ Message saved to Firebase');
+
+                // Hide form and show success message
+                generalEnquiryForm.style.display = 'none';
+                enquirySuccessMessage.style.display = 'block';
+
+                // Scroll to success message
+                enquirySuccessMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+            } catch (error) {
+                console.error('❌ Error saving message:', error);
+                alert('Failed to send message. Please try again.');
+
+                // Reset button
+                submitBtn.textContent = originalBtnText;
+                submitBtn.disabled = false;
+            }
         });
     }
 
