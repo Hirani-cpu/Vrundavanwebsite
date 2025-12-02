@@ -158,7 +158,7 @@
     }
 
     // Check if current user is admin
-    function checkAdminStatus() {
+    async function checkAdminStatus() {
         console.log('🔍 Checking admin status...');
 
         // Check if Admin Editor Mode is disabled
@@ -170,11 +170,33 @@
 
         // Check Firebase Auth FIRST
         if (typeof auth !== 'undefined' && auth) {
-            auth.onAuthStateChanged((user) => {
+            auth.onAuthStateChanged(async (user) => {
                 if (user) {
-                    isAdmin = true;
-                    console.log('✅ Admin mode activated via Firebase Auth:', user.email);
-                    showAdminMode();
+                    // Check if user is ACTUALLY an admin
+                    const adminEmails = ['admin@vrundavanresort.com', 'vishal@vrundavanresort.com'];
+                    let userIsAdmin = adminEmails.includes(user.email.toLowerCase());
+
+                    // Also check role from Firestore
+                    if (!userIsAdmin && typeof db !== 'undefined' && db) {
+                        try {
+                            const userDoc = await db.collection('users').doc(user.uid).get();
+                            if (userDoc.exists) {
+                                const userData = userDoc.data();
+                                userIsAdmin = userData.role === 'admin';
+                            }
+                        } catch (error) {
+                            console.error('Error checking user role:', error);
+                        }
+                    }
+
+                    if (userIsAdmin) {
+                        isAdmin = true;
+                        console.log('✅ Admin mode activated via Firebase Auth:', user.email);
+                        showAdminMode();
+                    } else {
+                        console.log('❌ User is not an admin:', user.email);
+                        isAdmin = false;
+                    }
                 } else {
                     checkLocalStorageAdmin();
                 }
