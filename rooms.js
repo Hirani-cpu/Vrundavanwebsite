@@ -171,8 +171,8 @@ function createRoomCard(room, roomId) {
     `;
 }
 
-// Room Booking Modal Functions
-function openBookingModal(roomName, price, priceUnit) {
+// Room Booking Modal Functions - Make globally accessible
+window.openBookingModal = function(roomName, price, priceUnit) {
     document.getElementById('selectedRoomName').value = roomName;
     document.getElementById('selectedRoomPrice').value = price;
     document.getElementById('displayRoomName').value = roomName;
@@ -195,7 +195,7 @@ function openBookingModal(roomName, price, priceUnit) {
     document.getElementById('bookingSuccessMessage').style.display = 'none';
 }
 
-function closeBookingModal() {
+window.closeBookingModal = function() {
     document.getElementById('roomBookingModal').style.display = 'none';
     document.getElementById('roomBookingForm').reset();
 }
