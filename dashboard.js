@@ -893,4 +893,146 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('btnDelete').addEventListener('click', function() {
         deleteBooking();
     });
+
+    // ===========================
+    // Site Settings Functionality
+    // ===========================
+
+    // Load settings when Site Settings tab is clicked
+    const siteSettingsTab = document.querySelector('[data-tab="site-settings"]');
+    if (siteSettingsTab) {
+        siteSettingsTab.addEventListener('click', function() {
+            loadSiteSettings();
+        });
+    }
+
+    // Site Settings Form Submit
+    const siteSettingsForm = document.getElementById('siteSettingsForm');
+    if (siteSettingsForm) {
+        siteSettingsForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            saveSiteSettings();
+        });
+    }
 });
+
+// ===========================
+// Site Settings Functions
+// ===========================
+
+// Load site settings from Firebase
+function loadSiteSettings() {
+    const loadingMessage = document.getElementById('settingsLoadingMessage');
+    const form = document.getElementById('siteSettingsForm');
+
+    loadingMessage.style.display = 'block';
+    form.style.display = 'none';
+
+    console.log('Loading site settings...');
+
+    // Get settings from Firebase (stored in 'siteSettings' collection with a single document ID 'main')
+    db.collection('siteSettings')
+        .doc('main')
+        .get()
+        .then((doc) => {
+            if (doc.exists) {
+                const settings = doc.data();
+                console.log('Settings loaded:', settings);
+
+                // Populate form with existing settings
+                document.getElementById('siteName').value = settings.siteName || '';
+                document.getElementById('siteTagline').value = settings.siteTagline || '';
+                document.getElementById('siteLogo').value = settings.siteLogo || '';
+                document.getElementById('contactPhone1').value = settings.contactPhone1 || '';
+                document.getElementById('contactPhone2').value = settings.contactPhone2 || '';
+                document.getElementById('contactEmail1').value = settings.contactEmail1 || '';
+                document.getElementById('contactEmail2').value = settings.contactEmail2 || '';
+                document.getElementById('contactAddress').value = settings.contactAddress || '';
+                document.getElementById('contactWhatsApp').value = settings.contactWhatsApp || '';
+                document.getElementById('checkInTime').value = settings.checkInTime || '';
+                document.getElementById('checkOutTime').value = settings.checkOutTime || '';
+                document.getElementById('restaurantHours').value = settings.restaurantHours || '';
+                document.getElementById('socialFacebook').value = settings.socialFacebook || '';
+                document.getElementById('socialInstagram').value = settings.socialInstagram || '';
+                document.getElementById('socialTwitter').value = settings.socialTwitter || '';
+            } else {
+                console.log('No settings found. Using defaults.');
+                // Set default values
+                document.getElementById('siteName').value = 'Vrundavan Resort & Restaurant';
+                document.getElementById('siteTagline').value = 'Your perfect destination for relaxation, dining, and celebrations in the heart of nature';
+                document.getElementById('siteLogo').value = '🌳';
+                document.getElementById('contactPhone1').value = '+91 98765 43210';
+                document.getElementById('contactPhone2').value = '+91 98765 43211';
+                document.getElementById('contactEmail1').value = 'info@vrundavanresort.com';
+                document.getElementById('contactEmail2').value = 'bookings@vrundavanresort.com';
+                document.getElementById('contactAddress').value = 'Countryside Location';
+                document.getElementById('checkInTime').value = '12:00 PM onwards';
+                document.getElementById('checkOutTime').value = '11:00 AM';
+                document.getElementById('restaurantHours').value = '8:00 AM - 11:00 PM';
+            }
+
+            loadingMessage.style.display = 'none';
+            form.style.display = 'block';
+        })
+        .catch((error) => {
+            console.error('Error loading settings:', error);
+            loadingMessage.innerHTML = '<p style="color: red;">Error loading settings. Please refresh.</p>';
+        });
+}
+
+// Save site settings to Firebase
+function saveSiteSettings() {
+    const form = document.getElementById('siteSettingsForm');
+    const successMessage = document.getElementById('settingsSaveSuccess');
+    const saveButton = form.querySelector('button[type="submit"]');
+
+    // Disable button during save
+    saveButton.disabled = true;
+    saveButton.textContent = '💾 Saving...';
+
+    const settings = {
+        siteName: document.getElementById('siteName').value.trim(),
+        siteTagline: document.getElementById('siteTagline').value.trim(),
+        siteLogo: document.getElementById('siteLogo').value.trim() || '🌳',
+        contactPhone1: document.getElementById('contactPhone1').value.trim(),
+        contactPhone2: document.getElementById('contactPhone2').value.trim(),
+        contactEmail1: document.getElementById('contactEmail1').value.trim(),
+        contactEmail2: document.getElementById('contactEmail2').value.trim(),
+        contactAddress: document.getElementById('contactAddress').value.trim(),
+        contactWhatsApp: document.getElementById('contactWhatsApp').value.trim(),
+        checkInTime: document.getElementById('checkInTime').value.trim(),
+        checkOutTime: document.getElementById('checkOutTime').value.trim(),
+        restaurantHours: document.getElementById('restaurantHours').value.trim(),
+        socialFacebook: document.getElementById('socialFacebook').value.trim(),
+        socialInstagram: document.getElementById('socialInstagram').value.trim(),
+        socialTwitter: document.getElementById('socialTwitter').value.trim(),
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    };
+
+    console.log('Saving settings:', settings);
+
+    // Save to Firebase
+    db.collection('siteSettings')
+        .doc('main')
+        .set(settings)
+        .then(() => {
+            console.log('✓ Settings saved successfully');
+            saveButton.disabled = false;
+            saveButton.textContent = '💾 Save Settings';
+
+            // Show success message
+            successMessage.style.display = 'block';
+            setTimeout(() => {
+                successMessage.style.display = 'none';
+            }, 5000);
+
+            // Scroll to success message
+            successMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        })
+        .catch((error) => {
+            console.error('Error saving settings:', error);
+            alert('Error saving settings: ' + error.message);
+            saveButton.disabled = false;
+            saveButton.textContent = '💾 Save Settings';
+        });
+}
