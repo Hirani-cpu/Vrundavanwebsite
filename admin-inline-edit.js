@@ -370,11 +370,16 @@
         const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6, .section-title, .hero-title, .welcome-heading, .hero-subtitle, .highlight-item h4, .service-feature h3');
         console.log(`Found ${headings.length} headings`);
 
-        headings.forEach((heading) => {
+        headings.forEach((heading, index) => {
             if (!heading.closest('.admin-edit-btn') &&
                 !heading.querySelector('.admin-edit-btn') &&
                 heading.textContent.trim() &&
                 heading.offsetHeight > 0) {
+
+                // Assign persistent ID based on content and position
+                if (!heading.dataset.editId) {
+                    heading.dataset.editId = generatePersistentId(heading, 'heading', index);
+                }
 
                 const wrapper = document.createElement('span');
                 wrapper.style.cssText = 'position: relative; display: inline-block;';
@@ -392,13 +397,18 @@
         const paragraphs = document.querySelectorAll('p, .amenity-description, .event-description, .room-description, .venue-content p, .amenity-detailed-content p, .highlight-item p, .service-feature p, .intro-text p');
         console.log(`Found ${paragraphs.length} paragraphs`);
 
-        paragraphs.forEach((p) => {
+        paragraphs.forEach((p, index) => {
             // Skip if already has edit button, is in footer, or is empty
             if (!p.closest('.admin-edit-btn') &&
                 !p.querySelector('.admin-edit-btn') &&
                 !p.closest('.footer') &&
                 p.textContent.trim() &&
                 p.offsetHeight > 0) {
+
+                // Assign persistent ID based on content and position
+                if (!p.dataset.editId) {
+                    p.dataset.editId = generatePersistentId(p, 'paragraph', index);
+                }
 
                 const wrapper = document.createElement('span');
                 wrapper.style.cssText = 'position: relative; display: block;';
@@ -416,13 +426,18 @@
         const features = document.querySelectorAll('.feature-item-small, .venue-feature, .event-features-list li, .policy-card li, ul li, ol li');
         console.log(`Found ${features.length} feature items`);
 
-        features.forEach((feature) => {
+        features.forEach((feature, index) => {
             if (!feature.closest('.admin-edit-btn') &&
                 !feature.querySelector('.admin-edit-btn') &&
                 !feature.closest('.footer') &&
                 !feature.closest('.nav-links') &&
                 feature.textContent.trim() &&
                 feature.offsetHeight > 0) {
+
+                // Assign persistent ID based on content and position
+                if (!feature.dataset.editId) {
+                    feature.dataset.editId = generatePersistentId(feature, 'feature', index);
+                }
 
                 const wrapper = document.createElement('span');
                 wrapper.style.cssText = 'position: relative; display: block;';
@@ -617,9 +632,13 @@
             const newText = document.getElementById('textContent').value;
             element.textContent = newText;
 
-            // Save to Firestore with persistent ID (check if element already has ID, reuse it)
-            const elementId = element.dataset.editId || generateId();
-            element.dataset.editId = elementId; // Save ID to element for future edits
+            // Use element's persistent ID (should already be set)
+            const elementId = element.dataset.editId;
+            if (!elementId) {
+                alert('⚠️ Element ID not found. Please refresh the page and try again.');
+                closeModal();
+                return;
+            }
 
             saveToFirestore('pageText', elementId, {
                 text: newText,
@@ -627,6 +646,7 @@
                 pageUrl: window.location.pathname,
                 updatedAt: new Date().toISOString()
             }).then(() => {
+                console.log('✅ Text saved with ID:', elementId);
                 alert('✅ Text updated successfully!');
                 closeModal();
             }).catch(err => {
@@ -1032,6 +1052,25 @@
     // Helper: Generate ID
     function generateId() {
         return 'edit_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    }
+
+    // Generate persistent ID based on element content and position
+    // This ensures the same element gets the same ID across page refreshes
+    function generatePersistentId(element, type, index) {
+        const pageUrl = window.location.pathname;
+        const tagName = element.tagName.toLowerCase();
+        const textContent = element.textContent.trim().substring(0, 30).replace(/[^a-zA-Z0-9]/g, '_');
+
+        // Create hash from content
+        let hash = 0;
+        const str = pageUrl + tagName + textContent + index;
+        for (let i = 0; i < str.length; i++) {
+            const char = str.charCodeAt(i);
+            hash = ((hash << 5) - hash) + char;
+            hash = hash & hash; // Convert to 32bit integer
+        }
+
+        return `${type}_${Math.abs(hash)}_${index}`;
     }
 
     // Create modal
