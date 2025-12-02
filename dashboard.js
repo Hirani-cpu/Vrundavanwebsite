@@ -954,9 +954,9 @@ function loadSiteSettings() {
                 document.getElementById('checkInTime').value = settings.checkInTime || '';
                 document.getElementById('checkOutTime').value = settings.checkOutTime || '';
                 document.getElementById('restaurantHours').value = settings.restaurantHours || '';
-                document.getElementById('socialFacebook').value = settings.socialFacebook || '';
-                document.getElementById('socialInstagram').value = settings.socialInstagram || '';
-                document.getElementById('socialTwitter').value = settings.socialTwitter || '';
+                document.getElementById('socialFacebook').value = settings.facebookUrl || '';
+                document.getElementById('socialInstagram').value = settings.instagramUrl || '';
+                document.getElementById('socialTwitter').value = settings.twitterUrl || '';
             } else {
                 console.log('No settings found. Using defaults.');
                 // Set default values
@@ -1102,9 +1102,9 @@ async function saveSiteSettings() {
             checkInTime: document.getElementById('checkInTime').value.trim(),
             checkOutTime: document.getElementById('checkOutTime').value.trim(),
             restaurantHours: document.getElementById('restaurantHours').value.trim(),
-            socialFacebook: document.getElementById('socialFacebook').value.trim(),
-            socialInstagram: document.getElementById('socialInstagram').value.trim(),
-            socialTwitter: document.getElementById('socialTwitter').value.trim(),
+            facebookUrl: document.getElementById('socialFacebook').value.trim(),
+            instagramUrl: document.getElementById('socialInstagram').value.trim(),
+            twitterUrl: document.getElementById('socialTwitter').value.trim(),
             updatedAt: firebase.firestore.FieldValue.serverTimestamp()
         };
 
