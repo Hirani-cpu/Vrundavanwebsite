@@ -6,42 +6,15 @@ let currentEditingCategoryId = null;
 let currentEditingMenuItemId = null;
 let currentEditingGalleryId = null;
 
-// Tab switching
-document.querySelectorAll('.tab-button').forEach(button => {
-    button.addEventListener('click', function() {
-        const tabName = this.getAttribute('data-tab');
-
-        // Remove active class from all tabs and contents
-        document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
-        document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-
-        // Add active class to clicked tab
-        this.classList.add('active');
-
-        // Show corresponding content
-        const tabMap = {
-            'rooms': 'roomsTab',
-            'events': 'eventsTab',
-            'manage-rooms': 'manageRoomsTab',
-            'manage-menu': 'manageMenuTab',
-            'manage-gallery': 'manageGalleryTab'
-        };
-
-        const contentId = tabMap[tabName];
-        if (contentId) {
-            document.getElementById(contentId).classList.add('active');
-        }
-
-        // Load data for management tabs
-        if (tabName === 'manage-rooms') loadRoomsList();
-        if (tabName === 'manage-menu') loadMenuList();
-        if (tabName === 'manage-gallery') loadGalleryList();
-    });
+// Wait for DOM to be ready
+document.addEventListener('DOMContentLoaded', function() {
+    setupManagementEventListeners();
 });
 
-// ==================== ROOMS MANAGEMENT ====================
+function setupManagementEventListeners() {
+    // ==================== ROOMS MANAGEMENT ====================
 
-document.getElementById('addRoomBtn').addEventListener('click', () => {
+    document.getElementById('addRoomBtn').addEventListener('click', () => {
     currentEditingRoomId = null;
     document.getElementById('roomModalTitle').textContent = 'Add New Room';
     document.getElementById('roomForm').reset();
@@ -600,13 +573,14 @@ async function deleteGalleryImage(galleryId) {
     }
 }
 
-// Close modals when clicking outside
-window.onclick = function(event) {
-    const modals = ['roomModal', 'categoryModal', 'menuItemModal', 'galleryImageModal'];
-    modals.forEach(modalId => {
-        const modal = document.getElementById(modalId);
-        if (event.target == modal) {
-            modal.style.display = 'none';
-        }
-    });
-};
+    // Close modals when clicking outside
+    window.onclick = function(event) {
+        const modals = ['roomModal', 'categoryModal', 'menuItemModal', 'galleryImageModal'];
+        modals.forEach(modalId => {
+            const modal = document.getElementById(modalId);
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        });
+    };
+}  // End of setupManagementEventListeners()

@@ -119,10 +119,28 @@ function setupTabs() {
             });
 
             // Show selected tab content
-            if (tabName === 'rooms') {
-                document.getElementById('roomsTab').classList.add('active');
-            } else if (tabName === 'events') {
-                document.getElementById('eventsTab').classList.add('active');
+            const tabMap = {
+                'rooms': 'roomsTab',
+                'events': 'eventsTab',
+                'manage-rooms': 'manageRoomsTab',
+                'manage-menu': 'manageMenuTab',
+                'manage-gallery': 'manageGalleryTab'
+            };
+
+            const contentId = tabMap[tabName];
+            if (contentId) {
+                document.getElementById(contentId).classList.add('active');
+            }
+
+            // Load data for management tabs
+            if (tabName === 'manage-rooms' && typeof loadRoomsList === 'function') {
+                loadRoomsList();
+            }
+            if (tabName === 'manage-menu' && typeof loadMenuList === 'function') {
+                loadMenuList();
+            }
+            if (tabName === 'manage-gallery' && typeof loadGalleryList === 'function') {
+                loadGalleryList();
             }
         });
     });
