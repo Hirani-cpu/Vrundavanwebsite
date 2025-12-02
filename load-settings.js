@@ -74,7 +74,7 @@
         if (settings.siteLogoUrl) {
             const logoElements = document.querySelectorAll('.logo-image, .navbar .logo .logo-image');
             logoElements.forEach(el => {
-                el.innerHTML = `<img src="${settings.siteLogoUrl}" alt="Logo" style="width: 70px; height: 70px; object-fit: contain;">`;
+                el.innerHTML = `<img src="${settings.siteLogoUrl}" alt="Logo" style="width: 100px; height: 100px; object-fit: contain;">`;
             });
         }
 
