@@ -326,102 +326,133 @@
 
     <!-- Admin Editor Mode Toggle Script -->
     <script>
-        // Show Admin Editor Mode section only for admins (verify from Firebase Auth + Firestore)
+        // Show Admin Editor Mode section only for admins
         async function checkAdminAndShowEditorToggle() {
             try {
+                console.log('🔍 Checking admin status for Editor Mode toggle...');
+
                 // Wait for Firebase to initialize
                 if (typeof auth === 'undefined' || typeof db === 'undefined') {
+                    console.log('⏳ Waiting for Firebase...');
                     setTimeout(checkAdminAndShowEditorToggle, 500);
                     return;
                 }
 
-                // Check Firebase Auth current user
-                const firebaseUser = auth.currentUser;
-                if (!firebaseUser) {
-                    console.log('No Firebase user logged in');
-                    return; // Not logged in, don't show admin features
-                }
-
-                // Get user role from Firestore database
-                const userDoc = await db.collection('users').doc(firebaseUser.uid).get();
-
-                if (!userDoc.exists) {
-                    console.log('User document not found in Firestore');
-                    return;
-                }
-
-                const userData = userDoc.data();
                 const adminEmails = ['admin@vrundavanresort.com', 'vishal@vrundavanresort.com'];
+                let isAdmin = false;
 
-                // Check if user is admin by email OR role field in database
-                const isAdmin = adminEmails.includes(firebaseUser.email.toLowerCase()) || userData.role === 'admin';
+                // METHOD 1: Check Firebase Auth (preferred)
+                const firebaseUser = auth.currentUser;
+                if (firebaseUser) {
+                    console.log('✅ Firebase Auth user:', firebaseUser.email);
 
-                console.log('Admin check:', { email: firebaseUser.email, role: userData.role, isAdmin: isAdmin });
+                    // Check by email
+                    if (adminEmails.includes(firebaseUser.email.toLowerCase())) {
+                        isAdmin = true;
+                        console.log('✅ Admin verified by email');
+                    }
 
+                    // Also check role from Firestore
+                    try {
+                        const userDoc = await db.collection('users').doc(firebaseUser.uid).get();
+                        if (userDoc.exists) {
+                            const userData = userDoc.data();
+                            if (userData.role === 'admin') {
+                                isAdmin = true;
+                                console.log('✅ Admin verified by Firestore role');
+                            }
+                        }
+                    } catch (error) {
+                        console.error('Error checking Firestore role:', error);
+                    }
+                }
+
+                // METHOD 2: Check localStorage (fallback for old login system)
+                if (!isAdmin) {
+                    console.log('⏳ No Firebase user, checking localStorage...');
+                    const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+                    const adminLoggedIn = localStorage.getItem('adminLoggedIn');
+
+                    if (currentUser.email && adminEmails.includes(currentUser.email.toLowerCase())) {
+                        isAdmin = true;
+                        console.log('✅ Admin verified by localStorage email');
+                    } else if (adminLoggedIn === 'true') {
+                        isAdmin = true;
+                        console.log('✅ Admin verified by localStorage flag');
+                    }
+                }
+
+                console.log('📊 Final admin status:', isAdmin);
+
+                // Show admin features if admin
                 if (isAdmin) {
                     // Show Admin Editor Mode section
                     const section = document.getElementById('adminEditorModeSection');
                     if (section) {
                         section.style.display = 'block';
+                        console.log('✅ Admin Editor Mode section shown');
                     }
 
                     // Show Admin Panel link
                     const adminPanelLink = document.getElementById('adminPanelLink');
                     if (adminPanelLink) {
                         adminPanelLink.style.display = 'block';
+                        console.log('✅ Admin Panel link shown');
                     }
 
                     // Load current state
                     const toggle = document.getElementById('adminEditorModeToggle');
-                    const editorEnabled = localStorage.getItem('adminEditorModeEnabled');
+                    if (toggle) {
+                        const editorEnabled = localStorage.getItem('adminEditorModeEnabled');
 
-                    if (editorEnabled === 'false') {
-                        toggle.checked = false;
-                    } else {
-                        toggle.checked = true;
-                        // Default to enabled if not set
-                        if (!editorEnabled) {
-                            localStorage.setItem('adminEditorModeEnabled', 'true');
-                        }
-                    }
-
-                    // Handle toggle change
-                    toggle.addEventListener('change', function() {
-                        const enabled = this.checked;
-                        localStorage.setItem('adminEditorModeEnabled', enabled ? 'true' : 'false');
-
-                        // Show confirmation
-                        if (enabled) {
-                            alert('✅ Admin Editor Mode Enabled\n\nEdit buttons will now appear on all pages.');
+                        if (editorEnabled === 'false') {
+                            toggle.checked = false;
                         } else {
-                            alert('❌ Admin Editor Mode Disabled\n\nEdit buttons will be hidden on all pages.\nYou can re-enable it anytime from Settings.');
+                            toggle.checked = true;
+                            // Default to enabled if not set
+                            if (!editorEnabled) {
+                                localStorage.setItem('adminEditorModeEnabled', 'true');
+                            }
                         }
-                    });
+
+                        // Handle toggle change
+                        toggle.addEventListener('change', function() {
+                            const enabled = this.checked;
+                            localStorage.setItem('adminEditorModeEnabled', enabled ? 'true' : 'false');
+
+                            // Show confirmation
+                            if (enabled) {
+                                alert('✅ Admin Editor Mode Enabled\n\nEdit buttons will now appear on all pages.');
+                            } else {
+                                alert('❌ Admin Editor Mode Disabled\n\nEdit buttons will be hidden on all pages.\nYou can re-enable it anytime from Settings.');
+                            }
+                        });
+                    }
                 } else {
-                    console.log('User is not an admin');
+                    console.log('❌ User is not an admin');
                 }
             } catch (error) {
-                console.error('Error checking admin status:', error);
+                console.error('❌ Error checking admin status:', error);
             }
         }
 
         // Wait for Firebase Auth state to be ready
         if (typeof firebase !== 'undefined' && firebase.auth) {
             firebase.auth().onAuthStateChanged(function(user) {
-                if (user) {
-                    // User is signed in, check admin status
-                    checkAdminAndShowEditorToggle();
-                }
+                console.log('🔄 Auth state changed:', user ? user.email : 'no user');
+                checkAdminAndShowEditorToggle();
             });
         } else {
-            // Fallback: wait for page load
-            if (document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', function() {
-                    setTimeout(checkAdminAndShowEditorToggle, 1000);
-                });
-            } else {
+            console.log('⚠️ Firebase not ready, using fallback');
+        }
+
+        // Also run on page load (fallback)
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function() {
                 setTimeout(checkAdminAndShowEditorToggle, 1000);
-            }
+            });
+        } else {
+            setTimeout(checkAdminAndShowEditorToggle, 1000);
         }
     </script>
 </body>
