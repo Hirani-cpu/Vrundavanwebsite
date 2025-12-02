@@ -983,8 +983,9 @@ function loadSiteSettings() {
         });
 }
 
-// Compress logo image for fast upload
-async function compressLogoImage(file, maxWidth = 400, quality = 0.7) {
+// EXTREME compression for INSTANT upload
+async function compressLogoImage(file, maxWidth = 200, quality = 0.5) {
+    const startTime = Date.now();
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.readAsDataURL(file);
@@ -993,27 +994,31 @@ async function compressLogoImage(file, maxWidth = 400, quality = 0.7) {
             img.src = event.target.result;
             img.onload = () => {
                 const canvas = document.createElement('canvas');
-                let width = img.width;
-                let height = img.height;
 
-                // Resize if image is too large
-                if (width > maxWidth || height > maxWidth) {
-                    if (width > height) {
-                        height = (height * maxWidth) / width;
-                        width = maxWidth;
-                    } else {
-                        width = (width * maxWidth) / height;
-                        height = maxWidth;
-                    }
+                // ALWAYS resize to exactly maxWidth for consistent tiny size
+                const aspectRatio = img.width / img.height;
+                let width, height;
+
+                if (aspectRatio > 1) {
+                    width = maxWidth;
+                    height = maxWidth / aspectRatio;
+                } else {
+                    height = maxWidth;
+                    width = maxWidth * aspectRatio;
                 }
 
                 canvas.width = width;
                 canvas.height = height;
 
                 const ctx = canvas.getContext('2d');
+
+                // Disable image smoothing for faster processing
+                ctx.imageSmoothingEnabled = true;
+                ctx.imageSmoothingQuality = 'low';
+
                 ctx.drawImage(img, 0, 0, width, height);
 
-                // Convert to blob with compression
+                // EXTREME compression for tiny file size
                 canvas.toBlob(
                     (blob) => {
                         if (!blob) {
@@ -1024,7 +1029,8 @@ async function compressLogoImage(file, maxWidth = 400, quality = 0.7) {
                             type: 'image/jpeg',
                             lastModified: Date.now()
                         });
-                        console.log(`Logo compressed: ${(file.size / 1024).toFixed(0)}KB → ${(compressedFile.size / 1024).toFixed(0)}KB`);
+                        const duration = Date.now() - startTime;
+                        console.log(`⚡ Logo compressed in ${duration}ms: ${(file.size / 1024).toFixed(0)}KB → ${(compressedFile.size / 1024).toFixed(0)}KB`);
                         resolve(compressedFile);
                     },
                     'image/jpeg',
@@ -1053,13 +1059,23 @@ async function saveSiteSettings() {
 
         // Upload logo if a new file was selected
         if (logoUpload.files && logoUpload.files[0]) {
-            saveButton.textContent = '⚡ Compressing logo...';
             const logoFile = logoUpload.files[0];
 
-            // Compress logo for FAST upload (400px, 70% quality = ~20-50KB)
-            const compressedLogo = await compressLogoImage(logoFile, 400, 0.7);
+            // Show immediate preview from file
+            const tempUrl = URL.createObjectURL(logoFile);
+            document.getElementById('currentLogoPreview').innerHTML = `<img src="${tempUrl}" style="width: 100%; height: 100%; object-fit: contain; border-radius: 6px; opacity: 0.5;">`;
 
-            saveButton.textContent = '📤 Uploading logo...';
+            saveButton.textContent = '⚡ Compressing...';
+
+            // EXTREME compression for INSTANT upload (200px, 50% quality = ~10-20KB)
+            const compressedLogo = await compressLogoImage(logoFile, 200, 0.5);
+
+            // Show compressed preview immediately
+            const compressedUrl = URL.createObjectURL(compressedLogo);
+            document.getElementById('currentLogoPreview').innerHTML = `<img src="${compressedUrl}" style="width: 100%; height: 100%; object-fit: contain; border-radius: 6px;">`;
+
+            saveButton.textContent = '📤 Uploading...';
+            const uploadStart = Date.now();
 
             // Upload to Firebase Storage
             const storageRef = storage.ref();
@@ -1067,10 +1083,9 @@ async function saveSiteSettings() {
 
             const snapshot = await logoRef.put(compressedLogo);
             logoUrl = await snapshot.ref.getDownloadURL();
-            console.log('✓ Logo uploaded:', logoUrl);
 
-            // Update preview
-            document.getElementById('currentLogoPreview').innerHTML = `<img src="${logoUrl}" style="width: 100%; height: 100%; object-fit: contain; border-radius: 6px;">`;
+            const uploadTime = Date.now() - uploadStart;
+            console.log(`✓ Logo uploaded in ${uploadTime}ms:`, logoUrl);
         }
 
         saveButton.textContent = '💾 Saving settings...';
