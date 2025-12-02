@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clear Database - Admin Tool</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #d32f2f;
+            margin-top: 0;
+        }
+        .warning {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        button {
+            padding: 12px 24px;
+            margin: 10px 5px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .btn-danger {
+            background: #d32f2f;
+            color: white;
+        }
+        .btn-danger:hover {
+            background: #b71c1c;
+        }
+        .btn-secondary {
+            background: #757575;
+            color: white;
+        }
+        .btn-secondary:hover {
+            background: #616161;
+        }
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            display: none;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            display: block;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            display: block;
+        }
+        .step {
+            background: #e3f2fd;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border-left: 4px solid #2196f3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🗑️ Clear Database</h1>
+
+        <div class="warning">
+            <strong>⚠️ WARNING:</strong> This will delete ALL user accounts and data from:
+            <ul>
+                <li>Firestore Database (users collection)</li>
+                <li>Firebase Authentication</li>
+                <li>LocalStorage (all saved data)</li>
+            </ul>
+            <strong>This action CANNOT be undone!</strong>
+        </div>
+
+        <div class="step">
+            <strong>Step 1:</strong> Click "Clear All Data" button below<br>
+            <strong>Step 2:</strong> Go to login page and create new admin account<br>
+            <strong>Step 3:</strong> Use email: <code>admin@vrundavanresort.com</code>
+        </div>
+
+        <button class="btn-danger" onclick="clearAllData()">🗑️ Clear All Data</button>
+        <button class="btn-secondary" onclick="window.location.href='index.html'">Cancel</button>
+
+        <div id="status" class="status"></div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="firebase-config.js"></script>
+
+    <script>
+        async function clearAllData() {
+            const confirmed = confirm('⚠️ FINAL WARNING ⚠️\n\nAre you absolutely sure you want to delete ALL user data?\n\nThis will:\n- Delete all users from Firestore\n- Sign out from Firebase Auth\n- Clear all localStorage data\n\nClick OK to proceed or Cancel to abort.');
+
+            if (!confirmed) {
+                return;
+            }
+
+            const statusDiv = document.getElementById('status');
+            statusDiv.className = 'status';
+            statusDiv.innerHTML = '<strong>⏳ Processing...</strong>';
+            statusDiv.style.display = 'block';
+
+            try {
+                let steps = [];
+
+                // Step 1: Sign out from Firebase Auth
+                try {
+                    if (auth && auth.currentUser) {
+                        await auth.signOut();
+                        steps.push('✅ Signed out from Firebase Auth');
+                    } else {
+                        steps.push('ℹ️ No Firebase user to sign out');
+                    }
+                } catch (error) {
+                    steps.push('⚠️ Error signing out: ' + error.message);
+                }
+
+                // Step 2: Delete all users from Firestore
+                try {
+                    const usersSnapshot = await db.collection('users').get();
+                    const deletePromises = [];
+
+                    usersSnapshot.forEach((doc) => {
+                        deletePromises.push(doc.ref.delete());
+                    });
+
+                    await Promise.all(deletePromises);
+                    steps.push(`✅ Deleted ${deletePromises.length} users from Firestore`);
+                } catch (error) {
+                    steps.push('⚠️ Error deleting users from Firestore: ' + error.message);
+                }
+
+                // Step 3: Clear all localStorage
+                try {
+                    localStorage.clear();
+                    steps.push('✅ Cleared all localStorage data');
+                } catch (error) {
+                    steps.push('⚠️ Error clearing localStorage: ' + error.message);
+                }
+
+                // Step 4: Clear sessionStorage
+                try {
+                    sessionStorage.clear();
+                    steps.push('✅ Cleared all sessionStorage data');
+                } catch (error) {
+                    steps.push('⚠️ Error clearing sessionStorage: ' + error.message);
+                }
+
+                // Show success
+                statusDiv.className = 'status success';
+                statusDiv.innerHTML = `
+                    <strong>✅ Database Cleared Successfully!</strong>
+                    <br><br>
+                    ${steps.map(s => s + '<br>').join('')}
+                    <br>
+                    <strong>Next Steps:</strong>
+                    <ol style="margin: 10px 0;">
+                        <li>Go to <a href="login.html">login page</a></li>
+                        <li>Click "Sign Up" to create new account</li>
+                        <li>Use email: <code>admin@vrundavanresort.com</code></li>
+                        <li>Create a strong password</li>
+                    </ol>
+                    <button onclick="window.location.href='login.html'" style="padding: 10px 20px; background: #4a7c2c; color: white; border: none; border-radius: 5px; cursor: pointer; margin-top: 10px;">
+                        Go to Login Page →
+                    </button>
+                `;
+
+                console.log('🗑️ Database cleared:', steps);
+
+            } catch (error) {
+                console.error('❌ Error clearing database:', error);
+                statusDiv.className = 'status error';
+                statusDiv.innerHTML = `
+                    <strong>❌ Error:</strong> ${error.message}
+                    <br><br>
+                    Please check the console for more details.
+                `;
+            }
+        }
+
+        // Wait for Firebase to initialize
+        setTimeout(() => {
+            if (typeof auth === 'undefined' || typeof db === 'undefined') {
+                alert('⚠️ Firebase not initialized. Please refresh the page.');
+            }
+        }, 2000);
+    </script>
+</body>
+</html>
