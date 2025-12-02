@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authentication Test - Vrundavan Resort</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            color: #2d5016;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+        }
+
+        .test-section h2 {
+            color: #4a7c2c;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .status {
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-family: monospace;
+        }
+
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        button {
+            background: #4a7c2c;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            margin: 10px 5px;
+        }
+
+        button:hover {
+            background: #2d5016;
+        }
+
+        pre {
+            background: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            margin: 10px 0;
+        }
+
+        .code {
+            background: #2d3436;
+            color: #00ff00;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Authentication & Permissions Test</h1>
+
+        <div class="test-section">
+            <h2>1. Firebase Connection</h2>
+            <div id="firebaseStatus" class="status info">Testing Firebase connection...</div>
+        </div>
+
+        <div class="test-section">
+            <h2>2. Firebase Authentication Status</h2>
+            <div id="authStatus" class="status info">Checking authentication...</div>
+            <div id="authDetails"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>3. LocalStorage User (Website Login)</h2>
+            <div id="localStorageStatus" class="status info">Checking localStorage...</div>
+        </div>
+
+        <div class="test-section">
+            <h2>4. Firestore Permissions Test</h2>
+            <button onclick="testFirestoreWrite()">Test Write to 'rooms' Collection</button>
+            <div id="firestoreStatus" class="status info">Click button to test Firestore write permissions</div>
+        </div>
+
+        <div class="test-section">
+            <h2>5. Quick Login via Firebase Auth</h2>
+            <p style="margin-bottom: 15px;">If you're not authenticated with Firebase, login here:</p>
+            <input type="email" id="loginEmail" placeholder="admin@vrundavanresort.com" style="padding: 10px; width: 100%; margin-bottom: 10px; border: 2px solid #ddd; border-radius: 5px;">
+            <input type="password" id="loginPassword" placeholder="Your password" style="padding: 10px; width: 100%; margin-bottom: 10px; border: 2px solid #ddd; border-radius: 5px;">
+            <button onclick="loginWithFirebase()">Login with Firebase Auth</button>
+            <div id="loginStatus"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>6. Solution</h2>
+            <div class="warning">
+                <strong>If you see "Missing or insufficient permissions" error:</strong><br><br>
+                <strong>Option 1:</strong> Update Firestore Rules in Firebase Console<br>
+                <div class="code">
+1. Go to Firebase Console<br>
+2. Click Firestore Database → Rules<br>
+3. Copy rules from firestore.rules file<br>
+4. Click Publish<br>
+5. Wait 30 seconds
+                </div>
+                <br>
+                <strong>Option 2:</strong> Login via Firebase Auth (use the login form above)
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
+
+    <script>
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // Test Firebase Connection
+        document.getElementById('firebaseStatus').innerHTML = firebase.app()
+            ? '<strong>✅ SUCCESS:</strong> Firebase is connected!'
+            : '<strong>❌ ERROR:</strong> Firebase is not connected!';
+        document.getElementById('firebaseStatus').className = firebase.app() ? 'status success' : 'status error';
+
+        // Test Firebase Auth
+        auth.onAuthStateChanged((user) => {
+            const authStatus = document.getElementById('authStatus');
+            const authDetails = document.getElementById('authDetails');
+
+            if (user) {
+                authStatus.innerHTML = '<strong>✅ SUCCESS:</strong> You are authenticated with Firebase Auth!';
+                authStatus.className = 'status success';
+                authDetails.innerHTML = `
+                    <pre>Email: ${user.email}
+UID: ${user.uid}
+Email Verified: ${user.emailVerified}</pre>
+                `;
+            } else {
+                authStatus.innerHTML = '<strong>❌ ERROR:</strong> You are NOT authenticated with Firebase Auth!<br>This is why Firestore is blocking you.';
+                authStatus.className = 'status error';
+                authDetails.innerHTML = '<div class="warning" style="margin-top: 10px;"><strong>Solution:</strong> Use the login form below to authenticate with Firebase.</div>';
+            }
+        });
+
+        // Test localStorage
+        const currentUser = localStorage.getItem('currentUser');
+        const localStorageStatus = document.getElementById('localStorageStatus');
+
+        if (currentUser) {
+            const user = JSON.parse(currentUser);
+            localStorageStatus.innerHTML = `<strong>✅ Found:</strong> You are logged in via website as ${user.email}<br><br><strong>⚠️ WARNING:</strong> This is NOT Firebase Auth. Firestore rules check Firebase Auth, not localStorage!`;
+            localStorageStatus.className = 'status warning';
+        } else {
+            localStorageStatus.innerHTML = '<strong>ℹ️ INFO:</strong> No localStorage user found.';
+            localStorageStatus.className = 'status info';
+        }
+
+        // Test Firestore Write
+        async function testFirestoreWrite() {
+            const statusEl = document.getElementById('firestoreStatus');
+            statusEl.innerHTML = '⏳ Testing write to Firestore...';
+            statusEl.className = 'status info';
+
+            try {
+                const testRoom = {
+                    name: 'TEST ROOM - DELETE ME',
+                    description: 'This is a test room created by auth-test.html',
+                    price: 1000,
+                    priceUnit: 'night',
+                    order: 999,
+                    createdAt: new Date().toISOString()
+                };
+
+                const docRef = await db.collection('rooms').add(testRoom);
+
+                statusEl.innerHTML = `<strong>✅ SUCCESS!</strong> Write succeeded!<br>Created document ID: ${docRef.id}<br><br>Your Firestore permissions are working correctly!<br><br><strong>Note:</strong> You can delete this test room from the admin panel.`;
+                statusEl.className = 'status success';
+            } catch (error) {
+                statusEl.innerHTML = `<strong>❌ ERROR:</strong> ${error.message}<br><br><strong>Error Code:</strong> ${error.code}<br><br>`;
+
+                if (error.code === 'permission-denied') {
+                    statusEl.innerHTML += `
+                        <strong>This means:</strong><br>
+                        1. You are not authenticated with Firebase Auth (see section 2 above)<br>
+                        2. OR your Firestore security rules are blocking this operation<br><br>
+                        <strong>Solution:</strong><br>
+                        - If section 2 shows you're NOT authenticated, use the login form below<br>
+                        - If section 2 shows you ARE authenticated, update your Firestore rules in Firebase Console
+                    `;
+                }
+
+                statusEl.className = 'status error';
+            }
+        }
+
+        // Login with Firebase
+        async function loginWithFirebase() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            const statusEl = document.getElementById('loginStatus');
+
+            if (!email || !password) {
+                statusEl.innerHTML = '<div class="status error" style="margin-top: 10px;">Please enter both email and password!</div>';
+                return;
+            }
+
+            statusEl.innerHTML = '<div class="status info" style="margin-top: 10px;">⏳ Logging in...</div>';
+
+            try {
+                const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                statusEl.innerHTML = `<div class="status success" style="margin-top: 10px;"><strong>✅ SUCCESS!</strong> Logged in as ${userCredential.user.email}<br><br>Now try the Firestore write test above!</div>`;
+
+                // Refresh auth status
+                setTimeout(() => {
+                    location.reload();
+                }, 2000);
+            } catch (error) {
+                statusEl.innerHTML = `<div class="status error" style="margin-top: 10px;"><strong>❌ ERROR:</strong> ${error.message}<br><br><strong>Note:</strong> Make sure this email/password exists in Firebase Authentication.</div>`;
+            }
+        }
+    </script>
+</body>
+</html>
