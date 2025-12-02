@@ -436,10 +436,19 @@ async function loadMenuList() {
             `;
             menuList.innerHTML += categoryCard;
 
-            const itemsSnapshot = await db.collection('menuItems')
-                .where('categoryId', '==', catDoc.id)
-                .orderBy('order', 'asc')
-                .get();
+            let itemsSnapshot;
+            try {
+                itemsSnapshot = await db.collection('menuItems')
+                    .where('categoryId', '==', catDoc.id)
+                    .orderBy('order', 'asc')
+                    .get();
+            } catch (indexError) {
+                console.warn('Index error for menu items, trying without orderBy:', indexError);
+                // If index doesn't exist, query without orderBy
+                itemsSnapshot = await db.collection('menuItems')
+                    .where('categoryId', '==', catDoc.id)
+                    .get();
+            }
 
             itemsSnapshot.forEach(itemDoc => {
                 const item = itemDoc.data();

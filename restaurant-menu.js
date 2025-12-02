@@ -31,10 +31,19 @@ async function loadMenu() {
             const categoryId = catDoc.id;
 
             // Load items for this category
-            const itemsSnapshot = await db.collection('menuItems')
-                .where('categoryId', '==', categoryId)
-                .orderBy('order', 'asc')
-                .get();
+            let itemsSnapshot;
+            try {
+                itemsSnapshot = await db.collection('menuItems')
+                    .where('categoryId', '==', categoryId)
+                    .orderBy('order', 'asc')
+                    .get();
+            } catch (indexError) {
+                console.warn('Index not found, querying without orderBy:', indexError);
+                // If composite index doesn't exist, query without orderBy
+                itemsSnapshot = await db.collection('menuItems')
+                    .where('categoryId', '==', categoryId)
+                    .get();
+            }
 
             const items = [];
             itemsSnapshot.forEach(doc => {
@@ -47,7 +56,23 @@ async function loadMenu() {
 
     } catch (error) {
         console.error('Error loading menu:', error);
-        menuLoading.innerHTML = '<p style="color: red;">Error loading menu. Please try again later.</p>';
+        console.error('Error code:', error.code);
+        console.error('Error message:', error.message);
+
+        menuLoading.style.display = 'none';
+
+        let errorMessage = '<p style="color: red;">Error loading menu: ' + error.message + '</p>';
+
+        if (error.code === 'failed-precondition' || error.message.includes('index')) {
+            errorMessage += '<p style="color: orange; margin-top: 10px;">This error requires creating a Firestore index. Check the browser console for a link to create the index automatically.</p>';
+        }
+
+        if (error.code === 'permission-denied') {
+            errorMessage += '<p style="color: orange; margin-top: 10px;">Permission denied. Please check your Firestore security rules.</p>';
+        }
+
+        noMenu.innerHTML = errorMessage;
+        noMenu.style.display = 'block';
     }
 }
 

@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menu Setup & Test - Vrundavan Resort</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            color: #2d5016;
+            margin-bottom: 10px;
+        }
+
+        h2 {
+            color: #4a7c2c;
+            margin: 30px 0 15px 0;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .status {
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .warning { background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+
+        button {
+            background: #4a7c2c;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            margin: 10px 10px 10px 0;
+        }
+
+        button:hover { background: #2d5016; }
+        button:disabled { background: #ccc; cursor: not-allowed; }
+
+        pre {
+            background: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            margin: 10px 0;
+            font-size: 0.9rem;
+        }
+
+        .section {
+            margin: 30px 0;
+            padding: 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🍽️ Menu Setup & Diagnostic Tool</h1>
+        <p>This tool helps you set up and test the restaurant menu functionality.</p>
+
+        <div class="section">
+            <h2>1. Authentication Status</h2>
+            <div id="authStatus" class="status info">Checking...</div>
+        </div>
+
+        <div class="section">
+            <h2>2. Check Existing Menu Data</h2>
+            <button onclick="checkMenuData()">Check Menu Data</button>
+            <div id="menuDataStatus"></div>
+        </div>
+
+        <div class="section">
+            <h2>3. Create Sample Menu (Quick Start)</h2>
+            <p>This will create 2 sample categories with items to get you started.</p>
+            <button onclick="createSampleMenu()">Create Sample Menu</button>
+            <div id="sampleMenuStatus"></div>
+        </div>
+
+        <div class="section">
+            <h2>4. Test Menu Loading on Website</h2>
+            <button onclick="testMenuLoading()">Test Menu Loading</button>
+            <div id="menuLoadingStatus"></div>
+        </div>
+
+        <div class="section">
+            <h2>5. Clear All Menu Data</h2>
+            <p style="color: red; margin-bottom: 10px;">⚠️ Warning: This will delete all menu categories and items!</p>
+            <button onclick="clearAllMenu()" style="background: #dc3545;">Clear All Menu Data</button>
+            <div id="clearStatus"></div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
+
+    <script>
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // Check auth status
+        auth.onAuthStateChanged((user) => {
+            const statusEl = document.getElementById('authStatus');
+            if (user) {
+                statusEl.innerHTML = `<strong>✅ Authenticated:</strong> ${user.email}`;
+                statusEl.className = 'status success';
+            } else {
+                statusEl.innerHTML = '<strong>❌ Not Authenticated</strong><br>You need to login via admin.html or auth-test.html first!';
+                statusEl.className = 'status error';
+            }
+        });
+
+        async function checkMenuData() {
+            const statusEl = document.getElementById('menuDataStatus');
+            statusEl.innerHTML = '<div class="status info">Checking menu data...</div>';
+
+            try {
+                const categoriesSnap = await db.collection('menuCategories').get();
+                const itemsSnap = await db.collection('menuItems').get();
+
+                let html = '<div class="status success">';
+                html += `<strong>✅ Found:</strong><br>`;
+                html += `Categories: ${categoriesSnap.size}<br>`;
+                html += `Items: ${itemsSnap.size}<br><br>`;
+
+                if (categoriesSnap.size > 0) {
+                    html += '<strong>Categories:</strong><br>';
+                    categoriesSnap.forEach(doc => {
+                        const cat = doc.data();
+                        html += `- ${cat.name} (Order: ${cat.order})<br>`;
+                    });
+                }
+
+                html += '</div>';
+                statusEl.innerHTML = html;
+
+            } catch (error) {
+                statusEl.innerHTML = `<div class="status error"><strong>❌ Error:</strong> ${error.message}</div>`;
+            }
+        }
+
+        async function createSampleMenu() {
+            const statusEl = document.getElementById('sampleMenuStatus');
+            statusEl.innerHTML = '<div class="status info">Creating sample menu...</div>';
+
+            try {
+                // Create Indian Cuisine category
+                const indianCat = await db.collection('menuCategories').add({
+                    name: 'Indian Cuisine',
+                    icon: '🇮🇳',
+                    order: 1,
+                    specialClass: '',
+                    itemsClass: 'menu-items'
+                });
+
+                // Add items to Indian Cuisine
+                await db.collection('menuItems').add({
+                    categoryId: indianCat.id,
+                    name: 'Paneer Butter Masala',
+                    description: 'Cottage cheese in rich creamy tomato gravy',
+                    price: 280,
+                    type: 'VEG',
+                    order: 1
+                });
+
+                await db.collection('menuItems').add({
+                    categoryId: indianCat.id,
+                    name: 'Butter Chicken',
+                    description: 'Tender chicken in creamy tomato sauce',
+                    price: 320,
+                    type: 'NON-VEG',
+                    order: 2
+                });
+
+                await db.collection('menuItems').add({
+                    categoryId: indianCat.id,
+                    name: 'Dal Tadka',
+                    description: 'Yellow lentils tempered with spices',
+                    price: 180,
+                    type: 'VEG',
+                    order: 3
+                });
+
+                // Create Chinese Cuisine category
+                const chineseCat = await db.collection('menuCategories').add({
+                    name: 'Chinese Cuisine',
+                    icon: '🇨🇳',
+                    order: 2,
+                    specialClass: '',
+                    itemsClass: 'menu-items'
+                });
+
+                // Add items to Chinese Cuisine
+                await db.collection('menuItems').add({
+                    categoryId: chineseCat.id,
+                    name: 'Veg Manchurian',
+                    description: 'Fried veggie balls in spicy sauce',
+                    price: 200,
+                    type: 'VEG',
+                    order: 1
+                });
+
+                await db.collection('menuItems').add({
+                    categoryId: chineseCat.id,
+                    name: 'Chicken Chilli',
+                    description: 'Stir-fried chicken with bell peppers',
+                    price: 280,
+                    type: 'NON-VEG',
+                    order: 2
+                });
+
+                statusEl.innerHTML = `
+                    <div class="status success">
+                        <strong>✅ Success!</strong><br>
+                        Created 2 categories with 5 menu items.<br><br>
+                        <strong>Categories:</strong><br>
+                        - Indian Cuisine (3 items)<br>
+                        - Chinese Cuisine (2 items)<br><br>
+                        Now check the admin panel or restaurant.html page!
+                    </div>
+                `;
+
+            } catch (error) {
+                statusEl.innerHTML = `<div class="status error"><strong>❌ Error:</strong> ${error.message}<br><br>Make sure you're authenticated and Firestore rules allow writes.</div>`;
+            }
+        }
+
+        async function testMenuLoading() {
+            const statusEl = document.getElementById('menuLoadingStatus');
+            statusEl.innerHTML = '<div class="status info">Testing menu loading...</div>';
+
+            try {
+                const categoriesSnapshot = await db.collection('menuCategories')
+                    .orderBy('order', 'asc')
+                    .get();
+
+                if (categoriesSnapshot.empty) {
+                    statusEl.innerHTML = '<div class="status warning"><strong>⚠️ No categories found!</strong><br>Use "Create Sample Menu" to add some data.</div>';
+                    return;
+                }
+
+                let html = '<div class="status success">';
+                html += `<strong>✅ Menu loaded successfully!</strong><br><br>`;
+
+                for (const catDoc of categoriesSnapshot.docs) {
+                    const category = catDoc.data();
+                    html += `<strong>${category.icon || ''} ${category.name}:</strong><br>`;
+
+                    try {
+                        const itemsSnapshot = await db.collection('menuItems')
+                            .where('categoryId', '==', catDoc.id)
+                            .get();
+
+                        if (itemsSnapshot.empty) {
+                            html += `  - No items<br>`;
+                        } else {
+                            itemsSnapshot.forEach(itemDoc => {
+                                const item = itemDoc.data();
+                                html += `  - ${item.name} (₹${item.price}) ${item.type || ''}<br>`;
+                            });
+                        }
+                    } catch (indexError) {
+                        html += `  - <span style="color: orange;">Index error (items may not load properly)</span><br>`;
+                    }
+                    html += '<br>';
+                }
+
+                html += '</div>';
+                statusEl.innerHTML = html;
+
+            } catch (error) {
+                statusEl.innerHTML = `<div class="status error"><strong>❌ Error:</strong> ${error.message}</div>`;
+            }
+        }
+
+        async function clearAllMenu() {
+            if (!confirm('⚠️ Are you SURE you want to delete ALL menu data?\n\nThis cannot be undone!')) {
+                return;
+            }
+
+            const statusEl = document.getElementById('clearStatus');
+            statusEl.innerHTML = '<div class="status info">Deleting all menu data...</div>';
+
+            try {
+                // Delete all menu items
+                const itemsSnapshot = await db.collection('menuItems').get();
+                const itemDeletePromises = [];
+                itemsSnapshot.forEach(doc => {
+                    itemDeletePromises.push(doc.ref.delete());
+                });
+                await Promise.all(itemDeletePromises);
+
+                // Delete all categories
+                const categoriesSnapshot = await db.collection('menuCategories').get();
+                const catDeletePromises = [];
+                categoriesSnapshot.forEach(doc => {
+                    catDeletePromises.push(doc.ref.delete());
+                });
+                await Promise.all(catDeletePromises);
+
+                statusEl.innerHTML = `
+                    <div class="status success">
+                        <strong>✅ Deleted:</strong><br>
+                        ${itemsSnapshot.size} menu items<br>
+                        ${categoriesSnapshot.size} categories
+                    </div>
+                `;
+
+            } catch (error) {
+                statusEl.innerHTML = `<div class="status error"><strong>❌ Error:</strong> ${error.message}</div>`;
+            }
+        }
+    </script>
+</body>
+</html>
