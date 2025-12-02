@@ -216,15 +216,16 @@
         }
 
         const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
-        const adminLoggedIn = localStorage.getItem('adminLoggedIn');
         const adminEmails = ['admin@vrundavanresort.com', 'vishal@vrundavanresort.com'];
 
-        if ((currentUser.email && adminEmails.includes(currentUser.email.toLowerCase())) || adminLoggedIn === 'true') {
+        // STRICT CHECK: Only activate if email is in admin list
+        if (currentUser.email && adminEmails.includes(currentUser.email.toLowerCase())) {
             isAdmin = true;
             console.log('✅ Admin mode activated via localStorage:', currentUser.email);
             showAdminMode();
         } else {
-            console.log('❌ Not logged in as admin');
+            console.log('❌ Not logged in as admin. Email:', currentUser.email || 'no email');
+            isAdmin = false;
         }
     }
 
