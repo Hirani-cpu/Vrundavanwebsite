@@ -9,9 +9,164 @@
     let isAdmin = false;
     let adminIndicator = null;
 
+    // Quick login popup - login directly from any page
+    function showQuickLogin() {
+        const loginModal = document.createElement('div');
+        loginModal.id = 'quickLoginModal';
+        loginModal.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 9999999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        `;
+
+        loginModal.innerHTML = `
+            <div style="background: white; padding: 40px; border-radius: 15px; max-width: 400px; width: 90%;">
+                <h2 style="margin: 0 0 10px 0; color: #2d5016;">🔐 Firebase Login</h2>
+                <p style="margin: 0 0 20px 0; color: #666; font-size: 14px;">Login to enable image uploads</p>
+                <div id="quickLoginError" style="display: none; background: #fee; color: #c33; padding: 10px; border-radius: 5px; margin-bottom: 15px; font-size: 14px;"></div>
+                <input type="email" id="quickEmail" placeholder="Email" value="admin@vrundavanresort.com" style="width: 100%; padding: 12px; margin-bottom: 15px; border: 2px solid #ddd; border-radius: 8px; font-size: 14px; box-sizing: border-box;">
+                <input type="password" id="quickPassword" placeholder="Password" style="width: 100%; padding: 12px; margin-bottom: 20px; border: 2px solid #ddd; border-radius: 8px; font-size: 14px; box-sizing: border-box;">
+                <div style="display: flex; gap: 10px;">
+                    <button id="quickLoginBtn" style="flex: 1; padding: 12px; background: #4a7c2c; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">Login</button>
+                    <button id="quickLoginCancel" style="flex: 1; padding: 12px; background: #ccc; color: #333; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">Cancel</button>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(loginModal);
+
+        document.getElementById('quickLoginCancel').onclick = () => {
+            loginModal.remove();
+        };
+
+        document.getElementById('quickLoginBtn').onclick = async () => {
+            const email = document.getElementById('quickEmail').value.trim();
+            const password = document.getElementById('quickPassword').value;
+            const errorDiv = document.getElementById('quickLoginError');
+            const btn = document.getElementById('quickLoginBtn');
+
+            if (!email || !password) {
+                errorDiv.textContent = 'Please enter email and password';
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            btn.textContent = 'Logging in...';
+            btn.disabled = true;
+            errorDiv.style.display = 'none';
+
+            try {
+                // Make sure auth is initialized
+                if (!window.auth) {
+                    if (firebase.auth) {
+                        window.auth = firebase.auth();
+                    } else {
+                        throw new Error('Firebase Auth not loaded. Please refresh the page.');
+                    }
+                }
+
+                await window.auth.signInWithEmailAndPassword(email, password);
+                btn.textContent = '✅ Success!';
+                btn.style.background = '#51cf66';
+
+                localStorage.setItem('adminLoggedIn', 'true');
+                localStorage.setItem('adminEmail', email);
+
+                setTimeout(() => {
+                    loginModal.remove();
+                    location.reload(); // Reload to show green badge
+                }, 1000);
+            } catch (error) {
+                console.error('Login error:', error);
+                let errorMsg = 'Login failed';
+                if (error.code === 'auth/wrong-password') errorMsg = 'Wrong password';
+                else if (error.code === 'auth/user-not-found') errorMsg = 'User not found';
+                else if (error.code === 'auth/invalid-email') errorMsg = 'Invalid email';
+                else errorMsg = error.message;
+
+                errorDiv.textContent = errorMsg;
+                errorDiv.style.display = 'block';
+                btn.textContent = 'Login';
+                btn.disabled = false;
+            }
+        };
+
+        // Allow Enter key to submit
+        document.getElementById('quickPassword').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                document.getElementById('quickLoginBtn').click();
+            }
+        });
+    }
+
+    // Diagnostic function to check authentication status
+    function showAuthDiagnostics() {
+        let report = '🔍 AUTHENTICATION DIAGNOSTICS\n\n';
+
+        // Check Firebase Auth
+        report += '=== FIREBASE AUTH ===\n';
+        if (typeof auth === 'undefined') {
+            report += '❌ auth is undefined\n';
+        } else if (!auth) {
+            report += '❌ auth is null\n';
+        } else {
+            report += '✅ auth object exists\n';
+            if (auth.currentUser) {
+                report += `✅ LOGGED IN: ${auth.currentUser.email}\n`;
+                report += `   UID: ${auth.currentUser.uid}\n`;
+            } else {
+                report += '❌ NO CURRENT USER (not logged in with Firebase Auth)\n';
+            }
+        }
+
+        // Check LocalStorage
+        report += '\n=== LOCALSTORAGE ===\n';
+        const adminLoggedIn = localStorage.getItem('adminLoggedIn');
+        const adminEmail = localStorage.getItem('adminEmail');
+        const currentUser = localStorage.getItem('currentUser');
+        report += `adminLoggedIn: ${adminLoggedIn || 'not set'}\n`;
+        report += `adminEmail: ${adminEmail || 'not set'}\n`;
+        report += `currentUser: ${currentUser ? 'exists' : 'not set'}\n`;
+
+        // Check Firebase Storage
+        report += '\n=== FIREBASE STORAGE ===\n';
+        if (typeof storage === 'undefined' || !storage) {
+            report += '❌ storage not initialized\n';
+        } else {
+            report += '✅ storage object exists\n';
+        }
+
+        // Conclusion
+        report += '\n=== CONCLUSION ===\n';
+        if (auth && auth.currentUser) {
+            report += '✅ You CAN upload images (Firebase Auth OK)\n';
+        } else {
+            report += '❌ You CANNOT upload images\n';
+            report += '   → You must login via admin.html\n';
+            report += '   → LocalStorage login does NOT work for uploads\n';
+        }
+
+        alert(report);
+        console.log(report);
+    }
+
     // Check if current user is admin
     function checkAdminStatus() {
         console.log('🔍 Checking admin status...');
+
+        // Check if Admin Editor Mode is disabled
+        const editorModeEnabled = localStorage.getItem('adminEditorModeEnabled');
+        if (editorModeEnabled === 'false') {
+            console.log('❌ Admin Editor Mode is disabled by user');
+            return; // Don't activate admin mode
+        }
 
         // Check Firebase Auth FIRST
         if (typeof auth !== 'undefined' && auth) {
@@ -31,6 +186,13 @@
     }
 
     function checkLocalStorageAdmin() {
+        // Check if Admin Editor Mode is disabled
+        const editorModeEnabled = localStorage.getItem('adminEditorModeEnabled');
+        if (editorModeEnabled === 'false') {
+            console.log('❌ Admin Editor Mode is disabled by user');
+            return; // Don't activate admin mode
+        }
+
         const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
         const adminLoggedIn = localStorage.getItem('adminLoggedIn');
         const adminEmails = ['admin@vrundavanresort.com', 'vishal@vrundavanresort.com'];
@@ -80,8 +242,44 @@
             font-weight: 600;
             box-shadow: 0 2px 10px rgba(0,0,0,0.3);
         `;
+
+        // Check Firebase Auth status
+        let authStatus = '❌ Not logged in with Firebase Auth';
+        let authColor = '#ff6b6b';
+        if (typeof auth !== 'undefined' && auth && auth.currentUser) {
+            authStatus = `✅ Firebase Auth: ${auth.currentUser.email}`;
+            authColor = '#51cf66';
+        } else {
+            authStatus = '⚠️ LocalStorage only - Image uploads may fail';
+            authColor = '#ffd43b';
+        }
+
+        // Add login button if not logged in with Firebase Auth
+        let loginButton = '';
+        if (!auth || !auth.currentUser) {
+            loginButton = `<button id="quickFirebaseLogin" style="
+                margin-left: 10px;
+                padding: 5px 15px;
+                background: #ff6b6b;
+                color: white;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+                font-weight: 600;
+                animation: pulse 2s infinite;
+            ">🔐 Login to Upload Images</button>`;
+        }
+
         banner.innerHTML = `
+            <style>
+                @keyframes pulse {
+                    0%, 100% { opacity: 1; }
+                    50% { opacity: 0.7; }
+                }
+            </style>
             ✏️ ADMIN EDITING MODE - Click any ✏️ pencil icon to edit content
+            <span style="margin-left: 20px; background: ${authColor}; color: #000; padding: 5px 10px; border-radius: 5px; font-size: 12px;">${authStatus}</span>
+            ${loginButton}
             <button id="adminModeToggle" style="
                 margin-left: 20px;
                 padding: 5px 15px;
@@ -97,7 +295,19 @@
         document.body.style.paddingTop = '50px';
 
         document.getElementById('adminModeToggle').onclick = initializeAllEditing;
+
+        // Add quick login button handler
+        if (!auth || !auth.currentUser) {
+            const loginBtn = document.getElementById('quickFirebaseLogin');
+            if (loginBtn) {
+                loginBtn.onclick = showQuickLogin;
+            }
+        }
+
         adminIndicator = banner;
+
+        // If not Firebase Auth, just show in banner - NO POPUP, NO REDIRECT
+        // User can manually go to admin.html if they want to login
     }
 
     // Initialize ALL editing capabilities
@@ -134,11 +344,15 @@
 
     // Add edit to all headings
     function addEditToHeadings() {
-        const headings = document.querySelectorAll('h1, h2, h3, h4, .section-title, .hero-title, .welcome-heading');
+        const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6, .section-title, .hero-title, .welcome-heading, .hero-subtitle, .highlight-item h4, .service-feature h3');
         console.log(`Found ${headings.length} headings`);
 
         headings.forEach((heading) => {
-            if (!heading.closest('.admin-edit-btn') && heading.textContent.trim()) {
+            if (!heading.closest('.admin-edit-btn') &&
+                !heading.querySelector('.admin-edit-btn') &&
+                heading.textContent.trim() &&
+                heading.offsetHeight > 0) {
+
                 const wrapper = document.createElement('span');
                 wrapper.style.cssText = 'position: relative; display: inline-block;';
 
@@ -147,6 +361,54 @@
 
                 const btn = createEditButton('text', 'small');
                 btn.onclick = () => openTextEditor(heading);
+                wrapper.appendChild(btn);
+            }
+        });
+
+        // Add edit to ALL paragraphs (descriptions, content, etc.)
+        const paragraphs = document.querySelectorAll('p, .amenity-description, .event-description, .room-description, .venue-content p, .amenity-detailed-content p, .highlight-item p, .service-feature p, .intro-text p');
+        console.log(`Found ${paragraphs.length} paragraphs`);
+
+        paragraphs.forEach((p) => {
+            // Skip if already has edit button, is in footer, or is empty
+            if (!p.closest('.admin-edit-btn') &&
+                !p.querySelector('.admin-edit-btn') &&
+                !p.closest('.footer') &&
+                p.textContent.trim() &&
+                p.offsetHeight > 0) {
+
+                const wrapper = document.createElement('span');
+                wrapper.style.cssText = 'position: relative; display: block;';
+
+                p.parentNode.insertBefore(wrapper, p);
+                wrapper.appendChild(p);
+
+                const btn = createEditButton('text', 'small');
+                btn.onclick = () => openTextEditor(p);
+                wrapper.appendChild(btn);
+            }
+        });
+
+        // Add edit to list items and feature items
+        const features = document.querySelectorAll('.feature-item-small, .venue-feature, .event-features-list li, .policy-card li, ul li, ol li');
+        console.log(`Found ${features.length} feature items`);
+
+        features.forEach((feature) => {
+            if (!feature.closest('.admin-edit-btn') &&
+                !feature.querySelector('.admin-edit-btn') &&
+                !feature.closest('.footer') &&
+                !feature.closest('.nav-links') &&
+                feature.textContent.trim() &&
+                feature.offsetHeight > 0) {
+
+                const wrapper = document.createElement('span');
+                wrapper.style.cssText = 'position: relative; display: block;';
+
+                feature.parentNode.insertBefore(wrapper, feature);
+                wrapper.appendChild(feature);
+
+                const btn = createEditButton('text', 'small');
+                btn.onclick = () => openTextEditor(feature);
                 wrapper.appendChild(btn);
             }
         });
@@ -164,6 +426,45 @@
                 btn.onclick = () => openImageEditor(hero);
                 hero.style.position = 'relative';
                 hero.appendChild(btn);
+            }
+        });
+
+        // Image placeholder elements (like Resort View)
+        const placeholders = document.querySelectorAll('.image-placeholder');
+        console.log(`Found ${placeholders.length} image placeholders`);
+
+        placeholders.forEach((placeholder) => {
+            if (!placeholder.querySelector('.admin-edit-btn')) {
+                const btn = createEditButton('image', 'small');
+                btn.onclick = () => openImageEditor(placeholder);
+                placeholder.style.position = 'relative';
+                placeholder.appendChild(btn);
+            }
+        });
+
+        // Amenity detailed images (Swimming pool, Party hall, Garden, Restaurant)
+        const amenityImages = document.querySelectorAll('.amenity-detailed-image');
+        console.log(`Found ${amenityImages.length} amenity detailed images`);
+
+        amenityImages.forEach((img) => {
+            if (!img.querySelector('.admin-edit-btn')) {
+                const btn = createEditButton('image');
+                btn.onclick = () => openImageEditor(img);
+                img.style.position = 'relative';
+                img.appendChild(btn);
+            }
+        });
+
+        // Venue images (Events & Parties page - Garden/Lawn, AC Party Hall, etc.)
+        const venueImages = document.querySelectorAll('.venue-image');
+        console.log(`Found ${venueImages.length} venue images`);
+
+        venueImages.forEach((img) => {
+            if (!img.querySelector('.admin-edit-btn')) {
+                const btn = createEditButton('image');
+                btn.onclick = () => openImageEditor(img);
+                img.style.position = 'relative';
+                img.appendChild(btn);
             }
         });
 
@@ -328,11 +629,13 @@
             </div>
             <div style="display: flex; gap: 10px;">
                 <button id="saveImage" style="flex: 1; padding: 12px; background: #4a7c2c; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">Upload & Save</button>
+                <button id="deleteImage" style="flex: 1; padding: 12px; background: #ff6b6b; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">Delete Image</button>
                 <button id="cancelImage" style="flex: 1; padding: 12px; background: #ccc; color: #333; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">Cancel</button>
             </div>
         `);
 
         document.getElementById('saveImage').onclick = () => saveImage(element, 'background');
+        document.getElementById('deleteImage').onclick = () => deleteImage(element, 'background');
         document.getElementById('cancelImage').onclick = () => closeModal();
     }
 
@@ -349,11 +652,13 @@
             </div>
             <div style="display: flex; gap: 10px;">
                 <button id="saveImage" style="flex: 1; padding: 12px; background: #4a7c2c; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">Upload & Save</button>
+                <button id="deleteImage" style="flex: 1; padding: 12px; background: #ff6b6b; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">Delete Image</button>
                 <button id="cancelImage" style="flex: 1; padding: 12px; background: #ccc; color: #333; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">Cancel</button>
             </div>
         `);
 
         document.getElementById('saveImage').onclick = () => saveImage(img, 'src');
+        document.getElementById('deleteImage').onclick = () => deleteImage(img, 'src');
         document.getElementById('cancelImage').onclick = () => closeModal();
     }
 
@@ -488,7 +793,20 @@
             closeModal();
         } catch (error) {
             console.error('Error saving card:', error);
-            alert('Error: ' + error.message);
+
+            // If auth error, redirect to admin.html
+            if (error.message.includes('NOT LOGGED IN WITH FIREBASE AUTH')) {
+                if (confirm(error.message)) {
+                    window.location.href = 'admin.html';
+                }
+            } else if (error.message.includes('unauthorized') || error.code === 'storage/unauthorized') {
+                if (confirm('❌ Firebase Storage Error: Unauthorized\n\nYou are NOT logged in with Firebase Auth.\nYou must login via admin.html first.\n\nClick OK to go to admin.html now.')) {
+                    window.location.href = 'admin.html';
+                }
+            } else {
+                alert('Error: ' + error.message);
+            }
+
             document.getElementById('saveCard').disabled = false;
         }
     }
@@ -515,6 +833,12 @@
                 element.style.backgroundImage = `url('${imageUrl}')`;
                 element.style.backgroundSize = 'cover';
                 element.style.backgroundPosition = 'center';
+
+                // Hide label text when image is uploaded
+                const label = element.querySelector('.amenity-label, span');
+                if (label && label.textContent && label.textContent.trim()) {
+                    label.style.display = 'none';
+                }
             } else if (updateType === 'src') {
                 element.src = imageUrl;
             }
@@ -534,7 +858,69 @@
             closeModal();
         } catch (error) {
             console.error('Error saving image:', error);
-            alert('Error uploading image: ' + error.message);
+
+            // If auth error, redirect to admin.html
+            if (error.message.includes('NOT LOGGED IN WITH FIREBASE AUTH')) {
+                if (confirm(error.message)) {
+                    window.location.href = 'admin.html';
+                }
+            } else if (error.message.includes('unauthorized') || error.code === 'storage/unauthorized') {
+                if (confirm('❌ Firebase Storage Error: Unauthorized\n\nYou are NOT logged in with Firebase Auth.\nYou must login via admin.html first.\n\nClick OK to go to admin.html now.')) {
+                    window.location.href = 'admin.html';
+                }
+            } else {
+                alert('Error uploading image: ' + error.message);
+            }
+        }
+    }
+
+    // Delete image
+    async function deleteImage(element, updateType) {
+        if (!confirm('⚠️ Are you sure you want to delete this image?\n\nThis will remove the image and restore the default gradient background.')) {
+            return;
+        }
+
+        try {
+            const btn = document.getElementById('deleteImage');
+            if (btn) {
+                btn.textContent = 'Deleting...';
+                btn.disabled = true;
+            }
+
+            // Remove the image
+            if (updateType === 'background') {
+                // Remove background image, keep original gradient if it exists
+                element.style.backgroundImage = 'none';
+
+                // If element has a data-original-bg attribute, restore it
+                const originalBg = element.getAttribute('data-original-bg');
+                if (originalBg) {
+                    element.style.background = originalBg;
+                }
+            } else if (updateType === 'src') {
+                // For <img> tags, remove src or set to placeholder
+                element.src = '';
+                element.alt = 'Image removed';
+            }
+
+            // Delete from Firestore if it exists
+            const elementId = element.dataset.editId;
+            if (elementId) {
+                await db.collection('pageContent').doc(elementId).delete();
+                console.log('✅ Image deleted from database');
+            }
+
+            alert('✅ Image deleted successfully!');
+            closeModal();
+        } catch (error) {
+            console.error('Error deleting image:', error);
+            alert('Error deleting image: ' + error.message);
+
+            const btn = document.getElementById('deleteImage');
+            if (btn) {
+                btn.textContent = 'Delete Image';
+                btn.disabled = false;
+            }
         }
     }
 
@@ -589,12 +975,22 @@
             throw new Error('Firebase Storage not initialized');
         }
 
+        // CHECK: Is user authenticated with Firebase Auth?
+        if (typeof auth === 'undefined' || !auth || !auth.currentUser) {
+            throw new Error('❌ NOT LOGGED IN WITH FIREBASE AUTH!\n\nYou must login via admin.html first.\nLocalStorage login does NOT work for image uploads.\n\nClick OK to go to admin.html now.');
+        }
+
+        console.log('✅ Firebase Auth OK:', auth.currentUser.email);
+        console.log('📤 Uploading to:', folder);
+
         const fileName = `${folder}/${Date.now()}-${file.name}`;
         const storageRef = storage.ref();
         const fileRef = storageRef.child(fileName);
 
         const snapshot = await fileRef.put(file);
         const downloadURL = await snapshot.ref.getDownloadURL();
+
+        console.log('✅ Upload successful:', downloadURL);
         return downloadURL;
     }
 

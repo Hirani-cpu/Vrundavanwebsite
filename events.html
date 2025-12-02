@@ -222,12 +222,12 @@
                     </div>
                 </div>
 
-                <div class="venue-detail-card">
-                    <div class="venue-image" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                <div class="venue-detail-card" data-admin-editable="event" data-edit-id="venue-poolside">
+                    <div class="venue-image" data-admin-editable="image" data-edit-id="venue-poolside-image" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
                         <div class="venue-capacity-badge">50-150 Guests</div>
                     </div>
                     <div class="venue-content">
-                        <h3>🏊 Poolside Area</h3>
+                        <h3 class="event-title">🏊 Poolside Area</h3>
                         <p>Our poolside venue creates a unique and fun atmosphere for parties. Perfect for daytime events and casual celebrations with a relaxed vibe.</p>
                         <div class="venue-features">
                             <div class="venue-feature">✓ Exclusive pool access</div>
@@ -241,12 +241,12 @@
                     </div>
                 </div>
 
-                <div class="venue-detail-card">
-                    <div class="venue-image" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+                <div class="venue-detail-card" data-admin-editable="event" data-edit-id="venue-dining">
+                    <div class="venue-image" data-admin-editable="image" data-edit-id="venue-dining-image" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
                         <div class="venue-capacity-badge">50-100 Guests</div>
                     </div>
                     <div class="venue-content">
-                        <h3>🍽️ AC Dining Hall</h3>
+                        <h3 class="event-title">🍽️ AC Dining Hall</h3>
                         <p>For intimate gatherings and smaller functions, our dining hall provides a cozy and comfortable setting with excellent food service.</p>
                         <div class="venue-features">
                             <div class="venue-feature">✓ Comfortable AC environment</div>
@@ -459,6 +459,7 @@
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
 
     <script src="firebase-config.js"></script>

@@ -87,6 +87,13 @@
                     element.style.backgroundImage = `url('${data.imageUrl}')`;
                     element.style.backgroundSize = 'cover';
                     element.style.backgroundPosition = 'center';
+
+                    // Hide label text when image is loaded
+                    const label = element.querySelector('.amenity-label, .venue-capacity-badge, span');
+                    if (label && label.textContent && label.textContent.trim()) {
+                        label.style.display = 'none';
+                    }
+
                     console.log('✅ Applied image to:', elementId);
                 }
             });
@@ -139,6 +146,12 @@
                         card.style.backgroundImage = `url('${data.imageUrl}')`;
                         card.style.backgroundSize = 'cover';
                         card.style.backgroundPosition = 'center';
+
+                        // Hide label text when image is loaded
+                        const label = card.querySelector('.amenity-label, .venue-capacity-badge, span');
+                        if (label && label.textContent && label.textContent.trim()) {
+                            label.style.display = 'none';
+                        }
                     }
 
                     console.log('✅ Applied amenity:', data.title);
@@ -183,6 +196,12 @@
                             imageEl.style.backgroundImage = `url('${data.imageUrl}')`;
                             imageEl.style.backgroundSize = 'cover';
                             imageEl.style.backgroundPosition = 'center';
+
+                            // Hide label text when image is loaded
+                            const label = imageEl.querySelector('.amenity-label, .venue-capacity-badge, span');
+                            if (label && label.textContent && label.textContent.trim()) {
+                                label.style.display = 'none';
+                            }
                         }
                     }
 

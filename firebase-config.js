@@ -20,10 +20,17 @@ firebase.initializeApp(firebaseConfig);
 // Initialize Firestore
 const db = firebase.firestore();
 
-// Initialize Auth (only if auth SDK is loaded)
+// Initialize Auth - force initialization
 let auth = null;
-if (firebase.auth) {
-    auth = firebase.auth();
+try {
+    if (firebase.auth) {
+        auth = firebase.auth();
+        console.log('✅ Firebase Auth initialized');
+    } else {
+        console.warn('⚠️ Firebase Auth SDK not loaded yet');
+    }
+} catch (e) {
+    console.error('Error initializing auth:', e);
 }
 
 // Initialize Storage
@@ -34,3 +41,13 @@ window.db = db;
 window.auth = auth;
 window.storage = storage;
 window.firebase = firebase;
+
+// Re-initialize auth after a short delay if it failed
+if (!auth) {
+    setTimeout(() => {
+        if (firebase.auth && !window.auth) {
+            window.auth = firebase.auth();
+            console.log('✅ Firebase Auth initialized (delayed)');
+        }
+    }, 500);
+}

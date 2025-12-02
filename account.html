@@ -253,6 +253,26 @@
                                 </div>
                             </div>
 
+                            <!-- Admin Editor Mode Section (Only visible for admins) -->
+                            <div class="settings-section" id="adminEditorModeSection" style="display: none;">
+                                <h3>Admin Tools</h3>
+                                <div class="setting-item">
+                                    <div class="setting-info">
+                                        <strong>Admin Editor Mode</strong>
+                                        <p>Enable or disable inline editing tools on all pages</p>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="adminEditorModeToggle" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                                <div style="margin-top: 10px; padding: 15px; background: #fff3cd; border-left: 4px solid #ffc107; border-radius: 5px;">
+                                    <p style="margin: 0; font-size: 0.9rem; color: #856404;">
+                                        <strong>ℹ️ Note:</strong> When disabled, all pencil edit buttons will be hidden. You can re-enable it anytime from this page.
+                                    </p>
+                                </div>
+                            </div>
+
                         </div>
                     </div>
                 </div>
@@ -303,5 +323,58 @@
     <script src="firebase-config.js"></script>
     <script src="load-settings.js"></script>
     <script src="script.js"></script>
+
+    <!-- Admin Editor Mode Toggle Script -->
+    <script>
+        // Show Admin Editor Mode section only for admins
+        function checkAdminAndShowEditorToggle() {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            const adminLoggedIn = localStorage.getItem('adminLoggedIn');
+            const adminEmails = ['admin@vrundavanresort.com', 'vishal@vrundavanresort.com'];
+
+            const isAdmin = (currentUser.email && adminEmails.includes(currentUser.email.toLowerCase())) || adminLoggedIn === 'true';
+
+            if (isAdmin) {
+                const section = document.getElementById('adminEditorModeSection');
+                if (section) {
+                    section.style.display = 'block';
+                }
+
+                // Load current state
+                const toggle = document.getElementById('adminEditorModeToggle');
+                const editorEnabled = localStorage.getItem('adminEditorModeEnabled');
+
+                if (editorEnabled === 'false') {
+                    toggle.checked = false;
+                } else {
+                    toggle.checked = true;
+                    // Default to enabled if not set
+                    if (!editorEnabled) {
+                        localStorage.setItem('adminEditorModeEnabled', 'true');
+                    }
+                }
+
+                // Handle toggle change
+                toggle.addEventListener('change', function() {
+                    const enabled = this.checked;
+                    localStorage.setItem('adminEditorModeEnabled', enabled ? 'true' : 'false');
+
+                    // Show confirmation
+                    if (enabled) {
+                        alert('✅ Admin Editor Mode Enabled\n\nEdit buttons will now appear on all pages.');
+                    } else {
+                        alert('❌ Admin Editor Mode Disabled\n\nEdit buttons will be hidden on all pages.\nYou can re-enable it anytime from Settings.');
+                    }
+                });
+            }
+        }
+
+        // Run when page loads
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', checkAdminAndShowEditorToggle);
+        } else {
+            checkAdminAndShowEditorToggle();
+        }
+    </script>
 </body>
 </html>
