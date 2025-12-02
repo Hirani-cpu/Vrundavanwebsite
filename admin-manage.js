@@ -6,6 +6,55 @@ let currentEditingCategoryId = null;
 let currentEditingMenuItemId = null;
 let currentEditingGalleryId = null;
 
+// Firebase Storage upload function
+async function uploadImageToStorage(file, folder) {
+    return new Promise((resolve, reject) => {
+        // Check file size (max 5MB)
+        if (file.size > 5 * 1024 * 1024) {
+            reject(new Error('File size must be less than 5MB'));
+            return;
+        }
+
+        // Check file type
+        if (!file.type.startsWith('image/')) {
+            reject(new Error('File must be an image'));
+            return;
+        }
+
+        // Create unique filename
+        const timestamp = Date.now();
+        const filename = `${folder}/${timestamp}_${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
+
+        // Get Firebase Storage reference
+        const storage = firebase.storage();
+        const storageRef = storage.ref();
+        const fileRef = storageRef.child(filename);
+
+        // Upload file
+        const uploadTask = fileRef.put(file);
+
+        uploadTask.on('state_changed',
+            (snapshot) => {
+                // Progress
+                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                console.log('Upload is ' + progress + '% done');
+            },
+            (error) => {
+                // Error
+                console.error('Upload error:', error);
+                reject(error);
+            },
+            () => {
+                // Success - get download URL
+                uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
+                    console.log('File uploaded successfully:', downloadURL);
+                    resolve(downloadURL);
+                });
+            }
+        );
+    });
+}
+
 // Wait for DOM to be ready
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Admin-manage.js: DOM loaded, setting up event listeners...');
@@ -60,20 +109,32 @@ function setupManagementEventListeners() {
     const saveRoomBtn = document.getElementById('saveRoomBtn');
     if (saveRoomBtn) {
         saveRoomBtn.addEventListener('click', async function() {
-            const roomData = {
-                name: document.getElementById('roomName').value,
-                description: document.getElementById('roomDescription').value,
-                price: parseInt(document.getElementById('roomPrice').value),
-                priceUnit: document.getElementById('roomPriceUnit').value || 'night',
-                badge: document.getElementById('roomBadge').value,
-                badgeClass: document.getElementById('roomBadgeClass').value,
-                imageUrl: document.getElementById('roomImageUrl').value,
-                gradient: document.getElementById('roomGradient').value || 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                features: document.getElementById('roomFeatures').value.split('\n').filter(f => f.trim()),
-                order: parseInt(document.getElementById('roomOrder').value)
-            };
+            const imageFile = document.getElementById('roomImageFile').files[0];
+            let imageUrl = '';
 
             try {
+                // Show saving message
+                saveRoomBtn.disabled = true;
+                saveRoomBtn.textContent = 'Saving...';
+
+                // Upload image if selected
+                if (imageFile) {
+                    imageUrl = await uploadImageToStorage(imageFile, 'rooms');
+                }
+
+                const roomData = {
+                    name: document.getElementById('roomName').value,
+                    description: document.getElementById('roomDescription').value,
+                    price: parseInt(document.getElementById('roomPrice').value),
+                    priceUnit: document.getElementById('roomPriceUnit').value || 'night',
+                    badge: document.getElementById('roomBadge').value,
+                    badgeClass: document.getElementById('roomBadgeClass').value,
+                    imageUrl: imageUrl,
+                    gradient: document.getElementById('roomGradient').value || 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    features: document.getElementById('roomFeatures').value.split('\n').filter(f => f.trim()),
+                    order: parseInt(document.getElementById('roomOrder').value)
+                };
+
                 if (currentEditingRoomId) {
                     await db.collection('rooms').doc(currentEditingRoomId).update(roomData);
                     alert('Room updated successfully!');
@@ -82,10 +143,35 @@ function setupManagementEventListeners() {
                     alert('Room added successfully!');
                 }
                 document.getElementById('roomModal').style.display = 'none';
+                document.getElementById('roomForm').reset();
+                document.getElementById('roomImagePreview').innerHTML = '';
                 loadRoomsList();
             } catch (error) {
                 console.error('Error saving room:', error);
                 alert('Error saving room: ' + error.message);
+            } finally {
+                saveRoomBtn.disabled = false;
+                saveRoomBtn.textContent = 'Save Room';
+            }
+        });
+    }
+
+    // Add image preview for room upload
+    const roomImageFile = document.getElementById('roomImageFile');
+    if (roomImageFile) {
+        roomImageFile.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('roomImagePreview').innerHTML = `
+                        <div style="position: relative; display: inline-block;">
+                            <img src="${e.target.result}" style="max-width: 200px; max-height: 150px; border-radius: 6px; border: 2px solid #4a7c2c;">
+                            <span style="display: block; margin-top: 5px; font-size: 0.8rem; color: #666;">✓ Image selected: ${file.name}</span>
+                        </div>
+                    `;
+                };
+                reader.readAsDataURL(file);
             }
         });
     }
@@ -239,15 +325,33 @@ function setupManagementEventListeners() {
     const saveGalleryImageBtn = document.getElementById('saveGalleryImageBtn');
     if (saveGalleryImageBtn) {
         saveGalleryImageBtn.addEventListener('click', async function() {
-            const galleryData = {
-                title: document.getElementById('galleryImageTitle').value,
-                category: document.getElementById('galleryImageCategory').value,
-                imageUrl: document.getElementById('galleryImageUrl').value,
-                gradient: document.getElementById('galleryImageGradient').value || 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                order: parseInt(document.getElementById('galleryImageOrder').value)
-            };
+            const imageFile = document.getElementById('galleryImageFile').files[0];
+
+            if (!imageFile && !currentEditingGalleryId) {
+                alert('Please select an image to upload');
+                return;
+            }
+
+            let imageUrl = '';
 
             try {
+                // Show saving message
+                saveGalleryImageBtn.disabled = true;
+                saveGalleryImageBtn.textContent = 'Uploading...';
+
+                // Upload image if selected
+                if (imageFile) {
+                    imageUrl = await uploadImageToStorage(imageFile, 'gallery');
+                }
+
+                const galleryData = {
+                    title: document.getElementById('galleryImageTitle').value,
+                    category: document.getElementById('galleryImageCategory').value,
+                    imageUrl: imageUrl || document.getElementById('galleryImageGradient').value,
+                    gradient: document.getElementById('galleryImageGradient').value || 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    order: parseInt(document.getElementById('galleryImageOrder').value)
+                };
+
                 if (currentEditingGalleryId) {
                     await db.collection('gallery').doc(currentEditingGalleryId).update(galleryData);
                     alert('Gallery image updated successfully!');
@@ -256,10 +360,35 @@ function setupManagementEventListeners() {
                     alert('Gallery image added successfully!');
                 }
                 document.getElementById('galleryImageModal').style.display = 'none';
+                document.getElementById('galleryImageForm').reset();
+                document.getElementById('galleryImagePreview').innerHTML = '';
                 loadGalleryList();
             } catch (error) {
                 console.error('Error saving gallery image:', error);
                 alert('Error saving gallery image: ' + error.message);
+            } finally {
+                saveGalleryImageBtn.disabled = false;
+                saveGalleryImageBtn.textContent = 'Save Image';
+            }
+        });
+    }
+
+    // Add image preview for gallery upload
+    const galleryImageFile = document.getElementById('galleryImageFile');
+    if (galleryImageFile) {
+        galleryImageFile.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('galleryImagePreview').innerHTML = `
+                        <div style="position: relative; display: inline-block;">
+                            <img src="${e.target.result}" style="max-width: 200px; max-height: 150px; border-radius: 6px; border: 2px solid #4a7c2c;">
+                            <span style="display: block; margin-top: 5px; font-size: 0.8rem; color: #666;">✓ Image selected: ${file.name}</span>
+                        </div>
+                    `;
+                };
+                reader.readAsDataURL(file);
             }
         });
     }
@@ -299,33 +428,64 @@ async function loadRoomsList() {
             return;
         }
 
+        // Create compact table view
+        let tableHTML = `
+            <div style="background: white; padding: 15px; border-radius: 6px; margin-bottom: 15px; box-shadow: 0 2px 6px rgba(0,0,0,0.08);">
+                <h3 style="margin: 0 0 15px 0; color: #2d5016; font-size: 1.1rem;">📋 All Rooms (${snapshot.size} total)</h3>
+                <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem;">
+                    <thead>
+                        <tr style="background: #f8f9fa; border-bottom: 2px solid #dee2e6;">
+                            <th style="padding: 10px; text-align: left; font-weight: 600; color: #2d5016; width: 5%;">#</th>
+                            <th style="padding: 10px; text-align: left; font-weight: 600; color: #2d5016; width: 10%;">Image</th>
+                            <th style="padding: 10px; text-align: left; font-weight: 600; color: #2d5016; width: 20%;">Room Name</th>
+                            <th style="padding: 10px; text-align: left; font-weight: 600; color: #2d5016; width: 10%;">Price</th>
+                            <th style="padding: 10px; text-align: left; font-weight: 600; color: #2d5016; width: 10%;">Badge</th>
+                            <th style="padding: 10px; text-align: left; font-weight: 600; color: #2d5016; width: 30%;">Description</th>
+                            <th style="padding: 10px; text-align: center; font-weight: 600; color: #2d5016; width: 15%;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+        `;
+
         snapshot.forEach(doc => {
             const room = doc.data();
-            const card = createRoomCard(doc.id, room);
-            roomsList.innerHTML += card;
+            const badgeHTML = room.badge
+                ? `<span style="background: #4a7c2c; color: white; padding: 3px 8px; border-radius: 4px; font-size: 0.75rem;">${room.badge}</span>`
+                : '<span style="color: #999;">-</span>';
+
+            const imageHTML = room.imageUrl
+                ? `<img src="${room.imageUrl}" style="width: 60px; height: 40px; object-fit: cover; border-radius: 4px; border: 1px solid #ddd;">`
+                : `<div style="width: 60px; height: 40px; background: ${room.gradient || 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'}; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">🏨</div>`;
+
+            tableHTML += `
+                <tr style="border-bottom: 1px solid #f0f0f0;">
+                    <td style="padding: 10px; color: #666;">${room.order}</td>
+                    <td style="padding: 10px;">${imageHTML}</td>
+                    <td style="padding: 10px; font-weight: 500; color: #2d5016;">${room.name}</td>
+                    <td style="padding: 10px; font-weight: 600; color: #4a7c2c;">₹${room.price}/${room.priceUnit || 'night'}</td>
+                    <td style="padding: 10px;">${badgeHTML}</td>
+                    <td style="padding: 10px; font-size: 0.8rem; color: #666; line-height: 1.3;">${room.description ? room.description.substring(0, 80) + (room.description.length > 80 ? '...' : '') : '-'}</td>
+                    <td style="padding: 10px; text-align: center;">
+                        <button class="btn-edit" data-room-id="${doc.id}" style="padding: 6px 12px; background: #4a7c2c; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.8rem; margin-right: 5px;">✏️ Edit</button>
+                        <button class="btn-delete-item" data-room-id="${doc.id}" style="padding: 6px 12px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.8rem;">🗑️ Delete</button>
+                    </td>
+                </tr>
+            `;
         });
 
+        tableHTML += `
+                    </tbody>
+                </table>
+            </div>
+        `;
+
+        roomsList.innerHTML = tableHTML;
         attachRoomEventListeners();
 
     } catch (error) {
         console.error('Error loading rooms:', error);
         loading.innerHTML = '<p style="color: red;">Error loading rooms.</p>';
     }
-}
-
-function createRoomCard(id, room) {
-    return `
-        <div class="item-card">
-            <h3>${room.name}</h3>
-            <p><strong>Price:</strong> ₹${room.price}/${room.priceUnit || 'night'}</p>
-            <p><strong>Badge:</strong> ${room.badge || 'None'}</p>
-            <p><strong>Order:</strong> ${room.order}</p>
-            <div class="item-card-actions">
-                <button class="btn-edit" data-room-id="${id}">Edit</button>
-                <button class="btn-delete-item" data-room-id="${id}">Delete</button>
-            </div>
-        </div>
-    `;
 }
 
 function attachRoomEventListeners() {

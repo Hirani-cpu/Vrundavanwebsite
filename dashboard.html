@@ -774,11 +774,13 @@
                         <input type="text" id="roomBadgeClass" placeholder="premium, family, group">
                     </div>
                     <div class="form-group">
-                        <label>Image URL (Optional)</label>
-                        <input type="url" id="roomImageUrl" placeholder="https://...">
+                        <label>Room Image (Upload from PC)</label>
+                        <input type="file" id="roomImageFile" accept="image/*" style="padding: 8px; border: 2px solid #ddd; border-radius: 5px;">
+                        <div id="roomImagePreview" style="margin-top: 10px;"></div>
+                        <small style="color: #666; display: block; margin-top: 5px;">Upload JPG, PNG, or WebP (Max 5MB)</small>
                     </div>
                     <div class="form-group">
-                        <label>Gradient (if no image)</label>
+                        <label>Gradient (if no image uploaded)</label>
                         <input type="text" id="roomGradient" placeholder="linear-gradient(135deg, #667eea 0%, #764ba2 100%)">
                     </div>
                     <div class="form-group">
@@ -906,11 +908,13 @@
                         <input type="text" id="galleryImageCategory" required placeholder="Rooms & Accommodation">
                     </div>
                     <div class="form-group">
-                        <label>Image URL *</label>
-                        <input type="url" id="galleryImageUrl" required placeholder="https://...">
+                        <label>Gallery Image (Upload from PC) *</label>
+                        <input type="file" id="galleryImageFile" accept="image/*" required style="padding: 8px; border: 2px solid #ddd; border-radius: 5px;">
+                        <div id="galleryImagePreview" style="margin-top: 10px;"></div>
+                        <small style="color: #666; display: block; margin-top: 5px;">Upload JPG, PNG, or WebP (Max 5MB)</small>
                     </div>
                     <div class="form-group">
-                        <label>Gradient (if no image)</label>
+                        <label>Gradient (if upload fails)</label>
                         <input type="text" id="galleryImageGradient" placeholder="linear-gradient(135deg, #667eea 0%, #764ba2 100%)">
                     </div>
                     <div class="form-group">
