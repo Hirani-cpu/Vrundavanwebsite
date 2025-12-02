@@ -66,328 +66,29 @@
         </div>
     </section>
 
-    <!-- Gallery Rooms -->
-    <section class="section section-alt">
+    <!-- Loading Message -->
+    <section class="section" id="galleryLoadingSection">
         <div class="container">
-            <h2 class="section-title">Rooms & Accommodation</h2>
-            <p class="section-subtitle">Comfortable and luxurious rooms</p>
-
-            <div class="gallery-grid">
-                <div class="gallery-item" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-                    <div class="gallery-overlay">
-                        <span>Deluxe AC Room</span>
-                    </div>
-                </div>
-
-                <div class="gallery-item" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
-                    <div class="gallery-overlay">
-                        <span>Super Deluxe Room</span>
-                    </div>
-                </div>
-
-                <div class="gallery-item" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
-                    <div class="gallery-overlay">
-                        <span>Family Suite Living Area</span>
-                    </div>
-                </div>
-
-                <div class="gallery-item" style="background: linear-gradient(135deg, #667eea 30%, #764ba2 100%);">
-                    <div class="gallery-overlay">
-                        <span>Room Interior</span>
-                    </div>
-                </div>
-
-                <div class="gallery-item" style="background: linear-gradient(135deg, #f093fb 30%, #f5576c 100%);">
-                    <div class="gallery-overlay">
-                        <span>Bedroom View</span>
-                    </div>
-                </div>
-
-                <div class="gallery-item" style="background: linear-gradient(135deg, #4facfe 30%, #00f2fe 100%);">
-                    <div class="gallery-overlay">
-                        <span>Bathroom Amenities</span>
-                    </div>
-                </div>
+            <div class="loading-message" style="text-align: center; padding: 60px 20px; color: #666;">
+                <p>Loading gallery...</p>
             </div>
         </div>
     </section>
 
-    <!-- Gallery Swimming Pools -->
-    <section class="section">
+    <!-- No Gallery Message -->
+    <section class="section" id="noGallerySection" style="display: none;">
         <div class="container">
-            <h2 class="section-title">Swimming Pools</h2>
-            <p class="section-subtitle">Relax and enjoy our pools</p>
-
-            <div class="gallery-grid">
-                <div class="gallery-item" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
-                    <div class="gallery-overlay">
-                        <span>Adult Swimming Pool</span>
-                    </div>
-                </div>
-
-                <div class="gallery-item" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
-                    <div class="gallery-overlay">
-                        <span>Kids Pool Area</span>
-                    </div>
-                </div>
-
-                <div class="gallery-item" style="background: linear-gradient(135deg, #4facfe 30%, #00f2fe 100%);">
-                    <div class="gallery-overlay">
-                        <span>Poolside Seating</span>
-                    </div>
-                </div>
-
-                <div class="gallery-item" style="background: linear-gradient(135deg, #43e97b 30%, #38f9d7 100%);">
-                    <div class="gallery-overlay">
-                        <span>Pool at Night</span>
-                    </div>
-                </div>
+            <div class="no-gallery" style="text-align: center; padding: 60px 20px; color: #999;">
+                <div style="font-size: 4rem; margin-bottom: 20px;">🖼️</div>
+                <h3>No Images Available</h3>
+                <p>Please check back later for gallery images.</p>
             </div>
         </div>
     </section>
 
-    <!-- Gallery Garden & Lawn -->
-    <section class="section section-alt">
-        <div class="container">
-            <h2 class="section-title">Garden & Lawn</h2>
-            <p class="section-subtitle">Beautiful outdoor spaces</p>
+    <!-- Gallery Container (will be populated dynamically) -->
+    <div id="galleryContainer"></div>
 
-            <div class="gallery-grid">
-                <div class="gallery-item" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
-                    <div class="gallery-overlay">
-                        <span>Expansive Garden View</span>
-                    </div>
-                </div>
-
-                <div class="gallery-item" style="background: linear-gradient(135deg, #2d5016 0%, #6b9d3e 100%);">
-                    <div class="gallery-overlay">
-                        <span>Lawn Area</span>
-                    </div>
-                </div>
-
-                <div class="gallery-item" style="background: linear-gradient(135deg, #43e97b 30%, #38f9d7 100%);">
-                    <div class="gallery-overlay">
-                        <span>Garden Pathway</span>
-                    </div>
-                </div>
-
-                <div class="gallery-item" style="background: linear-gradient(135deg, #2d5016 30%, #6b9d3e 100%);">
-                    <div class="gallery-overlay">
-                        <span>Evening Garden View</span>
-                    </div>
-                </div>
-
-                <div class="gallery-item" style="background: linear-gradient(135deg, #43e97b 50%, #38f9d7 100%);">
-                    <div class="gallery-overlay">
-                        <span>Garden Seating Area</span>
-                    </div>
-                </div>
-
-                <div class="gallery-item" style="background: linear-gradient(135deg, #2d5016 50%, #6b9d3e 100%);">
-                    <div class="gallery-overlay">
-                        <span>Landscaped Garden</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Gallery Party Hall -->
-    <section class="section">
-        <div class="container">
-            <h2 class="section-title">Party Hall & Banquet</h2>
-            <p class="section-subtitle">Elegant indoor event space</p>
-
-            <div class="gallery-grid">
-                <div class="gallery-item" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
-                    <div class="gallery-overlay">
-                        <span>AC Party Hall</span>
-                    </div>
-                </div>
-
-                <div class="gallery-item" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
-                    <div class="gallery-overlay">
-                        <span>Banquet Setup</span>
-                    </div>
-                </div>
-
-                <div class="gallery-item" style="background: linear-gradient(135deg, #f093fb 30%, #f5576c 100%);">
-                    <div class="gallery-overlay">
-                        <span>Stage & Lighting</span>
-                    </div>
-                </div>
-
-                <div class="gallery-item" style="background: linear-gradient(135deg, #fa709a 30%, #fee140 100%);">
-                    <div class="gallery-overlay">
-                        <span>Hall Interior</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Gallery Restaurant -->
-    <section class="section section-alt">
-        <div class="container">
-            <h2 class="section-title">Restaurant & Dining</h2>
-            <p class="section-subtitle">Exquisite culinary experiences</p>
-
-            <div class="gallery-grid">
-                <div class="gallery-item" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
-                    <div class="gallery-overlay">
-                        <span>AC Dining Hall</span>
-                    </div>
-                </div>
-
-                <div class="gallery-item" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
-                    <div class="gallery-overlay">
-                        <span>Restaurant Interior</span>
-                    </div>
-                </div>
-
-                <div class="gallery-item" style="background: linear-gradient(135deg, #fa709a 30%, #fee140 100%);">
-                    <div class="gallery-overlay">
-                        <span>Food Presentation</span>
-                    </div>
-                </div>
-
-                <div class="gallery-item" style="background: linear-gradient(135deg, #f093fb 30%, #f5576c 100%);">
-                    <div class="gallery-overlay">
-                        <span>Dining Experience</span>
-                    </div>
-                </div>
-
-                <div class="gallery-item" style="background: linear-gradient(135deg, #fa709a 50%, #fee140 100%);">
-                    <div class="gallery-overlay">
-                        <span>Buffet Setup</span>
-                    </div>
-                </div>
-
-                <div class="gallery-item" style="background: linear-gradient(135deg, #f093fb 50%, #f5576c 100%);">
-                    <div class="gallery-overlay">
-                        <span>Chef's Special</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Gallery Events -->
-    <section class="section">
-        <div class="container">
-            <h2 class="section-title">Events & Celebrations</h2>
-            <p class="section-subtitle">Memorable moments captured</p>
-
-            <div class="gallery-grid">
-                <div class="gallery-item" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-                    <div class="gallery-overlay">
-                        <span>Wedding Setup</span>
-                    </div>
-                </div>
-
-                <div class="gallery-item" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
-                    <div class="gallery-overlay">
-                        <span>Birthday Party</span>
-                    </div>
-                </div>
-
-                <div class="gallery-item" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
-                    <div class="gallery-overlay">
-                        <span>Corporate Event</span>
-                    </div>
-                </div>
-
-                <div class="gallery-item" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
-                    <div class="gallery-overlay">
-                        <span>Engagement Ceremony</span>
-                    </div>
-                </div>
-
-                <div class="gallery-item" style="background: linear-gradient(135deg, #667eea 30%, #764ba2 100%);">
-                    <div class="gallery-overlay">
-                        <span>Pool Party Event</span>
-                    </div>
-                </div>
-
-                <div class="gallery-item" style="background: linear-gradient(135deg, #4facfe 30%, #00f2fe 100%);">
-                    <div class="gallery-overlay">
-                        <span>Event Decoration</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Gallery Resort Views -->
-    <section class="section section-alt">
-        <div class="container">
-            <h2 class="section-title">Resort Views & Ambiance</h2>
-            <p class="section-subtitle">The beauty of Vrundavan Resort</p>
-
-            <div class="gallery-grid">
-                <div class="gallery-item" style="background: linear-gradient(135deg, #2d5016 0%, #6b9d3e 100%);">
-                    <div class="gallery-overlay">
-                        <span>Resort Entrance</span>
-                    </div>
-                </div>
-
-                <div class="gallery-item" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
-                    <div class="gallery-overlay">
-                        <span>Resort Exterior</span>
-                    </div>
-                </div>
-
-                <div class="gallery-item" style="background: linear-gradient(135deg, #2d5016 30%, #6b9d3e 100%);">
-                    <div class="gallery-overlay">
-                        <span>Reception Area</span>
-                    </div>
-                </div>
-
-                <div class="gallery-item" style="background: linear-gradient(135deg, #43e97b 30%, #38f9d7 100%);">
-                    <div class="gallery-overlay">
-                        <span>Common Lounge</span>
-                    </div>
-                </div>
-
-                <div class="gallery-item" style="background: linear-gradient(135deg, #2d5016 50%, #6b9d3e 100%);">
-                    <div class="gallery-overlay">
-                        <span>Evening Ambiance</span>
-                    </div>
-                </div>
-
-                <div class="gallery-item" style="background: linear-gradient(135deg, #43e97b 50%, #38f9d7 100%);">
-                    <div class="gallery-overlay">
-                        <span>Night View</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Video Gallery (Optional placeholder) -->
-    <section class="section">
-        <div class="container">
-            <h2 class="section-title">Video Tours</h2>
-            <p class="section-subtitle">Experience Vrundavan Resort virtually</p>
-
-            <div class="video-gallery">
-                <div class="video-placeholder" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-                    <div class="video-play-icon">▶</div>
-                    <div class="video-title">Resort Overview Tour</div>
-                </div>
-
-                <div class="video-placeholder" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
-                    <div class="video-play-icon">▶</div>
-                    <div class="video-title">Room Tour Video</div>
-                </div>
-
-                <div class="video-placeholder" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
-                    <div class="video-play-icon">▶</div>
-                    <div class="video-title">Event Highlights</div>
-                </div>
-            </div>
-        </div>
-    </section>
 
     <!-- CTA Section -->
     <section class="cta-section">
@@ -444,6 +145,13 @@
         </div>
     </footer>
 
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+
+    <script src="firebase-config.js"></script>
     <script src="script.js"></script>
+    <script src="gallery-images.js"></script>
 </body>
 </html>

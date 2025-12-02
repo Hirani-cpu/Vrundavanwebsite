@@ -580,6 +580,9 @@
             <div class="dashboard-tabs">
                 <button class="tab-button active" data-tab="rooms">Room Bookings</button>
                 <button class="tab-button" data-tab="events">Event Bookings</button>
+                <button class="tab-button" data-tab="manage-rooms">Manage Rooms</button>
+                <button class="tab-button" data-tab="manage-menu">Manage Menu</button>
+                <button class="tab-button" data-tab="manage-gallery">Manage Gallery</button>
             </div>
 
             <!-- Room Bookings Tab -->
@@ -661,6 +664,51 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Manage Rooms Tab -->
+            <div id="manageRoomsTab" class="tab-content">
+                <div class="bookings-section">
+                    <div class="bookings-header">
+                        <h2>Manage Rooms</h2>
+                        <button class="btn-refresh" id="addRoomBtn">+ Add New Room</button>
+                    </div>
+                    <div id="roomsListLoading" class="loading-message">
+                        <p>Loading rooms...</p>
+                    </div>
+                    <div id="roomsList" class="rooms-list"></div>
+                </div>
+            </div>
+
+            <!-- Manage Menu Tab -->
+            <div id="manageMenuTab" class="tab-content">
+                <div class="bookings-section">
+                    <div class="bookings-header">
+                        <h2>Manage Restaurant Menu</h2>
+                        <div style="display: flex; gap: 10px;">
+                            <button class="btn-refresh" id="addCategoryBtn">+ Add Category</button>
+                            <button class="btn-refresh" id="addMenuItemBtn">+ Add Menu Item</button>
+                        </div>
+                    </div>
+                    <div id="menuListLoading" class="loading-message">
+                        <p>Loading menu...</p>
+                    </div>
+                    <div id="menuList" class="menu-list"></div>
+                </div>
+            </div>
+
+            <!-- Manage Gallery Tab -->
+            <div id="manageGalleryTab" class="tab-content">
+                <div class="bookings-section">
+                    <div class="bookings-header">
+                        <h2>Manage Gallery</h2>
+                        <button class="btn-refresh" id="addGalleryImageBtn">+ Add Image</button>
+                    </div>
+                    <div id="galleryListLoading" class="loading-message">
+                        <p>Loading gallery...</p>
+                    </div>
+                    <div id="galleryList" class="gallery-list"></div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -697,7 +745,293 @@
         </div>
     </div>
 
+    <!-- Room Modal -->
+    <div id="roomModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="roomModalTitle">Add New Room</h2>
+                <span class="modal-close" id="roomModalClose">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="roomForm">
+                    <div class="form-group">
+                        <label>Room Name *</label>
+                        <input type="text" id="roomName" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Description *</label>
+                        <textarea id="roomDescription" rows="3" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Price *</label>
+                        <input type="number" id="roomPrice" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Price Unit</label>
+                        <input type="text" id="roomPriceUnit" placeholder="night" value="night">
+                    </div>
+                    <div class="form-group">
+                        <label>Badge (Optional)</label>
+                        <input type="text" id="roomBadge" placeholder="Popular">
+                    </div>
+                    <div class="form-group">
+                        <label>Badge Class (Optional)</label>
+                        <input type="text" id="roomBadgeClass" placeholder="premium, family, group">
+                    </div>
+                    <div class="form-group">
+                        <label>Image URL (Optional)</label>
+                        <input type="url" id="roomImageUrl" placeholder="https://...">
+                    </div>
+                    <div class="form-group">
+                        <label>Gradient (if no image)</label>
+                        <input type="text" id="roomGradient" placeholder="linear-gradient(135deg, #667eea 0%, #764ba2 100%)">
+                    </div>
+                    <div class="form-group">
+                        <label>Features (one per line)</label>
+                        <textarea id="roomFeatures" rows="5" placeholder="Air Conditioning&#10;King/Queen Size Bed&#10;LED TV"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Display Order *</label>
+                        <input type="number" id="roomOrder" required value="1">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <div class="modal-actions">
+                    <button class="btn-modal btn-approve" id="saveRoomBtn">Save Room</button>
+                    <button class="btn-modal btn-cancel" id="cancelRoomBtn">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Menu Category Modal -->
+    <div id="categoryModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="categoryModalTitle">Add Menu Category</h2>
+                <span class="modal-close" id="categoryModalClose">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="categoryForm">
+                    <div class="form-group">
+                        <label>Category Name *</label>
+                        <input type="text" id="categoryName" required placeholder="Indian Cuisine">
+                    </div>
+                    <div class="form-group">
+                        <label>Icon (Optional)</label>
+                        <input type="text" id="categoryIcon" placeholder="🇮🇳">
+                    </div>
+                    <div class="form-group">
+                        <label>Display Order *</label>
+                        <input type="number" id="categoryOrder" required value="1">
+                    </div>
+                    <div class="form-group">
+                        <label>Special Class (Optional)</label>
+                        <input type="text" id="categorySpecialClass" placeholder="special-thalis">
+                    </div>
+                    <div class="form-group">
+                        <label>Items Class (Optional)</label>
+                        <input type="text" id="categoryItemsClass" placeholder="menu-items or thali-items">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <div class="modal-actions">
+                    <button class="btn-modal btn-approve" id="saveCategoryBtn">Save Category</button>
+                    <button class="btn-modal btn-cancel" id="cancelCategoryBtn">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Menu Item Modal -->
+    <div id="menuItemModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="menuItemModalTitle">Add Menu Item</h2>
+                <span class="modal-close" id="menuItemModalClose">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="menuItemForm">
+                    <div class="form-group">
+                        <label>Category *</label>
+                        <select id="menuItemCategory" required></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Item Name *</label>
+                        <input type="text" id="menuItemName" required placeholder="Paneer Butter Masala">
+                    </div>
+                    <div class="form-group">
+                        <label>Description</label>
+                        <textarea id="menuItemDescription" rows="2" placeholder="Cottage cheese in rich creamy tomato gravy"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Price *</label>
+                        <input type="number" id="menuItemPrice" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Type</label>
+                        <select id="menuItemType">
+                            <option value="">None</option>
+                            <option value="VEG">VEG</option>
+                            <option value="NON-VEG">NON-VEG</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Display Order *</label>
+                        <input type="number" id="menuItemOrder" required value="1">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <div class="modal-actions">
+                    <button class="btn-modal btn-approve" id="saveMenuItemBtn">Save Item</button>
+                    <button class="btn-modal btn-cancel" id="cancelMenuItemBtn">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gallery Image Modal -->
+    <div id="galleryImageModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="galleryImageModalTitle">Add Gallery Image</h2>
+                <span class="modal-close" id="galleryImageModalClose">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="galleryImageForm">
+                    <div class="form-group">
+                        <label>Image Title *</label>
+                        <input type="text" id="galleryImageTitle" required placeholder="Deluxe AC Room">
+                    </div>
+                    <div class="form-group">
+                        <label>Category *</label>
+                        <input type="text" id="galleryImageCategory" required placeholder="Rooms & Accommodation">
+                    </div>
+                    <div class="form-group">
+                        <label>Image URL *</label>
+                        <input type="url" id="galleryImageUrl" required placeholder="https://...">
+                    </div>
+                    <div class="form-group">
+                        <label>Gradient (if no image)</label>
+                        <input type="text" id="galleryImageGradient" placeholder="linear-gradient(135deg, #667eea 0%, #764ba2 100%)">
+                    </div>
+                    <div class="form-group">
+                        <label>Display Order *</label>
+                        <input type="number" id="galleryImageOrder" required value="1">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <div class="modal-actions">
+                    <button class="btn-modal btn-approve" id="saveGalleryImageBtn">Save Image</button>
+                    <button class="btn-modal btn-cancel" id="cancelGalleryImageBtn">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2d5016;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.95rem;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #4a7c2c;
+        }
+
+        .rooms-list, .menu-list, .gallery-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .item-card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .item-card:hover {
+            border-color: #4a7c2c;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .item-card h3 {
+            margin: 0 0 10px 0;
+            color: #2d5016;
+        }
+
+        .item-card p {
+            margin: 5px 0;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .item-card-actions {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-edit, .btn-delete-item {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-edit {
+            background: #4a7c2c;
+            color: white;
+        }
+
+        .btn-edit:hover {
+            background: #2d5016;
+        }
+
+        .btn-delete-item {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-delete-item:hover {
+            background: #c82333;
+        }
+    </style>
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
     <script src="firebase-config.js"></script>
     <script src="dashboard.js"></script>
+    <script src="admin-manage.js"></script>
 </body>
 </html>
