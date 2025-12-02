@@ -204,13 +204,22 @@ function setupManagementEventListeners() {
                     order: parseInt(document.getElementById('roomOrder').value)
                 };
 
+                console.log('💾 Saving room data:', {
+                    name: roomData.name,
+                    imageCount: roomData.imageUrls.length,
+                    imageUrls: roomData.imageUrls,
+                    isEdit: !!currentEditingRoomId
+                });
+
                 saveRoomBtn.textContent = 'Saving...';
 
                 if (currentEditingRoomId) {
                     await db.collection('rooms').doc(currentEditingRoomId).update(roomData);
+                    console.log('✅ Room updated:', currentEditingRoomId);
                     alert('Room updated successfully!');
                 } else {
-                    await db.collection('rooms').add(roomData);
+                    const docRef = await db.collection('rooms').add(roomData);
+                    console.log('✅ Room added with ID:', docRef.id);
                     alert('Room added successfully!');
                 }
                 document.getElementById('roomModal').style.display = 'none';
@@ -532,6 +541,13 @@ async function loadRoomsList() {
 
         snapshot.forEach(doc => {
             const room = doc.data();
+
+            // Debug: Log what we're loading
+            console.log(`📄 Loading room: "${room.name}" (ID: ${doc.id})`, {
+                imageUrls: room.imageUrls,
+                imageUrlsCount: room.imageUrls ? room.imageUrls.length : 0
+            });
+
             const badgeHTML = room.badge
                 ? `<span style="background: #4a7c2c; color: white; padding: 3px 8px; border-radius: 4px; font-size: 0.75rem;">${room.badge}</span>`
                 : '<span style="color: #999;">-</span>';
@@ -544,9 +560,13 @@ async function loadRoomsList() {
                 images = [room.imageUrl];
             }
 
+            // Add cache buster to admin images too
+            const cacheBuster = Date.now();
+            const firstImage = images.length > 0 ? `${images[0]}${images[0].includes('?') ? '&' : '?'}t=${cacheBuster}` : '';
+
             const imageHTML = images.length > 0
                 ? `<div style="position: relative; display: inline-block;">
-                    <img src="${images[0]}" style="width: 60px; height: 40px; object-fit: cover; border-radius: 4px; border: 1px solid #ddd;">
+                    <img src="${firstImage}" style="width: 60px; height: 40px; object-fit: cover; border-radius: 4px; border: 1px solid #ddd;">
                     ${images.length > 1 ? `<span style="position: absolute; bottom: 2px; right: 2px; background: rgba(0,0,0,0.7); color: white; padding: 1px 4px; border-radius: 3px; font-size: 0.65rem;">${images.length}</span>` : ''}
                    </div>`
                 : `<div style="width: 60px; height: 40px; background: ${room.gradient || 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'}; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">🏨</div>`;
