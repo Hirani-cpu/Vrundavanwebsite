@@ -630,7 +630,6 @@
 
         document.getElementById('saveText').onclick = () => {
             const newText = document.getElementById('textContent').value;
-            element.textContent = newText;
 
             // Use element's persistent ID (should already be set)
             const elementId = element.dataset.editId;
@@ -640,6 +639,12 @@
                 return;
             }
 
+            // Update UI IMMEDIATELY (no waiting)
+            element.textContent = newText;
+            closeModal();
+            showToast('✅ Text updated!', 'success');
+
+            // Save to Firebase in background (non-blocking)
             saveToFirestore('pageText', elementId, {
                 text: newText,
                 tagName: tagName,
@@ -647,12 +652,9 @@
                 updatedAt: new Date().toISOString()
             }).then(() => {
                 console.log('✅ Text saved with ID:', elementId);
-                alert('✅ Text updated successfully!');
-                closeModal();
             }).catch(err => {
                 console.error('Error saving:', err);
-                alert('Text updated on page, but could not save to database.');
-                closeModal();
+                showToast('⚠️ Failed to save to database', 'error');
             });
         };
 
@@ -825,17 +827,24 @@
                 collection = 'eventContent';
             }
 
-            await saveToFirestore(collection, cardId, {
+            // Close modal immediately (instant feedback)
+            closeModal();
+            showToast('✅ Card updated!', 'success');
+
+            // Save to Firestore in background
+            saveToFirestore(collection, cardId, {
                 icon: icon || '',
                 title: title,
                 description: description,
                 imageUrl: imageUrl,
                 pageUrl: window.location.pathname,
                 updatedAt: new Date().toISOString()
+            }).then(() => {
+                console.log('✅ Card saved to database');
+            }).catch(err => {
+                console.error('Error saving card metadata:', err);
+                showToast('⚠️ Failed to save to database', 'error');
             });
-
-            alert('✅ Card updated and saved to database!');
-            closeModal();
         } catch (error) {
             console.error('Error saving card:', error);
 
@@ -892,15 +901,21 @@
             const elementId = element.dataset.editId || generateId();
             element.dataset.editId = elementId;
 
-            await saveToFirestore('pageContent', elementId, {
+            // Save to Firestore in background
+            saveToFirestore('pageContent', elementId, {
                 imageUrl: imageUrl,
                 pageType: window.location.pathname,
                 elementType: 'image',
                 updatedAt: new Date().toISOString()
+            }).then(() => {
+                console.log('✅ Image saved to database');
+            }).catch(err => {
+                console.error('Error saving image metadata:', err);
             });
 
-            alert('✅ Image updated and saved to database!');
+            // Close modal immediately after UI update
             closeModal();
+            showToast('✅ Image uploaded!', 'success');
         } catch (error) {
             console.error('Error saving image:', error);
 
@@ -1071,6 +1086,48 @@
         }
 
         return `${type}_${Math.abs(hash)}_${index}`;
+    }
+
+    // Show toast notification (non-blocking)
+    function showToast(message, type = 'success') {
+        const toast = document.createElement('div');
+        toast.style.cssText = `
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            padding: 16px 24px;
+            background: ${type === 'success' ? '#4a7c2c' : '#dc3545'};
+            color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            font-size: 14px;
+            font-weight: 600;
+            z-index: 99999999;
+            animation: slideIn 0.3s ease;
+        `;
+        toast.textContent = message;
+
+        // Add animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(400px); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideOut {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(400px); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+
+        document.body.appendChild(toast);
+
+        // Auto remove after 3 seconds
+        setTimeout(() => {
+            toast.style.animation = 'slideOut 0.3s ease';
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
     }
 
     // Create modal
