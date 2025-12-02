@@ -46,6 +46,24 @@
                 link.textContent = settings.siteName;
             });
 
+            // Update footer heading
+            const footerHeadings = document.querySelectorAll('.footer-section h3');
+            footerHeadings.forEach(h3 => {
+                if (h3.textContent.includes('Vrundavan') || h3.textContent.includes('Resort')) {
+                    h3.textContent = settings.siteName;
+                }
+            });
+
+            // Update copyright text
+            const copyrightTexts = document.querySelectorAll('.footer-bottom p');
+            copyrightTexts.forEach(p => {
+                const yearSpan = p.querySelector('#currentYear');
+                const currentYear = yearSpan ? yearSpan.textContent : new Date().getFullYear();
+                if (p.textContent.includes('Vrundavan') || p.textContent.includes('All rights reserved')) {
+                    p.innerHTML = `&copy; <span id="currentYear">${currentYear}</span> ${settings.siteName}. All rights reserved.`;
+                }
+            });
+
             // Update document title if on home page
             if (window.location.pathname.includes('index.html') || window.location.pathname === '/') {
                 document.title = settings.siteName;
@@ -56,7 +74,7 @@
         if (settings.siteLogoUrl) {
             const logoElements = document.querySelectorAll('.logo-image, .navbar .logo .logo-image');
             logoElements.forEach(el => {
-                el.innerHTML = `<img src="${settings.siteLogoUrl}" alt="Logo" style="width: 55px; height: 55px; object-fit: contain;">`;
+                el.innerHTML = `<img src="${settings.siteLogoUrl}" alt="Logo" style="width: 70px; height: 70px; object-fit: contain;">`;
             });
         }
 
