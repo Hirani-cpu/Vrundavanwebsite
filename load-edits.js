@@ -16,12 +16,65 @@
         }
     }
 
+    // Generate persistent ID based on element content and position
+    // This ensures the same element gets the same ID across page refreshes
+    function generatePersistentId(element, type, index) {
+        const pageUrl = window.location.pathname;
+        const tagName = element.tagName.toLowerCase();
+        const textContent = element.textContent.trim().substring(0, 30).replace(/[^a-zA-Z0-9]/g, '_');
+
+        // Create hash from content
+        let hash = 0;
+        const str = pageUrl + tagName + textContent + index;
+        for (let i = 0; i < str.length; i++) {
+            const char = str.charCodeAt(i);
+            hash = ((hash << 5) - hash) + char;
+            hash = hash & hash; // Convert to 32bit integer
+        }
+
+        return `${type}_${Math.abs(hash)}_${index}`;
+    }
+
+    // Assign IDs to all text elements BEFORE loading edits
+    function assignPersistentIds() {
+        console.log('🔢 Assigning persistent IDs to text elements...');
+
+        // Assign IDs to headings
+        const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6, .section-title, .hero-title, .welcome-heading, .hero-subtitle, .highlight-item h4, .service-feature h3');
+        headings.forEach((heading, index) => {
+            if (!heading.dataset.editId && !heading.closest('.footer') && !heading.closest('.nav-links') && heading.textContent.trim()) {
+                heading.dataset.editId = generatePersistentId(heading, 'heading', index);
+            }
+        });
+
+        // Assign IDs to paragraphs
+        const paragraphs = document.querySelectorAll('p, .amenity-description, .event-description, .room-description, .venue-content p, .amenity-detailed-content p, .highlight-item p, .service-feature p, .intro-text p');
+        paragraphs.forEach((p, index) => {
+            if (!p.dataset.editId && !p.closest('.footer') && p.textContent.trim()) {
+                p.dataset.editId = generatePersistentId(p, 'paragraph', index);
+            }
+        });
+
+        // Assign IDs to features/list items
+        const features = document.querySelectorAll('.feature-item-small, .venue-feature, .event-features-list li, .policy-card li, ul li, ol li');
+        features.forEach((feature, index) => {
+            if (!feature.dataset.editId && !feature.closest('.footer') && !feature.closest('.nav-links') && feature.textContent.trim()) {
+                feature.dataset.editId = generatePersistentId(feature, 'feature', index);
+            }
+        });
+
+        console.log('✅ IDs assigned');
+    }
+
     // Load all saved edits
     function loadSavedEdits() {
         const currentPage = window.location.pathname;
         console.log('📄 Current page:', currentPage);
 
-        // Load saved text edits
+        // FIRST: Assign persistent IDs to all text elements
+        assignPersistentIds();
+
+        // THEN: Load saved edits
         loadTextEdits(currentPage);
 
         // Load saved images
