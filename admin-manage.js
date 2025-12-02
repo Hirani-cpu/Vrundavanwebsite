@@ -134,17 +134,27 @@ function setupManagementEventListeners() {
     const saveRoomBtn = document.getElementById('saveRoomBtn');
     if (saveRoomBtn) {
         saveRoomBtn.addEventListener('click', async function() {
-            const imageFile = document.getElementById('roomImageFile').files[0];
-            let imageUrl = '';
+            const imageFiles = document.getElementById('roomImageFile').files;
+            let imageUrls = [];
 
             try {
                 // Show saving message
                 saveRoomBtn.disabled = true;
-                saveRoomBtn.textContent = 'Saving...';
+                saveRoomBtn.textContent = 'Uploading images...';
 
-                // Upload image if selected
-                if (imageFile) {
-                    imageUrl = await uploadImageToStorage(imageFile, 'rooms');
+                // Upload all selected images
+                if (imageFiles && imageFiles.length > 0) {
+                    for (let i = 0; i < imageFiles.length; i++) {
+                        saveRoomBtn.textContent = `Uploading image ${i + 1} of ${imageFiles.length}...`;
+                        const url = await uploadImageToStorage(imageFiles[i], 'rooms');
+                        imageUrls.push(url);
+                    }
+                }
+
+                // If editing and no new images selected, keep existing images
+                if (currentEditingRoomId && imageUrls.length === 0) {
+                    const existingDoc = await db.collection('rooms').doc(currentEditingRoomId).get();
+                    imageUrls = existingDoc.data().imageUrls || [];
                 }
 
                 const roomData = {
@@ -154,11 +164,14 @@ function setupManagementEventListeners() {
                     priceUnit: document.getElementById('roomPriceUnit').value || 'night',
                     badge: document.getElementById('roomBadge').value,
                     badgeClass: document.getElementById('roomBadgeClass').value,
-                    imageUrl: imageUrl,
+                    imageUrls: imageUrls, // Array of image URLs
+                    imageUrl: imageUrls[0] || '', // First image for backward compatibility
                     gradient: document.getElementById('roomGradient').value || 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                     features: document.getElementById('roomFeatures').value.split('\n').filter(f => f.trim()),
                     order: parseInt(document.getElementById('roomOrder').value)
                 };
+
+                saveRoomBtn.textContent = 'Saving...';
 
                 if (currentEditingRoomId) {
                     await db.collection('rooms').doc(currentEditingRoomId).update(roomData);
@@ -170,6 +183,7 @@ function setupManagementEventListeners() {
                 document.getElementById('roomModal').style.display = 'none';
                 document.getElementById('roomForm').reset();
                 document.getElementById('roomImagePreview').innerHTML = '';
+                currentEditingRoomId = null;
                 loadRoomsList();
             } catch (error) {
                 console.error('Error saving room:', error);
@@ -181,22 +195,33 @@ function setupManagementEventListeners() {
         });
     }
 
-    // Add image preview for room upload
+    // Add image preview for room upload (multiple images)
     const roomImageFile = document.getElementById('roomImageFile');
     if (roomImageFile) {
         roomImageFile.addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    document.getElementById('roomImagePreview').innerHTML = `
-                        <div style="position: relative; display: inline-block;">
-                            <img src="${e.target.result}" style="max-width: 200px; max-height: 150px; border-radius: 6px; border: 2px solid #4a7c2c;">
-                            <span style="display: block; margin-top: 5px; font-size: 0.8rem; color: #666;">✓ Image selected: ${file.name}</span>
-                        </div>
-                    `;
-                };
-                reader.readAsDataURL(file);
+            const files = e.target.files;
+            const previewDiv = document.getElementById('roomImagePreview');
+            previewDiv.innerHTML = '';
+
+            if (files && files.length > 0) {
+                Array.from(files).forEach((file, index) => {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const div = document.createElement('div');
+                        div.style.cssText = 'position: relative; display: inline-block;';
+                        div.innerHTML = `
+                            <img src="${e.target.result}" style="width: 120px; height: 80px; object-fit: cover; border-radius: 6px; border: 2px solid #4a7c2c;">
+                            <span style="position: absolute; top: 5px; right: 5px; background: #4a7c2c; color: white; padding: 2px 6px; border-radius: 3px; font-size: 0.7rem;">${index + 1}</span>
+                        `;
+                        previewDiv.appendChild(div);
+                    };
+                    reader.readAsDataURL(file);
+                });
+
+                const info = document.createElement('div');
+                info.style.cssText = 'width: 100%; margin-top: 10px; font-size: 0.8rem; color: #666;';
+                info.textContent = `✓ ${files.length} image(s) selected`;
+                previewDiv.appendChild(info);
             }
         });
     }
@@ -478,8 +503,19 @@ async function loadRoomsList() {
                 ? `<span style="background: #4a7c2c; color: white; padding: 3px 8px; border-radius: 4px; font-size: 0.75rem;">${room.badge}</span>`
                 : '<span style="color: #999;">-</span>';
 
-            const imageHTML = room.imageUrl
-                ? `<img src="${room.imageUrl}" style="width: 60px; height: 40px; object-fit: cover; border-radius: 4px; border: 1px solid #ddd;">`
+            // Get images (supports both old and new format)
+            let images = [];
+            if (room.imageUrls && room.imageUrls.length > 0) {
+                images = room.imageUrls;
+            } else if (room.imageUrl) {
+                images = [room.imageUrl];
+            }
+
+            const imageHTML = images.length > 0
+                ? `<div style="position: relative; display: inline-block;">
+                    <img src="${images[0]}" style="width: 60px; height: 40px; object-fit: cover; border-radius: 4px; border: 1px solid #ddd;">
+                    ${images.length > 1 ? `<span style="position: absolute; bottom: 2px; right: 2px; background: rgba(0,0,0,0.7); color: white; padding: 1px 4px; border-radius: 3px; font-size: 0.65rem;">${images.length}</span>` : ''}
+                   </div>`
                 : `<div style="width: 60px; height: 40px; background: ${room.gradient || 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'}; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">🏨</div>`;
 
             tableHTML += `
@@ -539,16 +575,34 @@ async function editRoom(roomId) {
         currentEditingRoomId = roomId;
         document.getElementById('roomModalTitle').textContent = 'Edit Room';
 
-        document.getElementById('roomName').value = room.name;
-        document.getElementById('roomDescription').value = room.description;
-        document.getElementById('roomPrice').value = room.price;
+        document.getElementById('roomName').value = room.name || '';
+        document.getElementById('roomDescription').value = room.description || '';
+        document.getElementById('roomPrice').value = room.price || 0;
         document.getElementById('roomPriceUnit').value = room.priceUnit || 'night';
         document.getElementById('roomBadge').value = room.badge || '';
         document.getElementById('roomBadgeClass').value = room.badgeClass || '';
-        document.getElementById('roomImageUrl').value = room.imageUrl || '';
         document.getElementById('roomGradient').value = room.gradient || '';
         document.getElementById('roomFeatures').value = (room.features || []).join('\n');
-        document.getElementById('roomOrder').value = room.order;
+        document.getElementById('roomOrder').value = room.order || 1;
+
+        // Show existing images if any
+        const previewDiv = document.getElementById('roomImagePreview');
+        if (room.imageUrls && room.imageUrls.length > 0) {
+            previewDiv.innerHTML = '';
+            room.imageUrls.forEach((url, index) => {
+                const div = document.createElement('div');
+                div.style.cssText = 'position: relative; display: inline-block;';
+                div.innerHTML = `
+                    <img src="${url}" style="width: 120px; height: 80px; object-fit: cover; border-radius: 6px; border: 2px solid #4a7c2c;">
+                    <span style="position: absolute; top: 5px; right: 5px; background: #4a7c2c; color: white; padding: 2px 6px; border-radius: 3px; font-size: 0.7rem;">${index + 1}</span>
+                `;
+                previewDiv.appendChild(div);
+            });
+            const info = document.createElement('div');
+            info.style.cssText = 'width: 100%; margin-top: 10px; font-size: 0.8rem; color: #666;';
+            info.innerHTML = `Current: ${room.imageUrls.length} image(s)<br><small>Select new files to replace all images, or leave empty to keep existing images</small>`;
+            previewDiv.appendChild(info);
+        }
 
         document.getElementById('roomModal').style.display = 'block';
     } catch (error) {

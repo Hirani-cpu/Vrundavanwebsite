@@ -9,6 +9,147 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        /* Compact Room Cards for Multiple Rooms */
+        .room-detail-card-compact {
+            display: flex;
+            flex-direction: row;
+            margin-bottom: 30px;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+        }
+
+        .room-detail-card-compact:hover {
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+            transform: translateY(-4px);
+        }
+
+        .room-detail-image-compact {
+            width: 35%;
+            min-height: 280px;
+            background-size: cover !important;
+            background-position: center !important;
+            position: relative;
+            transition: background-image 0.5s ease-in-out;
+        }
+
+        .image-counter {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .room-detail-content-compact {
+            width: 65%;
+            padding: 25px 30px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .room-detail-name-compact {
+            font-size: 1.6rem;
+            font-weight: 600;
+            color: #2d3748;
+            margin: 0 0 12px 0;
+        }
+
+        .room-detail-description-compact {
+            font-size: 0.95rem;
+            color: #4a5568;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .room-features-compact {
+            margin-bottom: 20px;
+        }
+
+        .room-features-compact ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+
+        .room-features-compact li {
+            font-size: 0.85rem;
+            color: #2d3748;
+            padding: 6px 0;
+        }
+
+        .room-detail-footer-compact {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: auto;
+            padding-top: 15px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .room-price-info-compact {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+        }
+
+        .price-label-compact {
+            font-size: 0.85rem;
+            color: #718096;
+        }
+
+        .room-price-compact {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #2c7a7b;
+        }
+
+        .price-unit {
+            font-size: 0.9rem;
+            font-weight: 400;
+            color: #718096;
+        }
+
+        .btn-compact {
+            padding: 12px 28px;
+            font-size: 0.95rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 968px) {
+            .room-detail-card-compact {
+                flex-direction: column;
+            }
+
+            .room-detail-image-compact {
+                width: 100%;
+                min-height: 220px;
+            }
+
+            .room-detail-content-compact {
+                width: 100%;
+                padding: 20px;
+            }
+
+            .room-detail-name-compact {
+                font-size: 1.4rem;
+            }
+
+            .room-features-compact ul {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 <body>
     <!-- Header & Navigation -->

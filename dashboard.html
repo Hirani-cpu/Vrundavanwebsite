@@ -774,10 +774,10 @@
                         <input type="text" id="roomBadgeClass" placeholder="premium, family, group">
                     </div>
                     <div class="form-group">
-                        <label>Room Image (Upload from PC)</label>
-                        <input type="file" id="roomImageFile" accept="image/*" style="padding: 8px; border: 2px solid #ddd; border-radius: 5px;">
-                        <div id="roomImagePreview" style="margin-top: 10px;"></div>
-                        <small style="color: #666; display: block; margin-top: 5px;">Upload JPG, PNG, or WebP (Max 5MB)</small>
+                        <label>Room Images (Upload Multiple Images)</label>
+                        <input type="file" id="roomImageFile" accept="image/*" multiple style="padding: 8px; border: 2px solid #ddd; border-radius: 5px;">
+                        <div id="roomImagePreview" style="margin-top: 10px; display: flex; flex-wrap: wrap; gap: 10px;"></div>
+                        <small style="color: #666; display: block; margin-top: 5px;">Upload multiple JPG, PNG, or WebP (Max 5MB each). Images will auto-rotate on rooms page.</small>
                     </div>
                     <div class="form-group">
                         <label>Gradient (if no image uploaded)</label>
