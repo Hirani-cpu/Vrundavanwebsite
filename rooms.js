@@ -32,17 +32,20 @@ async function loadRooms() {
         const roomCards = [];
         const roomsData = [];
 
-        roomsSnapshot.forEach((doc, index) => {
+        let roomIndex = 0;
+        roomsSnapshot.forEach((doc) => {
             const room = doc.data();
-            console.log(`🏨 Room ${index + 1}: "${room.name}"`, {
+            console.log(`🏨 Room ${roomIndex + 1}: "${room.name}"`, {
                 id: doc.id,
+                order: room.order || 'MISSING',
                 imageCount: room.imageUrls ? room.imageUrls.length : 0,
                 imageUrls: room.imageUrls,
                 firstImage: room.imageUrls && room.imageUrls[0] ? room.imageUrls[0].substring(0, 100) + '...' : 'none'
             });
-            roomsData.push({ room, index });
-            const roomCard = createRoomCard(room, `room-${index}`);
+            roomsData.push({ room, index: roomIndex });
+            const roomCard = createRoomCard(room, `room-${roomIndex}`);
             roomCards.push(roomCard);
+            roomIndex++;
         });
 
         // Insert all cards at once
