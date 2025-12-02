@@ -1,4 +1,8 @@
-// Load and display gallery images from Firebase
+// Load and display gallery images from Firebase with caching
+let galleryCache = null;
+let cacheTime = null;
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
 document.addEventListener('DOMContentLoaded', function() {
     loadGallery();
 });
@@ -9,50 +13,67 @@ async function loadGallery() {
     const noGallerySection = document.getElementById('noGallerySection');
 
     try {
+        // Use cache if available and fresh
+        const now = Date.now();
+        if (galleryCache && cacheTime && (now - cacheTime < CACHE_DURATION)) {
+            console.log('✓ Using cached gallery data');
+            renderGallery(galleryCache, galleryContainer, galleryLoadingSection, noGallerySection);
+            return;
+        }
+
+        console.log('⬇ Loading gallery from Firebase...');
         const db = firebase.firestore();
         const imagesSnapshot = await db.collection('gallery')
             .orderBy('order', 'asc')
             .get();
 
-        galleryLoadingSection.style.display = 'none';
+        // Cache the data
+        galleryCache = imagesSnapshot;
+        cacheTime = now;
 
-        if (imagesSnapshot.empty) {
-            noGallerySection.style.display = 'block';
-            return;
-        }
-
-        // Group images by category
-        const categories = {};
-        imagesSnapshot.forEach(doc => {
-            const image = doc.data();
-            const category = image.category || 'Uncategorized';
-
-            if (!categories[category]) {
-                categories[category] = {
-                    name: category,
-                    sectionClass: image.sectionClass || 'section',
-                    images: []
-                };
-            }
-
-            categories[category].images.push(image);
-        });
-
-        galleryContainer.innerHTML = '';
-
-        // Create sections for each category
-        let sectionIndex = 0;
-        for (const categoryKey in categories) {
-            const category = categories[categoryKey];
-            const sectionClass = sectionIndex % 2 === 0 ? 'section section-alt' : 'section';
-            const section = createGallerySection(category.name, category.images, sectionClass);
-            galleryContainer.innerHTML += section;
-            sectionIndex++;
-        }
+        renderGallery(imagesSnapshot, galleryContainer, galleryLoadingSection, noGallerySection);
 
     } catch (error) {
         console.error('Error loading gallery:', error);
         galleryLoadingSection.innerHTML = '<div class="container"><p style="color: red; text-align: center; padding: 60px 20px;">Error loading gallery. Please try again later.</p></div>';
+    }
+}
+
+function renderGallery(imagesSnapshot, galleryContainer, galleryLoadingSection, noGallerySection) {
+    galleryLoadingSection.style.display = 'none';
+
+    if (imagesSnapshot.empty) {
+        noGallerySection.style.display = 'block';
+        return;
+    }
+
+    // Group images by category
+    const categories = {};
+    imagesSnapshot.forEach(doc => {
+        const image = doc.data();
+        const category = image.category || 'Uncategorized';
+
+        if (!categories[category]) {
+            categories[category] = {
+                name: category,
+                sectionClass: image.sectionClass || 'section',
+                images: []
+            };
+        }
+
+        categories[category].images.push(image);
+    });
+
+    galleryContainer.innerHTML = '';
+
+    // Create sections for each category
+    let sectionIndex = 0;
+    for (const categoryKey in categories) {
+        const category = categories[categoryKey];
+        const sectionClass = sectionIndex % 2 === 0 ? 'section section-alt' : 'section';
+        const section = createGallerySection(category.name, category.images, sectionClass);
+        galleryContainer.innerHTML += section;
+        sectionIndex++;
     }
 }
 

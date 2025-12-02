@@ -1314,7 +1314,8 @@ body {
 }
 
 .gallery-item {
-    height: 280px;
+    aspect-ratio: 1 / 1; /* Perfect square like Instagram */
+    width: 100%;
     border-radius: 15px;
     background-size: cover;
     background-position: center;

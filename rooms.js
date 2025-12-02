@@ -1,9 +1,12 @@
-// Load and display rooms from Firebase
+// Load and display rooms from Firebase with caching
+let slideshowIntervals = {}; // Store slideshow intervals for each room
+let roomsCache = null;
+let roomsCacheTime = null;
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes cache
+
 document.addEventListener('DOMContentLoaded', function() {
     loadRooms();
 });
-
-let slideshowIntervals = {}; // Store slideshow intervals for each room
 
 async function loadRooms() {
     const roomsContainer = document.getElementById('roomsContainer');
@@ -15,59 +18,76 @@ async function loadRooms() {
         Object.values(slideshowIntervals).forEach(interval => clearInterval(interval));
         slideshowIntervals = {};
 
-        const db = firebase.firestore();
-        const roomsSnapshot = await db.collection('rooms').orderBy('order', 'asc').get();
-
-        roomsLoading.style.display = 'none';
-
-        if (roomsSnapshot.empty) {
-            noRooms.style.display = 'block';
+        // Use cache if available and fresh
+        const now = Date.now();
+        if (roomsCache && roomsCacheTime && (now - roomsCacheTime < CACHE_DURATION)) {
+            console.log('✓ Using cached rooms data');
+            renderRooms(roomsCache, roomsContainer, roomsLoading, noRooms);
             return;
         }
 
-        // Clear container
-        roomsContainer.innerHTML = '';
+        console.log('⬇ Loading rooms from Firebase...');
+        const db = firebase.firestore();
+        const roomsSnapshot = await db.collection('rooms').orderBy('order', 'asc').get();
 
-        // Build all room cards first
-        const roomCards = [];
-        const roomsData = [];
+        // Cache the data
+        roomsCache = roomsSnapshot;
+        roomsCacheTime = now;
 
-        let roomIndex = 0;
-        roomsSnapshot.forEach((doc) => {
-            const room = doc.data();
-            console.log(`🏨 Room ${roomIndex + 1}: "${room.name}"`, {
-                id: doc.id,
-                order: room.order || 'MISSING',
-                imageCount: room.imageUrls ? room.imageUrls.length : 0,
-                imageUrls: room.imageUrls,
-                firstImage: room.imageUrls && room.imageUrls[0] ? room.imageUrls[0].substring(0, 100) + '...' : 'none'
-            });
-            roomsData.push({ room, index: roomIndex });
-            const roomCard = createRoomCard(room, `room-${roomIndex}`);
-            roomCards.push(roomCard);
-            roomIndex++;
-        });
-
-        // Insert all cards at once
-        roomsContainer.innerHTML = roomCards.join('');
-
-        // Start slideshows after DOM is updated with cache-busted URLs
-        const cacheBuster = Date.now();
-        roomsData.forEach(({ room, index }) => {
-            if (room.imageUrls && room.imageUrls.length > 1) {
-                // Add cache buster to slideshow images too
-                const cachedUrls = room.imageUrls.map(url => {
-                    const separator = url.includes('?') ? '&' : '?';
-                    return `${url}${separator}t=${cacheBuster}`;
-                });
-                startSlideshow(`room-${index}`, cachedUrls);
-            }
-        });
+        renderRooms(roomsSnapshot, roomsContainer, roomsLoading, noRooms);
 
     } catch (error) {
         console.error('Error loading rooms:', error);
         roomsLoading.innerHTML = '<p style="color: red;">Error loading rooms. Please try again later.</p>';
     }
+}
+
+function renderRooms(roomsSnapshot, roomsContainer, roomsLoading, noRooms) {
+    roomsLoading.style.display = 'none';
+
+    if (roomsSnapshot.empty) {
+        noRooms.style.display = 'block';
+        return;
+    }
+
+    // Clear container
+    roomsContainer.innerHTML = '';
+
+    // Build all room cards first
+    const roomCards = [];
+    const roomsData = [];
+
+    let roomIndex = 0;
+    roomsSnapshot.forEach((doc) => {
+        const room = doc.data();
+        console.log(`🏨 Room ${roomIndex + 1}: "${room.name}"`, {
+            id: doc.id,
+            order: room.order || 'MISSING',
+            imageCount: room.imageUrls ? room.imageUrls.length : 0,
+            imageUrls: room.imageUrls,
+            firstImage: room.imageUrls && room.imageUrls[0] ? room.imageUrls[0].substring(0, 100) + '...' : 'none'
+        });
+        roomsData.push({ room, index: roomIndex });
+        const roomCard = createRoomCard(room, `room-${roomIndex}`);
+        roomCards.push(roomCard);
+        roomIndex++;
+    });
+
+    // Insert all cards at once
+    roomsContainer.innerHTML = roomCards.join('');
+
+    // Start slideshows after DOM is updated with cache-busted URLs
+    const cacheBuster = Date.now();
+    roomsData.forEach(({ room, index }) => {
+        if (room.imageUrls && room.imageUrls.length > 1) {
+            // Add cache buster to slideshow images too
+            const cachedUrls = room.imageUrls.map(url => {
+                const separator = url.includes('?') ? '&' : '?';
+                return `${url}${separator}t=${cacheBuster}`;
+            });
+            startSlideshow(`room-${index}`, cachedUrls);
+        }
+    });
 }
 
 function startSlideshow(roomId, images) {
