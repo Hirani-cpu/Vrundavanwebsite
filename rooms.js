@@ -4,6 +4,36 @@ let roomsCache = null;
 let roomsCacheTime = null;
 const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes cache
 
+// Room Booking Modal Functions - Define BEFORE DOM loads
+window.openBookingModal = function(roomName, price, priceUnit) {
+    console.log('Opening booking modal for:', roomName, price, priceUnit);
+    document.getElementById('selectedRoomName').value = roomName;
+    document.getElementById('selectedRoomPrice').value = price;
+    document.getElementById('displayRoomName').value = roomName;
+    document.getElementById('displayRoomPrice').value = `₹${price}/${priceUnit}`;
+    document.getElementById('bookingModalTitle').textContent = `Book ${roomName}`;
+
+    // Set minimum check-in date to today
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('checkInDate').min = today;
+    document.getElementById('checkOutDate').min = today;
+
+    // Show modal
+    document.getElementById('roomBookingModal').style.display = 'block';
+
+    // Reset form
+    document.getElementById('roomBookingForm').reset();
+    document.getElementById('displayRoomName').value = roomName;
+    document.getElementById('displayRoomPrice').value = `₹${price}/${priceUnit}`;
+    document.getElementById('roomBookingForm').style.display = 'block';
+    document.getElementById('bookingSuccessMessage').style.display = 'none';
+};
+
+window.closeBookingModal = function() {
+    document.getElementById('roomBookingModal').style.display = 'none';
+    document.getElementById('roomBookingForm').reset();
+};
+
 document.addEventListener('DOMContentLoaded', function() {
     loadRooms();
 });
@@ -171,41 +201,18 @@ function createRoomCard(room, roomId) {
     `;
 }
 
-// Room Booking Modal Functions - Make globally accessible
-window.openBookingModal = function(roomName, price, priceUnit) {
-    document.getElementById('selectedRoomName').value = roomName;
-    document.getElementById('selectedRoomPrice').value = price;
-    document.getElementById('displayRoomName').value = roomName;
-    document.getElementById('displayRoomPrice').value = `₹${price}/${priceUnit}`;
-    document.getElementById('bookingModalTitle').textContent = `Book ${roomName}`;
-
-    // Set minimum check-in date to today
-    const today = new Date().toISOString().split('T')[0];
-    document.getElementById('checkInDate').min = today;
-    document.getElementById('checkOutDate').min = today;
-
-    // Show modal
-    document.getElementById('roomBookingModal').style.display = 'block';
-
-    // Reset form
-    document.getElementById('roomBookingForm').reset();
-    document.getElementById('displayRoomName').value = roomName;
-    document.getElementById('displayRoomPrice').value = `₹${price}/${priceUnit}`;
-    document.getElementById('roomBookingForm').style.display = 'block';
-    document.getElementById('bookingSuccessMessage').style.display = 'none';
-}
-
-window.closeBookingModal = function() {
-    document.getElementById('roomBookingModal').style.display = 'none';
-    document.getElementById('roomBookingForm').reset();
-}
-
 // Handle booking form submission
 document.addEventListener('DOMContentLoaded', function() {
     const bookingForm = document.getElementById('roomBookingForm');
     if (bookingForm) {
+        console.log('✓ Room booking form found in rooms.js');
+
+        // Remove any existing listeners and add ours with immediate execution
         bookingForm.addEventListener('submit', async function(e) {
             e.preventDefault();
+            e.stopPropagation(); // Stop other handlers from interfering
+
+            console.log('📝 Booking form submitted');
 
             const roomName = document.getElementById('selectedRoomName').value;
             const roomPrice = document.getElementById('selectedRoomPrice').value;
@@ -216,6 +223,8 @@ document.addEventListener('DOMContentLoaded', function() {
             const checkOut = document.getElementById('checkOutDate').value;
             const numGuests = document.getElementById('numGuests').value;
             const specialRequests = document.getElementById('specialRequests').value;
+
+            console.log('Form data collected:', { roomName, roomPrice, guestName, guestEmail });
 
             // Calculate number of nights
             const checkInDate = new Date(checkIn);
@@ -229,23 +238,33 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             try {
-                // Save to Firebase
+                console.log('💾 Saving to Firebase...');
+
+                // Check if Firebase is available
+                if (typeof firebase === 'undefined') {
+                    throw new Error('Firebase is not loaded');
+                }
+
                 const db = firebase.firestore();
-                await db.collection('bookings').add({
-                    roomName: roomName,
-                    roomPrice: roomPrice,
-                    guestName: guestName,
-                    guestEmail: guestEmail,
-                    guestPhone: guestPhone,
-                    checkInDate: checkIn,
-                    checkOutDate: checkOut,
-                    numberOfGuests: numGuests,
+                const docRef = await db.collection('roomBookings').add({
+                    // Match admin panel expected field names
+                    fullName: guestName,
+                    email: guestEmail,
+                    phone: guestPhone,
+                    checkIn: checkIn,
+                    checkOut: checkOut,
+                    adults: parseInt(numGuests),
+                    children: 0,
+                    roomType: roomName,
+                    roomPrice: parseInt(roomPrice),
                     numberOfNights: nights,
                     totalPrice: totalPrice,
                     specialRequests: specialRequests,
-                    status: 'pending',
+                    bookingStatus: 'pending',
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
+
+                console.log('✅ Booking saved with ID:', docRef.id);
 
                 // Show success message with summary
                 document.getElementById('roomBookingForm').style.display = 'none';
@@ -262,10 +281,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 `;
 
             } catch (error) {
-                console.error('Error saving booking:', error);
-                alert('Error submitting booking. Please try again or call us directly.');
+                console.error('❌ Error saving booking:', error);
+                console.error('Error details:', error.message, error.code);
+                alert('Error submitting booking: ' + error.message + '\nPlease try again or call us directly.');
             }
-        });
+        }, true); // Use capture phase to run before other handlers
     }
 
     // Close modal when clicking outside

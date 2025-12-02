@@ -417,5 +417,19 @@
     <script src="firebase-config.js"></script>
     <script src="script.js"></script>
     <script src="rooms.js"></script>
+    <script>
+        // Debug: Verify functions are loaded
+        console.log('=== BOOKING MODAL DEBUG ===');
+        console.log('openBookingModal exists:', typeof window.openBookingModal);
+        console.log('closeBookingModal exists:', typeof window.closeBookingModal);
+
+        // Test function directly
+        window.testBooking = function() {
+            alert('Test function works!');
+            console.log('Attempting to open modal...');
+            window.openBookingModal('Test Room', 5000, 'night');
+        };
+        console.log('testBooking function created');
+    </script>
 </body>
 </html>

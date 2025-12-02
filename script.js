@@ -1173,7 +1173,19 @@ function loadUserBookings(userEmail) {
         .get()
         .then((querySnapshot) => {
             roomBookingsCount = querySnapshot.size;
-            console.log('Found', roomBookingsCount, 'room bookings');
+            console.log('Found', roomBookingsCount, 'room bookings for email:', userEmail);
+
+            // Debug: Show all bookings
+            if (querySnapshot.size === 0) {
+                console.log('⚠️ No bookings found. Checking all bookings in database...');
+                db.collection('roomBookings').get().then(allDocs => {
+                    console.log('Total bookings in database:', allDocs.size);
+                    allDocs.forEach(doc => {
+                        const data = doc.data();
+                        console.log('Booking email:', data.email, 'Your email:', userEmail, 'Match:', data.email === userEmail);
+                    });
+                });
+            }
 
             const bookingsList = document.getElementById('bookingsList');
             if (bookingsList) {
@@ -1352,7 +1364,8 @@ if (typeof firebase !== 'undefined' && typeof db !== 'undefined') {
     whenReady(function() {
         const roomBookingForm = document.getElementById('roomBookingForm');
 
-        if (roomBookingForm) {
+        // Skip if this is the rooms.html page (has modal booking instead)
+        if (roomBookingForm && !document.getElementById('selectedRoomName')) {
             console.log('Attaching Firebase handler to room booking form...');
             // Remove existing event listener and replace with Firebase version
             roomBookingForm.addEventListener('submit', function(e) {
