@@ -8,60 +8,271 @@ let currentEditingGalleryId = null;
 
 // Wait for DOM to be ready
 document.addEventListener('DOMContentLoaded', function() {
-    setupManagementEventListeners();
+    console.log('Admin-manage.js: DOM loaded, setting up event listeners...');
+    setTimeout(setupManagementEventListeners, 100); // Small delay to ensure all elements are ready
 });
 
 function setupManagementEventListeners() {
+    console.log('Setting up management event listeners...');
+
     // ==================== ROOMS MANAGEMENT ====================
 
-    document.getElementById('addRoomBtn').addEventListener('click', () => {
-    currentEditingRoomId = null;
-    document.getElementById('roomModalTitle').textContent = 'Add New Room';
-    document.getElementById('roomForm').reset();
-    document.getElementById('roomModal').style.display = 'block';
-});
+    const addRoomBtn = document.getElementById('addRoomBtn');
+    if (addRoomBtn) {
+        console.log('Add Room button found!');
+        addRoomBtn.addEventListener('click', function() {
+            console.log('Add Room button clicked!');
+            currentEditingRoomId = null;
+            document.getElementById('roomModalTitle').textContent = 'Add New Room';
+            document.getElementById('roomForm').reset();
+            document.getElementById('roomModal').style.display = 'block';
+        });
+    } else {
+        console.error('Add Room button NOT found!');
+    }
 
-document.getElementById('roomModalClose').addEventListener('click', () => {
-    document.getElementById('roomModal').style.display = 'none';
-});
+    const roomModalClose = document.getElementById('roomModalClose');
+    if (roomModalClose) {
+        roomModalClose.addEventListener('click', function() {
+            document.getElementById('roomModal').style.display = 'none';
+        });
+    }
 
-document.getElementById('cancelRoomBtn').addEventListener('click', () => {
-    document.getElementById('roomModal').style.display = 'none';
-});
+    const cancelRoomBtn = document.getElementById('cancelRoomBtn');
+    if (cancelRoomBtn) {
+        cancelRoomBtn.addEventListener('click', function() {
+            document.getElementById('roomModal').style.display = 'none';
+        });
+    }
 
-document.getElementById('saveRoomBtn').addEventListener('click', async () => {
-    const roomData = {
-        name: document.getElementById('roomName').value,
-        description: document.getElementById('roomDescription').value,
-        price: parseInt(document.getElementById('roomPrice').value),
-        priceUnit: document.getElementById('roomPriceUnit').value || 'night',
-        badge: document.getElementById('roomBadge').value,
-        badgeClass: document.getElementById('roomBadgeClass').value,
-        imageUrl: document.getElementById('roomImageUrl').value,
-        gradient: document.getElementById('roomGradient').value || 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        features: document.getElementById('roomFeatures').value.split('\n').filter(f => f.trim()),
-        order: parseInt(document.getElementById('roomOrder').value)
+    const saveRoomBtn = document.getElementById('saveRoomBtn');
+    if (saveRoomBtn) {
+        saveRoomBtn.addEventListener('click', async function() {
+            const roomData = {
+                name: document.getElementById('roomName').value,
+                description: document.getElementById('roomDescription').value,
+                price: parseInt(document.getElementById('roomPrice').value),
+                priceUnit: document.getElementById('roomPriceUnit').value || 'night',
+                badge: document.getElementById('roomBadge').value,
+                badgeClass: document.getElementById('roomBadgeClass').value,
+                imageUrl: document.getElementById('roomImageUrl').value,
+                gradient: document.getElementById('roomGradient').value || 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                features: document.getElementById('roomFeatures').value.split('\n').filter(f => f.trim()),
+                order: parseInt(document.getElementById('roomOrder').value)
+            };
+
+            try {
+                if (currentEditingRoomId) {
+                    await db.collection('rooms').doc(currentEditingRoomId).update(roomData);
+                    alert('Room updated successfully!');
+                } else {
+                    await db.collection('rooms').add(roomData);
+                    alert('Room added successfully!');
+                }
+                document.getElementById('roomModal').style.display = 'none';
+                loadRoomsList();
+            } catch (error) {
+                console.error('Error saving room:', error);
+                alert('Error saving room: ' + error.message);
+            }
+        });
+    }
+
+    // ==================== MENU MANAGEMENT ====================
+
+    const addCategoryBtn = document.getElementById('addCategoryBtn');
+    if (addCategoryBtn) {
+        console.log('Add Category button found!');
+        addCategoryBtn.addEventListener('click', function() {
+            console.log('Add Category button clicked!');
+            currentEditingCategoryId = null;
+            document.getElementById('categoryModalTitle').textContent = 'Add Menu Category';
+            document.getElementById('categoryForm').reset();
+            document.getElementById('categoryModal').style.display = 'block';
+        });
+    } else {
+        console.error('Add Category button NOT found!');
+    }
+
+    const categoryModalClose = document.getElementById('categoryModalClose');
+    if (categoryModalClose) {
+        categoryModalClose.addEventListener('click', function() {
+            document.getElementById('categoryModal').style.display = 'none';
+        });
+    }
+
+    const cancelCategoryBtn = document.getElementById('cancelCategoryBtn');
+    if (cancelCategoryBtn) {
+        cancelCategoryBtn.addEventListener('click', function() {
+            document.getElementById('categoryModal').style.display = 'none';
+        });
+    }
+
+    const saveCategoryBtn = document.getElementById('saveCategoryBtn');
+    if (saveCategoryBtn) {
+        saveCategoryBtn.addEventListener('click', async function() {
+            const categoryData = {
+                name: document.getElementById('categoryName').value,
+                icon: document.getElementById('categoryIcon').value,
+                order: parseInt(document.getElementById('categoryOrder').value),
+                specialClass: document.getElementById('categorySpecialClass').value,
+                itemsClass: document.getElementById('categoryItemsClass').value || 'menu-items'
+            };
+
+            try {
+                if (currentEditingCategoryId) {
+                    await db.collection('menuCategories').doc(currentEditingCategoryId).update(categoryData);
+                    alert('Category updated successfully!');
+                } else {
+                    await db.collection('menuCategories').add(categoryData);
+                    alert('Category added successfully!');
+                }
+                document.getElementById('categoryModal').style.display = 'none';
+                loadMenuList();
+            } catch (error) {
+                console.error('Error saving category:', error);
+                alert('Error saving category: ' + error.message);
+            }
+        });
+    }
+
+    const addMenuItemBtn = document.getElementById('addMenuItemBtn');
+    if (addMenuItemBtn) {
+        console.log('Add Menu Item button found!');
+        addMenuItemBtn.addEventListener('click', async function() {
+            console.log('Add Menu Item button clicked!');
+            currentEditingMenuItemId = null;
+            document.getElementById('menuItemModalTitle').textContent = 'Add Menu Item';
+            document.getElementById('menuItemForm').reset();
+            await loadCategoriesDropdown();
+            document.getElementById('menuItemModal').style.display = 'block';
+        });
+    } else {
+        console.error('Add Menu Item button NOT found!');
+    }
+
+    const menuItemModalClose = document.getElementById('menuItemModalClose');
+    if (menuItemModalClose) {
+        menuItemModalClose.addEventListener('click', function() {
+            document.getElementById('menuItemModal').style.display = 'none';
+        });
+    }
+
+    const cancelMenuItemBtn = document.getElementById('cancelMenuItemBtn');
+    if (cancelMenuItemBtn) {
+        cancelMenuItemBtn.addEventListener('click', function() {
+            document.getElementById('menuItemModal').style.display = 'none';
+        });
+    }
+
+    const saveMenuItemBtn = document.getElementById('saveMenuItemBtn');
+    if (saveMenuItemBtn) {
+        saveMenuItemBtn.addEventListener('click', async function() {
+            const menuItemData = {
+                categoryId: document.getElementById('menuItemCategory').value,
+                name: document.getElementById('menuItemName').value,
+                description: document.getElementById('menuItemDescription').value,
+                price: parseInt(document.getElementById('menuItemPrice').value),
+                type: document.getElementById('menuItemType').value,
+                order: parseInt(document.getElementById('menuItemOrder').value)
+            };
+
+            try {
+                if (currentEditingMenuItemId) {
+                    await db.collection('menuItems').doc(currentEditingMenuItemId).update(menuItemData);
+                    alert('Menu item updated successfully!');
+                } else {
+                    await db.collection('menuItems').add(menuItemData);
+                    alert('Menu item added successfully!');
+                }
+                document.getElementById('menuItemModal').style.display = 'none';
+                loadMenuList();
+            } catch (error) {
+                console.error('Error saving menu item:', error);
+                alert('Error saving menu item: ' + error.message);
+            }
+        });
+    }
+
+    // ==================== GALLERY MANAGEMENT ====================
+
+    const addGalleryImageBtn = document.getElementById('addGalleryImageBtn');
+    if (addGalleryImageBtn) {
+        console.log('Add Gallery Image button found!');
+        addGalleryImageBtn.addEventListener('click', function() {
+            console.log('Add Gallery Image button clicked!');
+            currentEditingGalleryId = null;
+            document.getElementById('galleryImageModalTitle').textContent = 'Add Gallery Image';
+            document.getElementById('galleryImageForm').reset();
+            document.getElementById('galleryImageModal').style.display = 'block';
+        });
+    } else {
+        console.error('Add Gallery Image button NOT found!');
+    }
+
+    const galleryImageModalClose = document.getElementById('galleryImageModalClose');
+    if (galleryImageModalClose) {
+        galleryImageModalClose.addEventListener('click', function() {
+            document.getElementById('galleryImageModal').style.display = 'none';
+        });
+    }
+
+    const cancelGalleryImageBtn = document.getElementById('cancelGalleryImageBtn');
+    if (cancelGalleryImageBtn) {
+        cancelGalleryImageBtn.addEventListener('click', function() {
+            document.getElementById('galleryImageModal').style.display = 'none';
+        });
+    }
+
+    const saveGalleryImageBtn = document.getElementById('saveGalleryImageBtn');
+    if (saveGalleryImageBtn) {
+        saveGalleryImageBtn.addEventListener('click', async function() {
+            const galleryData = {
+                title: document.getElementById('galleryImageTitle').value,
+                category: document.getElementById('galleryImageCategory').value,
+                imageUrl: document.getElementById('galleryImageUrl').value,
+                gradient: document.getElementById('galleryImageGradient').value || 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                order: parseInt(document.getElementById('galleryImageOrder').value)
+            };
+
+            try {
+                if (currentEditingGalleryId) {
+                    await db.collection('gallery').doc(currentEditingGalleryId).update(galleryData);
+                    alert('Gallery image updated successfully!');
+                } else {
+                    await db.collection('gallery').add(galleryData);
+                    alert('Gallery image added successfully!');
+                }
+                document.getElementById('galleryImageModal').style.display = 'none';
+                loadGalleryList();
+            } catch (error) {
+                console.error('Error saving gallery image:', error);
+                alert('Error saving gallery image: ' + error.message);
+            }
+        });
+    }
+
+    // Close modals when clicking outside
+    window.onclick = function(event) {
+        const modals = ['roomModal', 'categoryModal', 'menuItemModal', 'galleryImageModal'];
+        modals.forEach(modalId => {
+            const modal = document.getElementById(modalId);
+            if (modal && event.target == modal) {
+                modal.style.display = 'none';
+            }
+        });
     };
 
-    try {
-        if (currentEditingRoomId) {
-            await db.collection('rooms').doc(currentEditingRoomId).update(roomData);
-            alert('Room updated successfully!');
-        } else {
-            await db.collection('rooms').add(roomData);
-            alert('Room added successfully!');
-        }
-        document.getElementById('roomModal').style.display = 'none';
-        loadRoomsList();
-    } catch (error) {
-        console.error('Error saving room:', error);
-        alert('Error saving room: ' + error.message);
-    }
-});
+    console.log('All event listeners set up successfully!');
+}
+
+// ==================== ROOMS FUNCTIONS ====================
 
 async function loadRoomsList() {
     const roomsList = document.getElementById('roomsList');
     const loading = document.getElementById('roomsListLoading');
+
+    if (!roomsList || !loading) return;
 
     loading.style.display = 'block';
     roomsList.innerHTML = '';
@@ -72,7 +283,7 @@ async function loadRoomsList() {
         loading.style.display = 'none';
 
         if (snapshot.empty) {
-            roomsList.innerHTML = '<p style="text-align: center; color: #999;">No rooms added yet.</p>';
+            roomsList.innerHTML = '<p style="text-align: center; color: #999; padding: 40px;">No rooms added yet. Click "+ Add New Room" to get started!</p>';
             return;
         }
 
@@ -82,7 +293,6 @@ async function loadRoomsList() {
             roomsList.innerHTML += card;
         });
 
-        // Attach event listeners
         attachRoomEventListeners();
 
     } catch (error) {
@@ -161,92 +371,7 @@ async function deleteRoom(roomId) {
     }
 }
 
-// ==================== MENU MANAGEMENT ====================
-
-document.getElementById('addCategoryBtn').addEventListener('click', () => {
-    currentEditingCategoryId = null;
-    document.getElementById('categoryModalTitle').textContent = 'Add Menu Category';
-    document.getElementById('categoryForm').reset();
-    document.getElementById('categoryModal').style.display = 'block';
-});
-
-document.getElementById('categoryModalClose').addEventListener('click', () => {
-    document.getElementById('categoryModal').style.display = 'none';
-});
-
-document.getElementById('cancelCategoryBtn').addEventListener('click', () => {
-    document.getElementById('categoryModal').style.display = 'none';
-});
-
-document.getElementById('saveCategoryBtn').addEventListener('click', async () => {
-    const categoryData = {
-        name: document.getElementById('categoryName').value,
-        icon: document.getElementById('categoryIcon').value,
-        order: parseInt(document.getElementById('categoryOrder').value),
-        specialClass: document.getElementById('categorySpecialClass').value,
-        itemsClass: document.getElementById('categoryItemsClass').value || 'menu-items'
-    };
-
-    try {
-        if (currentEditingCategoryId) {
-            await db.collection('menuCategories').doc(currentEditingCategoryId).update(categoryData);
-            alert('Category updated successfully!');
-        } else {
-            await db.collection('menuCategories').add(categoryData);
-            alert('Category added successfully!');
-        }
-        document.getElementById('categoryModal').style.display = 'none';
-        loadMenuList();
-    } catch (error) {
-        console.error('Error saving category:', error);
-        alert('Error saving category: ' + error.message);
-    }
-});
-
-document.getElementById('addMenuItemBtn').addEventListener('click', async () => {
-    currentEditingMenuItemId = null;
-    document.getElementById('menuItemModalTitle').textContent = 'Add Menu Item';
-    document.getElementById('menuItemForm').reset();
-
-    // Load categories for dropdown
-    await loadCategoriesDropdown();
-
-    document.getElementById('menuItemModal').style.display = 'block';
-});
-
-document.getElementById('menuItemModalClose').addEventListener('click', () => {
-    document.getElementById('menuItemModal').style.display = 'none';
-});
-
-document.getElementById('cancelMenuItemBtn').addEventListener('click', () => {
-    document.getElementById('menuItemModal').style.display = 'none';
-});
-
-document.getElementById('saveMenuItemBtn').addEventListener('click', async () => {
-    const menuItemData = {
-        categoryId: document.getElementById('menuItemCategory').value,
-        name: document.getElementById('menuItemName').value,
-        description: document.getElementById('menuItemDescription').value,
-        price: parseInt(document.getElementById('menuItemPrice').value),
-        type: document.getElementById('menuItemType').value,
-        order: parseInt(document.getElementById('menuItemOrder').value)
-    };
-
-    try {
-        if (currentEditingMenuItemId) {
-            await db.collection('menuItems').doc(currentEditingMenuItemId).update(menuItemData);
-            alert('Menu item updated successfully!');
-        } else {
-            await db.collection('menuItems').add(menuItemData);
-            alert('Menu item added successfully!');
-        }
-        document.getElementById('menuItemModal').style.display = 'none';
-        loadMenuList();
-    } catch (error) {
-        console.error('Error saving menu item:', error);
-        alert('Error saving menu item: ' + error.message);
-    }
-});
+// ==================== MENU FUNCTIONS ====================
 
 async function loadCategoriesDropdown() {
     const select = document.getElementById('menuItemCategory');
@@ -270,24 +395,25 @@ async function loadMenuList() {
     const menuList = document.getElementById('menuList');
     const loading = document.getElementById('menuListLoading');
 
+    if (!menuList || !loading) return;
+
     loading.style.display = 'block';
     menuList.innerHTML = '';
 
     try {
-        // Load categories
         const categoriesSnapshot = await db.collection('menuCategories').orderBy('order', 'asc').get();
 
         loading.style.display = 'none';
 
         if (categoriesSnapshot.empty) {
-            menuList.innerHTML = '<p style="text-align: center; color: #999;">No categories added yet.</p>';
+            menuList.innerHTML = '<p style="text-align: center; color: #999; padding: 40px;">No categories added yet. Click "+ Add Category" to get started!</p>';
             return;
         }
 
         for (const catDoc of categoriesSnapshot.docs) {
             const category = catDoc.data();
             const categoryCard = `
-                <div class="item-card" style="grid-column: 1 / -1;">
+                <div class="item-card" style="grid-column: 1 / -1; background: #f8f9fa;">
                     <h3>${category.icon || ''} ${category.name}</h3>
                     <p><strong>Order:</strong> ${category.order}</p>
                     <div class="item-card-actions">
@@ -298,7 +424,6 @@ async function loadMenuList() {
             `;
             menuList.innerHTML += categoryCard;
 
-            // Load items for this category
             const itemsSnapshot = await db.collection('menuItems')
                 .where('categoryId', '==', catDoc.id)
                 .orderBy('order', 'asc')
@@ -311,7 +436,7 @@ async function loadMenuList() {
                         <h3>${item.name}</h3>
                         <p><strong>Price:</strong> ₹${item.price}</p>
                         <p><strong>Type:</strong> ${item.type || 'None'}</p>
-                        <p>${item.description || ''}</p>
+                        <p style="font-size: 0.85rem; color: #666;">${item.description || ''}</p>
                         <div class="item-card-actions">
                             <button class="btn-edit" data-menu-item-id="${itemDoc.id}">Edit</button>
                             <button class="btn-delete-item" data-menu-item-id="${itemDoc.id}">Delete</button>
@@ -322,7 +447,6 @@ async function loadMenuList() {
             });
         }
 
-        // Attach event listeners
         attachMenuEventListeners();
 
     } catch (error) {
@@ -332,7 +456,6 @@ async function loadMenuList() {
 }
 
 function attachMenuEventListeners() {
-    // Category edit/delete
     document.querySelectorAll('.btn-edit[data-category-id]').forEach(btn => {
         btn.addEventListener('click', async function() {
             const categoryId = this.getAttribute('data-category-id');
@@ -343,13 +466,12 @@ function attachMenuEventListeners() {
     document.querySelectorAll('.btn-delete-item[data-category-id]').forEach(btn => {
         btn.addEventListener('click', async function() {
             const categoryId = this.getAttribute('data-category-id');
-            if (confirm('Are you sure you want to delete this category? All items in this category will also need to be reassigned.')) {
+            if (confirm('Are you sure you want to delete this category?')) {
                 await deleteCategory(categoryId);
             }
         });
     });
 
-    // Menu item edit/delete
     document.querySelectorAll('.btn-edit[data-menu-item-id]').forEach(btn => {
         btn.addEventListener('click', async function() {
             const itemId = this.getAttribute('data-menu-item-id');
@@ -434,51 +556,13 @@ async function deleteMenuItem(itemId) {
     }
 }
 
-// ==================== GALLERY MANAGEMENT ====================
-
-document.getElementById('addGalleryImageBtn').addEventListener('click', () => {
-    currentEditingGalleryId = null;
-    document.getElementById('galleryImageModalTitle').textContent = 'Add Gallery Image';
-    document.getElementById('galleryImageForm').reset();
-    document.getElementById('galleryImageModal').style.display = 'block';
-});
-
-document.getElementById('galleryImageModalClose').addEventListener('click', () => {
-    document.getElementById('galleryImageModal').style.display = 'none';
-});
-
-document.getElementById('cancelGalleryImageBtn').addEventListener('click', () => {
-    document.getElementById('galleryImageModal').style.display = 'none';
-});
-
-document.getElementById('saveGalleryImageBtn').addEventListener('click', async () => {
-    const galleryData = {
-        title: document.getElementById('galleryImageTitle').value,
-        category: document.getElementById('galleryImageCategory').value,
-        imageUrl: document.getElementById('galleryImageUrl').value,
-        gradient: document.getElementById('galleryImageGradient').value || 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        order: parseInt(document.getElementById('galleryImageOrder').value)
-    };
-
-    try {
-        if (currentEditingGalleryId) {
-            await db.collection('gallery').doc(currentEditingGalleryId).update(galleryData);
-            alert('Gallery image updated successfully!');
-        } else {
-            await db.collection('gallery').add(galleryData);
-            alert('Gallery image added successfully!');
-        }
-        document.getElementById('galleryImageModal').style.display = 'none';
-        loadGalleryList();
-    } catch (error) {
-        console.error('Error saving gallery image:', error);
-        alert('Error saving gallery image: ' + error.message);
-    }
-});
+// ==================== GALLERY FUNCTIONS ====================
 
 async function loadGalleryList() {
     const galleryList = document.getElementById('galleryList');
     const loading = document.getElementById('galleryListLoading');
+
+    if (!galleryList || !loading) return;
 
     loading.style.display = 'block';
     galleryList.innerHTML = '';
@@ -489,7 +573,7 @@ async function loadGalleryList() {
         loading.style.display = 'none';
 
         if (snapshot.empty) {
-            galleryList.innerHTML = '<p style="text-align: center; color: #999;">No gallery images added yet.</p>';
+            galleryList.innerHTML = '<p style="text-align: center; color: #999; padding: 40px;">No gallery images added yet. Click "+ Add Image" to get started!</p>';
             return;
         }
 
@@ -499,7 +583,6 @@ async function loadGalleryList() {
             galleryList.innerHTML += card;
         });
 
-        // Attach event listeners
         attachGalleryEventListeners();
 
     } catch (error) {
@@ -572,15 +655,3 @@ async function deleteGalleryImage(galleryId) {
         alert('Error deleting gallery image: ' + error.message);
     }
 }
-
-    // Close modals when clicking outside
-    window.onclick = function(event) {
-        const modals = ['roomModal', 'categoryModal', 'menuItemModal', 'galleryImageModal'];
-        modals.forEach(modalId => {
-            const modal = document.getElementById(modalId);
-            if (event.target == modal) {
-                modal.style.display = 'none';
-            }
-        });
-    };
-}  // End of setupManagementEventListeners()
