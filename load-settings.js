@@ -6,6 +6,17 @@
 (function() {
     'use strict';
 
+    // Register Service Worker for permanent image caching
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/service-worker.js')
+            .then(registration => {
+                console.log('✓ Service Worker registered for image caching');
+            })
+            .catch(error => {
+                console.log('Service Worker registration failed:', error);
+            });
+    }
+
     // Wait for Firebase to be ready
     function waitForFirebase(callback) {
         if (typeof db !== 'undefined') {
@@ -88,12 +99,24 @@
             }
         }
 
-        // Update Logo
+        // Update Logo with aggressive caching
         if (settings.siteLogoUrl) {
+            // Preload image for instant display (forces browser cache)
+            const preloadLink = document.createElement('link');
+            preloadLink.rel = 'preload';
+            preloadLink.as = 'image';
+            preloadLink.href = settings.siteLogoUrl;
+            preloadLink.crossOrigin = 'anonymous'; // Fix CORS preload warning
+            document.head.appendChild(preloadLink);
+
             const logoElements = document.querySelectorAll('.logo-image, .navbar .logo .logo-image');
             logoElements.forEach(el => {
-                el.innerHTML = `<img src="${settings.siteLogoUrl}" alt="Logo" style="width: 100px; height: 100px; object-fit: contain;">`;
+                el.innerHTML = `<img src="${settings.siteLogoUrl}" alt="Logo" style="width: 100px; height: 100px; object-fit: contain;" loading="eager" decoding="sync">`;
             });
+
+            // Force download to browser cache immediately
+            const img = new Image();
+            img.src = settings.siteLogoUrl;
         }
 
         // Update Tagline
