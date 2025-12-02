@@ -795,6 +795,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (user) {
                 // Login successful
                 const currentUser = {
+                    userId: user.userId || user.email, // Use email as userId if not set
                     name: user.name,
                     email: user.email,
                     phone: user.phone,
@@ -879,6 +880,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // Save user to registered users list
             const newUser = {
+                userId: formData.email, // Use email as unique userId
                 name: formData.name,
                 email: formData.email,
                 phone: formData.phone,
@@ -988,7 +990,7 @@ function populateAccountData(user) {
     }
 
     // Load user bookings from Firestore
-    loadUserBookings(user.email);
+    loadUserBookings(user.email, user.userId);
 
     // Check if user is admin and show admin panel link in sidebar
     if (typeof isAdminUser === 'function' && isAdminUser(user.email)) {
@@ -1153,39 +1155,30 @@ function isAdminUser(email) {
 // ===========================
 // Load User Bookings from Firestore
 // ===========================
-function loadUserBookings(userEmail) {
+function loadUserBookings(userEmail, userId) {
     // Check if Firebase is available
     if (typeof db === 'undefined') {
         console.warn('Firebase not initialized - cannot load bookings');
         return;
     }
 
-    console.log('Loading bookings for user:', userEmail);
+    console.log('Loading bookings for user:', userEmail, 'userId:', userId);
 
     let roomBookingsCount = 0;
     let eventBookingsCount = 0;
     let upcomingRoomBookings = 0;
     let totalNights = 0;
 
-    // Fetch room bookings for this user
-    db.collection('roomBookings')
-        .where('email', '==', userEmail)
+    // Fetch room bookings for this user by userId (preferred) or email (fallback)
+    const roomBookingsQuery = userId
+        ? db.collection('roomBookings').where('userId', '==', userId)
+        : db.collection('roomBookings').where('email', '==', userEmail);
+
+    roomBookingsQuery
         .get()
         .then((querySnapshot) => {
             roomBookingsCount = querySnapshot.size;
-            console.log('Found', roomBookingsCount, 'room bookings for email:', userEmail);
-
-            // Debug: Show all bookings
-            if (querySnapshot.size === 0) {
-                console.log('⚠️ No bookings found. Checking all bookings in database...');
-                db.collection('roomBookings').get().then(allDocs => {
-                    console.log('Total bookings in database:', allDocs.size);
-                    allDocs.forEach(doc => {
-                        const data = doc.data();
-                        console.log('Booking email:', data.email, 'Your email:', userEmail, 'Match:', data.email === userEmail);
-                    });
-                });
-            }
+            console.log('✓ Found', roomBookingsCount, 'room bookings linked to this account');
 
             const bookingsList = document.getElementById('bookingsList');
             if (bookingsList) {
@@ -1215,11 +1208,15 @@ function loadUserBookings(userEmail) {
             }
 
             // Fetch event bookings for this user
-            return db.collection('eventBookings').where('email', '==', userEmail).get();
+            const eventBookingsQuery = userId
+                ? db.collection('eventBookings').where('userId', '==', userId)
+                : db.collection('eventBookings').where('email', '==', userEmail);
+
+            return eventBookingsQuery.get();
         })
         .then((querySnapshot) => {
             eventBookingsCount = querySnapshot.size;
-            console.log('Found', eventBookingsCount, 'event bookings');
+            console.log('✓ Found', eventBookingsCount, 'event bookings linked to this account');
 
             const bookingsList = document.getElementById('bookingsList');
             if (bookingsList && querySnapshot.size > 0) {

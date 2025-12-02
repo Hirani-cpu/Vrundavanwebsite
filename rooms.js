@@ -245,8 +245,16 @@ document.addEventListener('DOMContentLoaded', function() {
                     throw new Error('Firebase is not loaded');
                 }
 
+                // Get current logged-in user from localStorage (if any)
+                const currentUserJson = localStorage.getItem('currentUser');
+                const currentUser = currentUserJson ? JSON.parse(currentUserJson) : null;
+                const userId = currentUser ? currentUser.userId : null;
+                const userEmail = currentUser ? currentUser.email : null;
+
+                console.log('Current user:', currentUser ? userEmail + ' (userId: ' + userId + ')' : 'Not logged in (guest booking)');
+
                 const db = firebase.firestore();
-                const docRef = await db.collection('roomBookings').add({
+                const bookingData = {
                     // Match admin panel expected field names
                     fullName: guestName,
                     email: guestEmail,
@@ -262,7 +270,18 @@ document.addEventListener('DOMContentLoaded', function() {
                     specialRequests: specialRequests,
                     bookingStatus: 'pending',
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
+                };
+
+                // Add userId if user is logged in
+                if (userId) {
+                    bookingData.userId = userId;
+                    bookingData.userEmail = userEmail;
+                    console.log('✓ Booking will be linked to user account:', userId);
+                } else {
+                    console.log('⚠️ Guest booking (not linked to account)');
+                }
+
+                const docRef = await db.collection('roomBookings').add(bookingData);
 
                 console.log('✅ Booking saved with ID:', docRef.id);
 
