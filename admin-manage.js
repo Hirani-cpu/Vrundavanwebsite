@@ -425,17 +425,17 @@ async function loadMenuList() {
         for (const catDoc of categoriesSnapshot.docs) {
             const category = catDoc.data();
 
-            // Category header
+            // Category header - ultra compact
             const categoryHeader = `
-                <div class="category-header" style="background: linear-gradient(135deg, #4a7c2c 0%, #2d5016 100%); color: white; padding: 15px 20px; border-radius: 8px; margin: 20px 0 10px 0; display: flex; justify-content: space-between; align-items: center;">
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <span style="font-size: 1.5rem;">${category.icon || '📋'}</span>
-                        <h3 style="margin: 0; font-size: 1.2rem;">${category.name}</h3>
-                        <span style="background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 20px; font-size: 0.85rem;">Order: ${category.order}</span>
+                <div class="category-header" style="background: linear-gradient(135deg, #4a7c2c 0%, #2d5016 100%); color: white; padding: 8px 12px; border-radius: 5px; margin: 12px 0 6px 0; display: flex; justify-content: space-between; align-items: center;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="font-size: 1.1rem;">${category.icon || '📋'}</span>
+                        <h3 style="margin: 0; font-size: 0.95rem; font-weight: 600;">${category.name}</h3>
+                        <span style="background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 10px; font-size: 0.7rem;">Order: ${category.order}</span>
                     </div>
-                    <div style="display: flex; gap: 10px;">
-                        <button class="btn-edit" data-category-id="${catDoc.id}" style="padding: 8px 15px; background: white; color: #4a7c2c; border: none; border-radius: 5px; cursor: pointer; font-weight: 600;">✏️ Edit</button>
-                        <button class="btn-delete-item" data-category-id="${catDoc.id}" style="padding: 8px 15px; background: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: 600;">🗑️ Delete</button>
+                    <div style="display: flex; gap: 6px;">
+                        <button class="btn-edit" data-category-id="${catDoc.id}" style="padding: 5px 10px; background: white; color: #4a7c2c; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 0.8rem;">✏️</button>
+                        <button class="btn-delete-item" data-category-id="${catDoc.id}" style="padding: 5px 10px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 0.8rem;">🗑️</button>
                     </div>
                 </div>
             `;
@@ -456,19 +456,19 @@ async function loadMenuList() {
             }
 
             if (itemsSnapshot.empty) {
-                menuList.innerHTML += '<p style="text-align: center; color: #999; padding: 20px; background: #f8f9fa; border-radius: 5px; margin-bottom: 10px;">No items in this category yet.</p>';
+                menuList.innerHTML += '<p style="text-align: center; color: #999; padding: 12px; background: #f8f9fa; border-radius: 4px; margin-bottom: 8px; font-size: 0.85rem;">No items yet.</p>';
             } else {
-                // Create table for menu items
+                // Create ultra-compact table for menu items
                 let tableHTML = `
-                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border-radius: 8px; overflow: hidden;">
+                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px; background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.06); border-radius: 4px; overflow: hidden; font-size: 0.8rem;">
                         <thead>
-                            <tr style="background: #f8f9fa; border-bottom: 2px solid #dee2e6;">
-                                <th style="padding: 12px; text-align: left; font-weight: 600; color: #2d5016; width: 5%;">#</th>
-                                <th style="padding: 12px; text-align: left; font-weight: 600; color: #2d5016; width: 35%;">Item Name</th>
-                                <th style="padding: 12px; text-align: left; font-weight: 600; color: #2d5016; width: 10%;">Price</th>
-                                <th style="padding: 12px; text-align: left; font-weight: 600; color: #2d5016; width: 10%;">Type</th>
-                                <th style="padding: 12px; text-align: left; font-weight: 600; color: #2d5016; width: 30%;">Description</th>
-                                <th style="padding: 12px; text-align: center; font-weight: 600; color: #2d5016; width: 10%;">Actions</th>
+                            <tr style="background: #f8f9fa; border-bottom: 1px solid #dee2e6;">
+                                <th style="padding: 6px 8px; text-align: left; font-weight: 600; color: #2d5016; font-size: 0.75rem; width: 3%;">#</th>
+                                <th style="padding: 6px 8px; text-align: left; font-weight: 600; color: #2d5016; font-size: 0.75rem; width: 25%;">Item</th>
+                                <th style="padding: 6px 8px; text-align: left; font-weight: 600; color: #2d5016; font-size: 0.75rem; width: 7%;">Price</th>
+                                <th style="padding: 6px 8px; text-align: left; font-weight: 600; color: #2d5016; font-size: 0.75rem; width: 7%;">Type</th>
+                                <th style="padding: 6px 8px; text-align: left; font-weight: 600; color: #2d5016; font-size: 0.75rem; width: 48%;">Description</th>
+                                <th style="padding: 6px 8px; text-align: center; font-weight: 600; color: #2d5016; font-size: 0.75rem; width: 10%;">Action</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -478,21 +478,21 @@ async function loadMenuList() {
                 itemsSnapshot.forEach(itemDoc => {
                     const item = itemDoc.data();
                     const typeBadge = item.type === 'VEG'
-                        ? '<span style="background: #28a745; color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600;">🥬 VEG</span>'
+                        ? '<span style="background: #28a745; color: white; padding: 2px 6px; border-radius: 3px; font-size: 0.65rem; font-weight: 600;">🥬</span>'
                         : item.type === 'NON-VEG'
-                        ? '<span style="background: #dc3545; color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600;">🍗 NON-VEG</span>'
-                        : '<span style="color: #999;">-</span>';
+                        ? '<span style="background: #dc3545; color: white; padding: 2px 6px; border-radius: 3px; font-size: 0.65rem; font-weight: 600;">🍗</span>'
+                        : '<span style="color: #999; font-size: 0.7rem;">-</span>';
 
                     tableHTML += `
-                        <tr style="border-bottom: 1px solid #f0f0f0;">
-                            <td style="padding: 12px; color: #666;">${itemIndex}</td>
-                            <td style="padding: 12px; font-weight: 500; color: #2d5016;">${item.name}</td>
-                            <td style="padding: 12px; font-weight: 600; color: #4a7c2c;">₹${item.price}</td>
-                            <td style="padding: 12px;">${typeBadge}</td>
-                            <td style="padding: 12px; font-size: 0.85rem; color: #666;">${item.description || '-'}</td>
-                            <td style="padding: 12px; text-align: center;">
-                                <button class="btn-edit" data-menu-item-id="${itemDoc.id}" style="padding: 6px 12px; background: #4a7c2c; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.85rem; margin-right: 5px;">✏️</button>
-                                <button class="btn-delete-item" data-menu-item-id="${itemDoc.id}" style="padding: 6px 12px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.85rem;">🗑️</button>
+                        <tr style="border-bottom: 1px solid #f8f8f8;">
+                            <td style="padding: 6px 8px; color: #999; font-size: 0.75rem;">${itemIndex}</td>
+                            <td style="padding: 6px 8px; font-weight: 500; color: #2d5016; font-size: 0.8rem; line-height: 1.3;">${item.name}</td>
+                            <td style="padding: 6px 8px; font-weight: 600; color: #4a7c2c; font-size: 0.8rem;">₹${item.price}</td>
+                            <td style="padding: 6px 8px;">${typeBadge}</td>
+                            <td style="padding: 6px 8px; font-size: 0.75rem; color: #666; line-height: 1.2;">${item.description || '-'}</td>
+                            <td style="padding: 6px 8px; text-align: center;">
+                                <button class="btn-edit" data-menu-item-id="${itemDoc.id}" style="padding: 4px 8px; background: #4a7c2c; color: white; border: none; border-radius: 3px; cursor: pointer; font-size: 0.7rem; margin-right: 3px;">✏️</button>
+                                <button class="btn-delete-item" data-menu-item-id="${itemDoc.id}" style="padding: 4px 8px; background: #dc3545; color: white; border: none; border-radius: 3px; cursor: pointer; font-size: 0.7rem;">🗑️</button>
                             </td>
                         </tr>
                     `;

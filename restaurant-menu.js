@@ -3,6 +3,8 @@ document.addEventListener('DOMContentLoaded', function() {
     loadMenu();
 });
 
+let allCategories = []; // Store all categories for search
+
 async function loadMenu() {
     const menuCategories = document.getElementById('menuCategories');
     const menuLoading = document.getElementById('menuLoading');
@@ -10,6 +12,20 @@ async function loadMenu() {
 
     try {
         const db = firebase.firestore();
+
+        // Add search box and controls
+        const controlsHTML = `
+            <div class="menu-controls">
+                <div class="menu-search-box" style="flex: 1;">
+                    <input type="text" class="menu-search-input" id="menuSearch" placeholder="🔍 Search menu items..." oninput="searchMenu(this.value)">
+                </div>
+                <div>
+                    <button class="collapse-btn" onclick="collapseAllCategories()">📁 Collapse All</button>
+                    <button class="collapse-btn" onclick="expandAllCategories()">📂 Expand All</button>
+                </div>
+            </div>
+        `;
+        menuCategories.innerHTML = controlsHTML;
 
         // Load categories
         const categoriesSnapshot = await db.collection('menuCategories')
@@ -23,7 +39,7 @@ async function loadMenu() {
             return;
         }
 
-        menuCategories.innerHTML = '';
+        allCategories = []; // Reset
 
         // For each category, load its items
         for (const catDoc of categoriesSnapshot.docs) {
@@ -48,6 +64,12 @@ async function loadMenu() {
             const items = [];
             itemsSnapshot.forEach(doc => {
                 items.push(doc.data());
+            });
+
+            // Store for search
+            allCategories.push({
+                category: category,
+                items: items
             });
 
             const categoryCard = createCategoryCard(category, items);
@@ -128,4 +150,69 @@ function toggleCategory(categoryId) {
         categoryContent.style.display = 'none';
         icon.textContent = '▶';
     }
+}
+
+// Collapse all categories
+function collapseAllCategories() {
+    document.querySelectorAll('.menu-items-grid').forEach(grid => {
+        grid.style.display = 'none';
+    });
+    document.querySelectorAll('.toggle-icon').forEach(icon => {
+        icon.textContent = '▶';
+    });
+}
+
+// Expand all categories
+function expandAllCategories() {
+    document.querySelectorAll('.menu-items-grid').forEach(grid => {
+        grid.style.display = 'block';
+    });
+    document.querySelectorAll('.toggle-icon').forEach(icon => {
+        icon.textContent = '▼';
+    });
+}
+
+// Search menu items
+function searchMenu(query) {
+    query = query.toLowerCase().trim();
+
+    if (query === '') {
+        // Show all categories and items
+        document.querySelectorAll('.menu-category-modern').forEach(cat => {
+            cat.style.display = 'block';
+        });
+        document.querySelectorAll('.menu-item-compact').forEach(item => {
+            item.style.display = 'flex';
+        });
+        return;
+    }
+
+    // Search through all items
+    document.querySelectorAll('.menu-category-modern').forEach(categoryDiv => {
+        let categoryHasMatch = false;
+        const items = categoryDiv.querySelectorAll('.menu-item-compact');
+
+        items.forEach(item => {
+            const name = item.querySelector('.menu-item-name').textContent.toLowerCase();
+            const desc = item.querySelector('.menu-item-desc')?.textContent.toLowerCase() || '';
+
+            if (name.includes(query) || desc.includes(query)) {
+                item.style.display = 'flex';
+                categoryHasMatch = true;
+            } else {
+                item.style.display = 'none';
+            }
+        });
+
+        // Show/hide category based on matches
+        if (categoryHasMatch) {
+            categoryDiv.style.display = 'block';
+            // Auto-expand category with matches
+            const categoryId = categoryDiv.querySelector('.menu-items-grid').id;
+            document.getElementById(categoryId).style.display = 'block';
+            document.getElementById(categoryId + '-icon').textContent = '▼';
+        } else {
+            categoryDiv.style.display = 'none';
+        }
+    });
 }

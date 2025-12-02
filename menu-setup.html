@@ -105,6 +105,13 @@
         </div>
 
         <div class="section">
+            <h2>3b. Create Large Test Menu (Test Scalability)</h2>
+            <p>This will create 5 categories with 20 items each (100 total items) to test the ultra-compact design.</p>
+            <button onclick="createLargeTestMenu()">Create Large Test Menu (100 items)</button>
+            <div id="largeMenuStatus"></div>
+        </div>
+
+        <div class="section">
             <h2>4. Test Menu Loading on Website</h2>
             <button onclick="testMenuLoading()">Test Menu Loading</button>
             <div id="menuLoadingStatus"></div>
@@ -247,6 +254,83 @@
                         - Indian Cuisine (3 items)<br>
                         - Chinese Cuisine (2 items)<br><br>
                         Now check the admin panel or restaurant.html page!
+                    </div>
+                `;
+
+            } catch (error) {
+                statusEl.innerHTML = `<div class="status error"><strong>❌ Error:</strong> ${error.message}<br><br>Make sure you're authenticated and Firestore rules allow writes.</div>`;
+            }
+        }
+
+        async function createLargeTestMenu() {
+            const statusEl = document.getElementById('largeMenuStatus');
+            statusEl.innerHTML = '<div class="status info">Creating large test menu... This may take a minute...</div>';
+
+            try {
+                const categories = [
+                    { name: 'North Indian Dishes', icon: '🇮🇳', order: 1 },
+                    { name: 'South Indian Specials', icon: '🥥', order: 2 },
+                    { name: 'Chinese Delights', icon: '🇨🇳', order: 3 },
+                    { name: 'Continental Favorites', icon: '🍕', order: 4 },
+                    { name: 'Beverages & Desserts', icon: '🍹', order: 5 }
+                ];
+
+                const sampleItems = [
+                    { name: 'Paneer Butter Masala', desc: 'Cottage cheese in rich creamy tomato gravy', price: 280, type: 'VEG' },
+                    { name: 'Butter Chicken', desc: 'Tender chicken in creamy tomato sauce', price: 320, type: 'NON-VEG' },
+                    { name: 'Dal Tadka', desc: 'Yellow lentils tempered with spices', price: 180, type: 'VEG' },
+                    { name: 'Rogan Josh', desc: 'Aromatic lamb curry with Kashmiri spices', price: 380, type: 'NON-VEG' },
+                    { name: 'Palak Paneer', desc: 'Cottage cheese in spinach gravy', price: 260, type: 'VEG' },
+                    { name: 'Chicken Tikka Masala', desc: 'Grilled chicken in spiced gravy', price: 340, type: 'NON-VEG' },
+                    { name: 'Aloo Gobi', desc: 'Potato and cauliflower dry curry', price: 160, type: 'VEG' },
+                    { name: 'Fish Curry', desc: 'Fresh fish in traditional curry', price: 360, type: 'NON-VEG' },
+                    { name: 'Rajma Masala', desc: 'Red kidney beans in tomato gravy', price: 170, type: 'VEG' },
+                    { name: 'Mutton Korma', desc: 'Mutton in rich creamy gravy', price: 420, type: 'NON-VEG' },
+                    { name: 'Chole Bhature', desc: 'Chickpea curry with fried bread', price: 200, type: 'VEG' },
+                    { name: 'Biryani Special', desc: 'Fragrant rice with meat/vegetables', price: 280, type: 'VEG' },
+                    { name: 'Tandoori Chicken', desc: 'Clay oven roasted chicken', price: 350, type: 'NON-VEG' },
+                    { name: 'Malai Kofta', desc: 'Veggie dumplings in creamy sauce', price: 270, type: 'VEG' },
+                    { name: 'Kadai Paneer', desc: 'Cottage cheese with bell peppers', price: 290, type: 'VEG' },
+                    { name: 'Chicken Curry', desc: 'Classic chicken curry', price: 300, type: 'NON-VEG' },
+                    { name: 'Mix Veg', desc: 'Assorted vegetables in gravy', price: 180, type: 'VEG' },
+                    { name: 'Prawn Masala', desc: 'Spicy prawn curry', price: 400, type: 'NON-VEG' },
+                    { name: 'Paneer Tikka', desc: 'Grilled cottage cheese', price: 250, type: 'VEG' },
+                    { name: 'Egg Curry', desc: 'Boiled eggs in spiced gravy', price: 150, type: 'NON-VEG' }
+                ];
+
+                let totalItems = 0;
+
+                for (const category of categories) {
+                    const catRef = await db.collection('menuCategories').add({
+                        name: category.name,
+                        icon: category.icon,
+                        order: category.order,
+                        specialClass: '',
+                        itemsClass: 'menu-items'
+                    });
+
+                    // Add 20 items per category
+                    for (let i = 0; i < 20; i++) {
+                        const sampleItem = sampleItems[i];
+                        await db.collection('menuItems').add({
+                            categoryId: catRef.id,
+                            name: `${sampleItem.name} ${i > 0 ? i + 1 : ''}`.trim(),
+                            description: sampleItem.desc,
+                            price: sampleItem.price + (i * 10),
+                            type: sampleItem.type,
+                            order: i + 1
+                        });
+                        totalItems++;
+                    }
+                }
+
+                statusEl.innerHTML = `
+                    <div class="status success">
+                        <strong>✅ Success!</strong><br>
+                        Created 5 categories with 100 menu items total.<br><br>
+                        <strong>Categories:</strong><br>
+                        ${categories.map(c => `- ${c.icon} ${c.name} (20 items)`).join('<br>')}<br><br>
+                        Now check the admin panel or restaurant.html page to see the ultra-compact design!
                     </div>
                 `;
 
