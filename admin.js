@@ -79,18 +79,14 @@ document.addEventListener('DOMContentLoaded', function() {
         adminErrorMessage.classList.remove('show');
     }
 
-    // Check if admin is already logged in
+    // Check if admin is already logged in via Firebase Auth
     auth.onAuthStateChanged((user) => {
         if (user) {
-            // User is already logged in, redirect to dashboard
-            const adminLoggedIn = localStorage.getItem('adminLoggedIn');
-            if (adminLoggedIn === 'true') {
-                console.log('Admin already logged in, redirecting to dashboard...');
-                // Wait a moment to show the page loaded, then redirect
-                setTimeout(() => {
-                    window.location.href = 'dashboard.html';
-                }, 500);
-            }
+            // User is already logged in with Firebase Auth - redirect immediately
+            console.log('✅ Admin already logged in:', user.email);
+            localStorage.setItem('adminLoggedIn', 'true');
+            localStorage.setItem('adminEmail', user.email);
+            window.location.href = 'dashboard.html';
         }
     });
 });
