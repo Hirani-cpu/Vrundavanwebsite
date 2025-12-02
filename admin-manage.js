@@ -6,8 +6,9 @@ let currentEditingCategoryId = null;
 let currentEditingMenuItemId = null;
 let currentEditingGalleryId = null;
 
-// Aggressive image compression - compresses images to ~50-100KB for instant loads
-async function compressImage(file, maxWidth = 800, quality = 0.6) {
+// HIGH QUALITY compression - prioritizes image quality over file size
+async function compressImage(file, maxWidth = 1920, quality = 0.92) {
+    const startTime = Date.now();
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.readAsDataURL(file);
@@ -19,7 +20,7 @@ async function compressImage(file, maxWidth = 800, quality = 0.6) {
                 let width = img.width;
                 let height = img.height;
 
-                // Resize if image is too large
+                // Only resize if VERY large (keep full resolution for most images)
                 if (width > maxWidth) {
                     height = (height * maxWidth) / width;
                     width = maxWidth;
@@ -29,9 +30,14 @@ async function compressImage(file, maxWidth = 800, quality = 0.6) {
                 canvas.height = height;
 
                 const ctx = canvas.getContext('2d');
+
+                // MAXIMUM quality smoothing for professional images
+                ctx.imageSmoothingEnabled = true;
+                ctx.imageSmoothingQuality = 'high';
+
                 ctx.drawImage(img, 0, 0, width, height);
 
-                // Convert to blob with compression
+                // Convert to blob with HIGH QUALITY compression (92% quality)
                 canvas.toBlob(
                     (blob) => {
                         if (!blob) {
@@ -43,7 +49,8 @@ async function compressImage(file, maxWidth = 800, quality = 0.6) {
                             type: 'image/jpeg',
                             lastModified: Date.now()
                         });
-                        console.log(`Compressed: ${(file.size / 1024).toFixed(0)}KB → ${(compressedFile.size / 1024).toFixed(0)}KB`);
+                        const duration = Date.now() - startTime;
+                        console.log(`📸 Compressed in ${duration}ms: ${(file.size / 1024).toFixed(0)}KB → ${(compressedFile.size / 1024).toFixed(0)}KB (${((1 - compressedFile.size / file.size) * 100).toFixed(0)}% reduction) - HIGH QUALITY`);
                         resolve(compressedFile);
                     },
                     'image/jpeg',
@@ -58,9 +65,10 @@ async function compressImage(file, maxWidth = 800, quality = 0.6) {
 
 // Firebase Storage upload function with compression
 async function uploadImageToStorage(file, folder) {
+    const uploadStart = Date.now();
     return new Promise(async (resolve, reject) => {
         try {
-            console.log('Original file:', { name: file.name, size: (file.size / 1024).toFixed(0) + 'KB' });
+            console.log(`📥 Processing: ${file.name} (${(file.size / 1024).toFixed(0)}KB)`);
 
             // Check file type
             if (!file.type.startsWith('image/')) {
@@ -68,7 +76,7 @@ async function uploadImageToStorage(file, folder) {
                 return;
             }
 
-            // Compress image for faster upload (reduces to ~200KB)
+            // Compress image for INSTANT upload
             const compressedFile = await compressImage(file);
 
             // Create unique filename
@@ -84,22 +92,27 @@ async function uploadImageToStorage(file, folder) {
             const storageRef = storage.ref();
             const fileRef = storageRef.child(filename);
 
+            console.log(`📤 Uploading ${(compressedFile.size / 1024).toFixed(0)}KB to Firebase...`);
+            const uploadTaskStart = Date.now();
+
             // Upload compressed file
             const uploadTask = fileRef.put(compressedFile);
 
             uploadTask.on('state_changed',
                 (snapshot) => {
                     const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                    if (progress % 25 === 0) console.log(`Upload: ${Math.round(progress)}%`);
+                    console.log(`📊 Upload progress: ${Math.round(progress)}%`);
                 },
                 (error) => {
-                    console.error('Upload error:', error);
+                    console.error('❌ Upload error:', error);
                     reject(error);
                 },
                 async () => {
                     try {
                         const downloadURL = await uploadTask.snapshot.ref.getDownloadURL();
-                        console.log('✓ Uploaded successfully');
+                        const totalTime = ((Date.now() - uploadStart) / 1000).toFixed(2);
+                        const uploadTime = ((Date.now() - uploadTaskStart) / 1000).toFixed(2);
+                        console.log(`✅ Success in ${totalTime}s (compress + upload: ${uploadTime}s)`);
                         resolve(downloadURL);
                     } catch (urlError) {
                         reject(urlError);
@@ -107,7 +120,7 @@ async function uploadImageToStorage(file, folder) {
                 }
             );
         } catch (error) {
-            console.error('Error:', error);
+            console.error('❌ Error:', error);
             reject(error);
         }
     });
@@ -174,15 +187,22 @@ function setupManagementEventListeners() {
             try {
                 // Show saving message
                 saveRoomBtn.disabled = true;
-                saveRoomBtn.textContent = 'Compressing & uploading...';
 
                 // Upload all images in parallel for speed (instead of sequential)
                 if (imageFiles && imageFiles.length > 0) {
-                    const uploadPromises = Array.from(imageFiles).map(file =>
-                        uploadImageToStorage(file, 'rooms')
-                    );
+                    saveRoomBtn.textContent = `⚡ Compressing ${imageFiles.length} image(s)...`;
+                    const uploadStart = Date.now();
+
+                    const uploadPromises = Array.from(imageFiles).map((file, index) => {
+                        return uploadImageToStorage(file, 'rooms').then(url => {
+                            saveRoomBtn.textContent = `📤 Uploaded ${index + 1}/${imageFiles.length}...`;
+                            return url;
+                        });
+                    });
+
                     imageUrls = await Promise.all(uploadPromises);
-                    console.log(`✓ All ${imageUrls.length} images uploaded`);
+                    const uploadTime = ((Date.now() - uploadStart) / 1000).toFixed(1);
+                    console.log(`⚡ All ${imageUrls.length} images uploaded in ${uploadTime}s`);
                 } else if (!currentEditingRoomId) {
                     // New room MUST have images
                     alert('Please select at least one image for the room');
@@ -437,11 +457,17 @@ function setupManagementEventListeners() {
             try {
                 // Show saving message
                 saveGalleryImageBtn.disabled = true;
-                saveGalleryImageBtn.textContent = 'Compressing & uploading...';
 
                 // Upload image if selected
                 if (imageFile) {
+                    saveGalleryImageBtn.textContent = '⚡ Compressing...';
+                    const uploadStart = Date.now();
+
                     imageUrl = await uploadImageToStorage(imageFile, 'gallery');
+
+                    const uploadTime = ((Date.now() - uploadStart) / 1000).toFixed(1);
+                    console.log(`⚡ Gallery image uploaded in ${uploadTime}s`);
+                    saveGalleryImageBtn.textContent = '💾 Saving...';
                 }
 
                 const galleryData = {

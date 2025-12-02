@@ -1116,9 +1116,12 @@ body {
     font-size: 0.95rem;
 }
 
-/* Venues */
+/* Venues - 2x2 Grid with Square Images */
 .venues-container {
     margin-top: 40px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 30px;
 }
 
 .venue-detail-card {
@@ -1126,11 +1129,14 @@ body {
     border-radius: 15px;
     overflow: hidden;
     box-shadow: 0 5px 20px var(--shadow);
-    margin-bottom: 30px;
+    margin-bottom: 0;
+    display: flex;
+    flex-direction: column;
 }
 
 .venue-image {
-    height: 300px;
+    width: 100%;
+    aspect-ratio: 1 / 1; /* Square images */
     background-size: cover;
     background-position: center;
     position: relative;
@@ -1141,50 +1147,74 @@ body {
 
 .venue-capacity-badge {
     position: absolute;
-    top: 20px;
-    right: 20px;
+    top: 15px;
+    right: 15px;
     background: var(--white);
     color: var(--primary-green);
-    padding: 10px 20px;
-    border-radius: 25px;
+    padding: 8px 16px;
+    border-radius: 20px;
     font-weight: 600;
+    font-size: 0.9rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
 }
 
 .venue-content {
-    padding: 30px;
+    padding: 25px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
 }
 
 .venue-content h3 {
-    font-size: 1.8rem;
+    font-size: 1.5rem;
     color: var(--primary-green);
-    margin-bottom: 15px;
+    margin-bottom: 12px;
 }
 
 .venue-content p {
     color: var(--medium-text);
-    line-height: 1.8;
-    margin-bottom: 20px;
+    line-height: 1.7;
+    margin-bottom: 15px;
+    font-size: 0.95rem;
 }
 
 .venue-features {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 10px;
-    margin-bottom: 20px;
+    grid-template-columns: 1fr;
+    gap: 8px;
+    margin-bottom: 15px;
 }
 
 .venue-feature {
     color: var(--medium-text);
-    font-size: 0.95rem;
+    font-size: 0.9rem;
 }
 
 .venue-ideal {
     background: var(--light-green);
-    padding: 12px 20px;
+    padding: 10px 16px;
     border-radius: 8px;
     color: var(--secondary-green);
     font-weight: 600;
+    font-size: 0.9rem;
     display: inline-block;
+    margin-top: auto;
+}
+
+/* Responsive: Mobile - Single Column for Venues */
+@media (max-width: 768px) {
+    .venues-container {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .venue-content {
+        padding: 20px;
+    }
+
+    .venue-content h3 {
+        font-size: 1.5rem;
+    }
 }
 
 /* Services Included */

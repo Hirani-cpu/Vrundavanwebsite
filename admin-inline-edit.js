@@ -810,7 +810,7 @@
             // Upload image if provided
             let imageUrl = card.style.backgroundImage?.match(/url\(["']?([^"']*)["']?\)/)?.[1] || '';
             if (file) {
-                const compressedFile = await compressImage(file, 800, 0.8);
+                const compressedFile = await compressImage(file); // Use HIGH QUALITY defaults
                 imageUrl = await uploadToFirebase(compressedFile, 'cards');
 
                 if (card.style.backgroundImage !== undefined) {
@@ -883,7 +883,7 @@
             btn.textContent = 'Uploading...';
             btn.disabled = true;
 
-            const compressedFile = await compressImage(file, 1920, 0.8);
+            const compressedFile = await compressImage(file); // Use HIGH QUALITY defaults
             const imageUrl = await uploadToFirebase(compressedFile, 'images');
 
             if (updateType === 'background') {
@@ -987,8 +987,8 @@
         }
     }
 
-    // Helper: Compress image
-    function compressImage(file, maxWidth = 1200, quality = 0.8) {
+    // Helper: HIGH QUALITY compression for professional images
+    function compressImage(file, maxWidth = 1920, quality = 0.92) {
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
             reader.readAsDataURL(file);
@@ -1000,6 +1000,7 @@
                     const aspectRatio = img.width / img.height;
                     let width, height;
 
+                    // Only resize if VERY large (keep full resolution for most images)
                     if (img.width > maxWidth) {
                         width = maxWidth;
                         height = maxWidth / aspectRatio;
@@ -1012,6 +1013,11 @@
                     canvas.height = height;
 
                     const ctx = canvas.getContext('2d');
+
+                    // MAXIMUM quality smoothing for professional images
+                    ctx.imageSmoothingEnabled = true;
+                    ctx.imageSmoothingQuality = 'high';
+
                     ctx.drawImage(img, 0, 0, width, height);
 
                     canvas.toBlob((blob) => {
@@ -1023,6 +1029,7 @@
                             type: 'image/jpeg',
                             lastModified: Date.now()
                         });
+                        console.log(`📸 HIGH QUALITY: ${(file.size / 1024).toFixed(0)}KB → ${(compressedFile.size / 1024).toFixed(0)}KB`);
                         resolve(compressedFile);
                     }, 'image/jpeg', quality);
                 };
