@@ -1,9 +1,9 @@
 // Load and display restaurant menu from Firebase
+let allCategories = []; // Store all categories for search
+
 document.addEventListener('DOMContentLoaded', function() {
     loadMenu();
 });
-
-let allCategories = []; // Store all categories for search
 
 async function loadMenu() {
     const menuCategories = document.getElementById('menuCategories');
@@ -11,9 +11,14 @@ async function loadMenu() {
     const noMenu = document.getElementById('noMenu');
 
     try {
+        // Check if Firebase is loaded
+        if (typeof firebase === 'undefined') {
+            throw new Error('Firebase not loaded');
+        }
+
         const db = firebase.firestore();
 
-        // Add search box and controls
+        // Add search box and controls immediately (before loading data)
         const controlsHTML = `
             <div class="menu-controls">
                 <div class="menu-search-box" style="flex: 1;">
@@ -26,6 +31,9 @@ async function loadMenu() {
             </div>
         `;
         menuCategories.innerHTML = controlsHTML;
+
+        // Show a better loading message
+        menuLoading.innerHTML = '<p>⏳ Loading menu from database...</p>';
 
         // Load categories
         const categoriesSnapshot = await db.collection('menuCategories')
@@ -139,21 +147,23 @@ function createCategoryCard(category, items) {
 }
 
 // Toggle category visibility
-function toggleCategory(categoryId) {
+window.toggleCategory = function(categoryId) {
     const categoryContent = document.getElementById(categoryId);
     const icon = document.getElementById(categoryId + '-icon');
 
-    if (categoryContent.style.display === 'none') {
-        categoryContent.style.display = 'block';
-        icon.textContent = '▼';
-    } else {
-        categoryContent.style.display = 'none';
-        icon.textContent = '▶';
+    if (categoryContent && icon) {
+        if (categoryContent.style.display === 'none') {
+            categoryContent.style.display = 'block';
+            icon.textContent = '▼';
+        } else {
+            categoryContent.style.display = 'none';
+            icon.textContent = '▶';
+        }
     }
 }
 
 // Collapse all categories
-function collapseAllCategories() {
+window.collapseAllCategories = function() {
     document.querySelectorAll('.menu-items-grid').forEach(grid => {
         grid.style.display = 'none';
     });
@@ -163,7 +173,7 @@ function collapseAllCategories() {
 }
 
 // Expand all categories
-function expandAllCategories() {
+window.expandAllCategories = function() {
     document.querySelectorAll('.menu-items-grid').forEach(grid => {
         grid.style.display = 'block';
     });
@@ -173,7 +183,7 @@ function expandAllCategories() {
 }
 
 // Search menu items
-function searchMenu(query) {
+window.searchMenu = function(query) {
     query = query.toLowerCase().trim();
 
     if (query === '') {

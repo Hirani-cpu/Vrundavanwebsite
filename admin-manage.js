@@ -585,7 +585,7 @@ async function loadMenuList() {
 }
 
 // Toggle admin category visibility
-function toggleAdminCategory(categoryId) {
+window.toggleAdminCategory = function(categoryId) {
     const categoryContent = document.getElementById(categoryId);
     const icon = document.getElementById(categoryId + '-icon');
 
@@ -601,7 +601,7 @@ function toggleAdminCategory(categoryId) {
 }
 
 // Collapse all admin categories
-function collapseAllAdminCategories() {
+window.collapseAllAdminCategories = function() {
     document.querySelectorAll('.admin-category-items').forEach(items => {
         items.style.display = 'none';
     });
@@ -611,7 +611,7 @@ function collapseAllAdminCategories() {
 }
 
 // Expand all admin categories
-function expandAllAdminCategories() {
+window.expandAllAdminCategories = function() {
     document.querySelectorAll('.admin-category-items').forEach(items => {
         items.style.display = 'block';
     });
@@ -621,7 +621,7 @@ function expandAllAdminCategories() {
 }
 
 // Search admin menu
-function searchAdminMenu(query) {
+window.searchAdminMenu = function(query) {
     query = query.toLowerCase().trim();
 
     if (query === '') {
