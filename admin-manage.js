@@ -6,8 +6,8 @@ let currentEditingCategoryId = null;
 let currentEditingMenuItemId = null;
 let currentEditingGalleryId = null;
 
-// Fast image compression function - compresses images to ~200KB for instant uploads
-async function compressImage(file, maxWidth = 1200, quality = 0.8) {
+// Aggressive image compression - compresses images to ~50-100KB for instant loads
+async function compressImage(file, maxWidth = 800, quality = 0.6) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.readAsDataURL(file);

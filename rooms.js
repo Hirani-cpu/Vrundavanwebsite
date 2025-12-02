@@ -132,10 +132,10 @@ function createRoomCard(room, roomId) {
     // Image counter badge (only show if multiple images)
     const imageCounter = images.length > 1 ? `<span class="image-counter" id="${roomId}-counter">1/${images.length}</span>` : '';
 
-    // Use img tag - NO lazy loading for instant display
+    // Use img tag with decoding hint for faster rendering
     let imageHTML = '';
     if (images.length > 0) {
-        imageHTML = `<img src="${images[0]}" alt="${room.name}" data-images='${JSON.stringify(images)}' style="width: 100%; height: 100%; object-fit: cover;">`;
+        imageHTML = `<img src="${images[0]}" alt="${room.name}" data-images='${JSON.stringify(images)}' decoding="async" style="width: 100%; height: 100%; object-fit: cover;">`;
     } else {
         imageHTML = `<div style="width: 100%; height: 100%; background: ${room.gradient || 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'};"></div>`;
     }
