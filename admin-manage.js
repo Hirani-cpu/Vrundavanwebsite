@@ -403,6 +403,8 @@ async function loadCategoriesDropdown() {
     }
 }
 
+let allMenuData = []; // Store all menu data for search
+
 async function loadMenuList() {
     const menuList = document.getElementById('menuList');
     const loading = document.getElementById('menuListLoading');
@@ -422,22 +424,43 @@ async function loadMenuList() {
             return;
         }
 
+        // Add search and controls at the top
+        const controlsHTML = `
+            <div style="background: white; padding: 15px; border-radius: 6px; margin-bottom: 15px; box-shadow: 0 2px 6px rgba(0,0,0,0.08);">
+                <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                    <input type="text" id="adminMenuSearch" placeholder="🔍 Search menu items or categories..."
+                           style="flex: 1; min-width: 300px; padding: 10px 15px; border: 2px solid #ddd; border-radius: 6px; font-size: 0.9rem; outline: none;"
+                           oninput="searchAdminMenu(this.value)">
+                    <button onclick="collapseAllAdminCategories()" style="padding: 10px 16px; background: #6c757d; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600;">📁 Collapse All</button>
+                    <button onclick="expandAllAdminCategories()" style="padding: 10px 16px; background: #4a7c2c; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600;">📂 Expand All</button>
+                </div>
+                <div id="adminMenuStats" style="margin-top: 10px; font-size: 0.85rem; color: #666;"></div>
+            </div>
+        `;
+        menuList.innerHTML = controlsHTML;
+
+        allMenuData = []; // Reset
+        let totalItems = 0;
+
         for (const catDoc of categoriesSnapshot.docs) {
             const category = catDoc.data();
 
-            // Category header - ultra compact
+            // Category header - collapsible and compact
+            const categoryId = 'admin-cat-' + catDoc.id;
             const categoryHeader = `
-                <div class="category-header" style="background: linear-gradient(135deg, #4a7c2c 0%, #2d5016 100%); color: white; padding: 8px 12px; border-radius: 5px; margin: 12px 0 6px 0; display: flex; justify-content: space-between; align-items: center;">
-                    <div style="display: flex; align-items: center; gap: 8px;">
-                        <span style="font-size: 1.1rem;">${category.icon || '📋'}</span>
-                        <h3 style="margin: 0; font-size: 0.95rem; font-weight: 600;">${category.name}</h3>
-                        <span style="background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 10px; font-size: 0.7rem;">Order: ${category.order}</span>
+                <div class="admin-category-wrapper" data-category-id="${catDoc.id}" style="margin-bottom: 10px;">
+                    <div class="category-header" onclick="toggleAdminCategory('${categoryId}')" style="background: linear-gradient(135deg, #4a7c2c 0%, #2d5016 100%); color: white; padding: 8px 12px; border-radius: 5px; margin: 12px 0 6px 0; display: flex; justify-content: space-between; align-items: center; cursor: pointer;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span class="toggle-icon" id="${categoryId}-icon" style="font-size: 0.9rem; transition: transform 0.2s;">▼</span>
+                            <span style="font-size: 1.1rem;">${category.icon || '📋'}</span>
+                            <h3 style="margin: 0; font-size: 0.95rem; font-weight: 600;">${category.name}</h3>
+                            <span class="category-item-count" style="background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 10px; font-size: 0.7rem;">Loading...</span>
+                        </div>
+                        <div style="display: flex; gap: 6px;" onclick="event.stopPropagation();">
+                            <button class="btn-edit" data-category-id="${catDoc.id}" style="padding: 5px 10px; background: white; color: #4a7c2c; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 0.8rem;">✏️</button>
+                            <button class="btn-delete-item" data-category-id="${catDoc.id}" style="padding: 5px 10px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 0.8rem;">🗑️</button>
+                        </div>
                     </div>
-                    <div style="display: flex; gap: 6px;">
-                        <button class="btn-edit" data-category-id="${catDoc.id}" style="padding: 5px 10px; background: white; color: #4a7c2c; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 0.8rem;">✏️</button>
-                        <button class="btn-delete-item" data-category-id="${catDoc.id}" style="padding: 5px 10px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 0.8rem;">🗑️</button>
-                    </div>
-                </div>
             `;
             menuList.innerHTML += categoryHeader;
 
@@ -455,28 +478,57 @@ async function loadMenuList() {
                     .get();
             }
 
+            // Update item count
+            const itemCount = itemsSnapshot.size;
+            totalItems += itemCount;
+
+            // Store for search
+            const categoryData = {
+                id: catDoc.id,
+                categoryId: categoryId,
+                name: category.name,
+                icon: category.icon,
+                items: []
+            };
+
             if (itemsSnapshot.empty) {
-                menuList.innerHTML += '<p style="text-align: center; color: #999; padding: 12px; background: #f8f9fa; border-radius: 4px; margin-bottom: 8px; font-size: 0.85rem;">No items yet.</p>';
+                menuList.innerHTML += `
+                    <div id="${categoryId}" class="admin-category-items" style="display: block;">
+                        <p style="text-align: center; color: #999; padding: 12px; background: #f8f9fa; border-radius: 4px; margin-bottom: 8px; font-size: 0.85rem;">No items yet.</p>
+                    </div>
+                </div>
+                `;
             } else {
                 // Create ultra-compact table for menu items
                 let tableHTML = `
-                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px; background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.06); border-radius: 4px; overflow: hidden; font-size: 0.8rem;">
-                        <thead>
-                            <tr style="background: #f8f9fa; border-bottom: 1px solid #dee2e6;">
-                                <th style="padding: 6px 8px; text-align: left; font-weight: 600; color: #2d5016; font-size: 0.75rem; width: 3%;">#</th>
-                                <th style="padding: 6px 8px; text-align: left; font-weight: 600; color: #2d5016; font-size: 0.75rem; width: 25%;">Item</th>
-                                <th style="padding: 6px 8px; text-align: left; font-weight: 600; color: #2d5016; font-size: 0.75rem; width: 7%;">Price</th>
-                                <th style="padding: 6px 8px; text-align: left; font-weight: 600; color: #2d5016; font-size: 0.75rem; width: 7%;">Type</th>
-                                <th style="padding: 6px 8px; text-align: left; font-weight: 600; color: #2d5016; font-size: 0.75rem; width: 48%;">Description</th>
-                                <th style="padding: 6px 8px; text-align: center; font-weight: 600; color: #2d5016; font-size: 0.75rem; width: 10%;">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
+                    <div id="${categoryId}" class="admin-category-items" style="display: block;">
+                        <table class="admin-menu-table" style="width: 100%; border-collapse: collapse; margin-bottom: 10px; background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.06); border-radius: 4px; overflow: hidden; font-size: 0.8rem;">
+                            <thead>
+                                <tr style="background: #f8f9fa; border-bottom: 1px solid #dee2e6;">
+                                    <th style="padding: 6px 8px; text-align: left; font-weight: 600; color: #2d5016; font-size: 0.75rem; width: 3%;">#</th>
+                                    <th style="padding: 6px 8px; text-align: left; font-weight: 600; color: #2d5016; font-size: 0.75rem; width: 25%;">Item</th>
+                                    <th style="padding: 6px 8px; text-align: left; font-weight: 600; color: #2d5016; font-size: 0.75rem; width: 7%;">Price</th>
+                                    <th style="padding: 6px 8px; text-align: left; font-weight: 600; color: #2d5016; font-size: 0.75rem; width: 7%;">Type</th>
+                                    <th style="padding: 6px 8px; text-align: left; font-weight: 600; color: #2d5016; font-size: 0.75rem; width: 48%;">Description</th>
+                                    <th style="padding: 6px 8px; text-align: center; font-weight: 600; color: #2d5016; font-size: 0.75rem; width: 10%;">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
                 `;
 
                 let itemIndex = 1;
                 itemsSnapshot.forEach(itemDoc => {
                     const item = itemDoc.data();
+
+                    // Store for search
+                    categoryData.items.push({
+                        id: itemDoc.id,
+                        name: item.name,
+                        description: item.description || '',
+                        price: item.price,
+                        type: item.type
+                    });
+
                     const typeBadge = item.type === 'VEG'
                         ? '<span style="background: #28a745; color: white; padding: 2px 6px; border-radius: 3px; font-size: 0.65rem; font-weight: 600;">🥬</span>'
                         : item.type === 'NON-VEG'
@@ -484,12 +536,12 @@ async function loadMenuList() {
                         : '<span style="color: #999; font-size: 0.7rem;">-</span>';
 
                     tableHTML += `
-                        <tr style="border-bottom: 1px solid #f8f8f8;">
+                        <tr class="menu-item-row" data-item-id="${itemDoc.id}" style="border-bottom: 1px solid #f8f8f8;">
                             <td style="padding: 6px 8px; color: #999; font-size: 0.75rem;">${itemIndex}</td>
-                            <td style="padding: 6px 8px; font-weight: 500; color: #2d5016; font-size: 0.8rem; line-height: 1.3;">${item.name}</td>
+                            <td class="item-name" style="padding: 6px 8px; font-weight: 500; color: #2d5016; font-size: 0.8rem; line-height: 1.3;">${item.name}</td>
                             <td style="padding: 6px 8px; font-weight: 600; color: #4a7c2c; font-size: 0.8rem;">₹${item.price}</td>
                             <td style="padding: 6px 8px;">${typeBadge}</td>
-                            <td style="padding: 6px 8px; font-size: 0.75rem; color: #666; line-height: 1.2;">${item.description || '-'}</td>
+                            <td class="item-desc" style="padding: 6px 8px; font-size: 0.75rem; color: #666; line-height: 1.2;">${item.description || '-'}</td>
                             <td style="padding: 6px 8px; text-align: center;">
                                 <button class="btn-edit" data-menu-item-id="${itemDoc.id}" style="padding: 4px 8px; background: #4a7c2c; color: white; border: none; border-radius: 3px; cursor: pointer; font-size: 0.7rem; margin-right: 3px;">✏️</button>
                                 <button class="btn-delete-item" data-menu-item-id="${itemDoc.id}" style="padding: 4px 8px; background: #dc3545; color: white; border: none; border-radius: 3px; cursor: pointer; font-size: 0.7rem;">🗑️</button>
@@ -500,13 +552,29 @@ async function loadMenuList() {
                 });
 
                 tableHTML += `
-                        </tbody>
-                    </table>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
                 `;
 
                 menuList.innerHTML += tableHTML;
             }
+
+            allMenuData.push(categoryData);
+
+            // Update item count badge
+            document.querySelectorAll('.category-item-count').forEach((badge, idx) => {
+                if (idx === allMenuData.length - 1) {
+                    badge.textContent = `${itemCount} items`;
+                }
+            });
         }
+
+        // Update stats
+        document.getElementById('adminMenuStats').innerHTML = `
+            <strong>Total:</strong> ${categoriesSnapshot.size} categories, ${totalItems} items
+        `;
 
         attachMenuEventListeners();
 
@@ -514,6 +582,102 @@ async function loadMenuList() {
         console.error('Error loading menu:', error);
         loading.innerHTML = '<p style="color: red;">Error loading menu.</p>';
     }
+}
+
+// Toggle admin category visibility
+function toggleAdminCategory(categoryId) {
+    const categoryContent = document.getElementById(categoryId);
+    const icon = document.getElementById(categoryId + '-icon');
+
+    if (categoryContent && icon) {
+        if (categoryContent.style.display === 'none') {
+            categoryContent.style.display = 'block';
+            icon.textContent = '▼';
+        } else {
+            categoryContent.style.display = 'none';
+            icon.textContent = '▶';
+        }
+    }
+}
+
+// Collapse all admin categories
+function collapseAllAdminCategories() {
+    document.querySelectorAll('.admin-category-items').forEach(items => {
+        items.style.display = 'none';
+    });
+    document.querySelectorAll('.toggle-icon').forEach(icon => {
+        icon.textContent = '▶';
+    });
+}
+
+// Expand all admin categories
+function expandAllAdminCategories() {
+    document.querySelectorAll('.admin-category-items').forEach(items => {
+        items.style.display = 'block';
+    });
+    document.querySelectorAll('.toggle-icon').forEach(icon => {
+        icon.textContent = '▼';
+    });
+}
+
+// Search admin menu
+function searchAdminMenu(query) {
+    query = query.toLowerCase().trim();
+
+    if (query === '') {
+        // Show all categories and items
+        document.querySelectorAll('.admin-category-wrapper').forEach(cat => {
+            cat.style.display = 'block';
+        });
+        document.querySelectorAll('.menu-item-row').forEach(row => {
+            row.style.display = '';
+        });
+        return;
+    }
+
+    // Search through all items and categories
+    document.querySelectorAll('.admin-category-wrapper').forEach(categoryDiv => {
+        let categoryHasMatch = false;
+        const categoryHeader = categoryDiv.querySelector('.category-header h3');
+        const categoryName = categoryHeader ? categoryHeader.textContent.toLowerCase() : '';
+
+        // Check if category name matches
+        if (categoryName.includes(query)) {
+            categoryHasMatch = true;
+            // Show all items in this category
+            categoryDiv.querySelectorAll('.menu-item-row').forEach(row => {
+                row.style.display = '';
+            });
+        } else {
+            // Check individual items
+            const rows = categoryDiv.querySelectorAll('.menu-item-row');
+            rows.forEach(row => {
+                const name = row.querySelector('.item-name')?.textContent.toLowerCase() || '';
+                const desc = row.querySelector('.item-desc')?.textContent.toLowerCase() || '';
+
+                if (name.includes(query) || desc.includes(query)) {
+                    row.style.display = '';
+                    categoryHasMatch = true;
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        // Show/hide category based on matches
+        if (categoryHasMatch) {
+            categoryDiv.style.display = 'block';
+            // Auto-expand category with matches
+            const categoryItems = categoryDiv.querySelector('.admin-category-items');
+            if (categoryItems) {
+                categoryItems.style.display = 'block';
+                const icon = categoryDiv.querySelector('.toggle-icon');
+                if (icon) icon.textContent = '▼';
+            }
+        } else {
+            categoryDiv.style.display = 'none';
+        }
+    });
 }
 
 function attachMenuEventListeners() {
