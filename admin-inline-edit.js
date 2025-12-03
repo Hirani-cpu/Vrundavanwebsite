@@ -399,6 +399,12 @@
                             label.style.display = 'none';
                         }
                     }
+
+                    // Cache for instant loading next time
+                    if (window.vrundavanImageCache) {
+                        window.vrundavanImageCache.cache(elementId, imageUrl);
+                    }
+
                     appliedCount++;
                     console.log(`✅ Applied saved image to:`, elementId);
                 }
@@ -1019,6 +1025,11 @@
             const elementId = element.dataset.editId || generateId();
             element.dataset.editId = elementId;
 
+            // Save to localStorage cache for INSTANT loading on next page load
+            if (window.vrundavanImageCache) {
+                window.vrundavanImageCache.cache(elementId, imageUrl);
+            }
+
             // Save to Firestore in background
             saveToFirestore('pageContent', elementId, {
                 imageUrl: imageUrl,
@@ -1440,6 +1451,12 @@
 
                         console.log('✅ Applied! New background:', element.style.background.substring(0, 60));
                     }
+
+                    // Cache for instant loading next time
+                    if (window.vrundavanImageCache) {
+                        window.vrundavanImageCache.cache(elementId, imageUrl);
+                    }
+
                     appliedCount++;
                     console.log(`✅ Applied public image to:`, elementId);
                 } else {
