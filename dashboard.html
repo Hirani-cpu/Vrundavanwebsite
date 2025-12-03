@@ -1127,12 +1127,12 @@
                         </small>
                     </div>
                     <div class="form-group">
-                        <label>Gallery Image (Upload from PC) *</label>
-                        <input type="file" id="galleryImageFile" accept="image/*" required style="padding: 8px; border: 2px solid #ddd; border-radius: 5px;">
+                        <label>Gallery Images (Upload from PC) *</label>
+                        <input type="file" id="galleryImageFile" accept="image/*" multiple required style="padding: 8px; border: 2px solid #ddd; border-radius: 5px;">
                         <div id="galleryImagePreview" style="margin-top: 10px;"></div>
                         <small style="color: #666; display: block; margin-top: 5px;">
-                            <strong>📐 Recommended: All aspect ratios supported</strong> | JPG, PNG, or WebP | Max 5MB<br>
-                            Images will be displayed with grey gradient background.
+                            <strong>✨ Select MULTIPLE images at once!</strong> All will share the same category/subcategory/title.<br>
+                            <strong>📐 All aspect ratios supported</strong> | JPG, PNG, or WebP | Max 5MB per image
                         </small>
                     </div>
                     <div class="form-group">
@@ -1147,7 +1147,7 @@
             </div>
             <div class="modal-footer">
                 <div class="modal-actions">
-                    <button class="btn-modal btn-approve" id="saveGalleryImageBtn">Save Image</button>
+                    <button class="btn-modal btn-approve" id="saveGalleryImageBtn">Save Images</button>
                     <button class="btn-modal btn-cancel" id="cancelGalleryImageBtn">Cancel</button>
                 </div>
             </div>

@@ -559,55 +559,88 @@ function setupManagementEventListeners() {
     const saveGalleryImageBtn = document.getElementById('saveGalleryImageBtn');
     if (saveGalleryImageBtn) {
         saveGalleryImageBtn.addEventListener('click', async function() {
-            const imageFile = document.getElementById('galleryImageFile').files[0];
+            const imageFiles = document.getElementById('galleryImageFile').files;
 
-            if (!imageFile && !currentEditingGalleryId) {
-                alert('Please select an image to upload');
+            if (imageFiles.length === 0 && !currentEditingGalleryId) {
+                alert('Please select at least one image to upload');
                 return;
             }
-
-            let imageUrl = '';
 
             try {
                 // Show saving message
                 saveGalleryImageBtn.disabled = true;
 
-                // Upload image if selected
-                if (imageFile) {
-                    saveGalleryImageBtn.textContent = '⚡ Compressing...';
-                    const uploadStart = Date.now();
+                const title = document.getElementById('galleryImageTitle').value;
+                const category = document.getElementById('galleryImageCategory').value;
+                const subcategory = document.getElementById('galleryImageSubcategory').value || '';
+                const gradient = document.getElementById('galleryImageGradient').value || 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+                let order = parseInt(document.getElementById('galleryImageOrder').value);
 
-                    imageUrl = await uploadImageToStorage(imageFile, 'gallery');
+                // If editing a single existing image
+                if (currentEditingGalleryId && imageFiles.length <= 1) {
+                    let imageUrl = '';
 
-                    const uploadTime = ((Date.now() - uploadStart) / 1000).toFixed(1);
-                    console.log(`⚡ Gallery image uploaded in ${uploadTime}s`);
-                    saveGalleryImageBtn.textContent = '💾 Saving...';
-                }
+                    // Upload new image if selected
+                    if (imageFiles.length === 1) {
+                        saveGalleryImageBtn.textContent = '⚡ Compressing...';
+                        const uploadStart = Date.now();
 
-                const galleryData = {
-                    title: document.getElementById('galleryImageTitle').value,
-                    category: document.getElementById('galleryImageCategory').value,
-                    subcategory: document.getElementById('galleryImageSubcategory').value || '',
-                    gradient: document.getElementById('galleryImageGradient').value || 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                    order: parseInt(document.getElementById('galleryImageOrder').value)
-                };
+                        imageUrl = await uploadImageToStorage(imageFiles[0], 'gallery');
 
-                // Only update imageUrl if a new file was uploaded
-                if (imageUrl) {
-                    galleryData.imageUrl = imageUrl;
-                } else if (!currentEditingGalleryId) {
-                    // For new images without upload, use gradient
-                    galleryData.imageUrl = document.getElementById('galleryImageGradient').value;
-                }
-                // If editing and no new file, keep existing imageUrl (don't include in update)
+                        const uploadTime = ((Date.now() - uploadStart) / 1000).toFixed(1);
+                        console.log(`⚡ Gallery image uploaded in ${uploadTime}s`);
+                        saveGalleryImageBtn.textContent = '💾 Saving...';
+                    }
 
-                if (currentEditingGalleryId) {
+                    const galleryData = {
+                        title: title,
+                        category: category,
+                        subcategory: subcategory,
+                        gradient: gradient,
+                        order: order
+                    };
+
+                    // Only update imageUrl if a new file was uploaded
+                    if (imageUrl) {
+                        galleryData.imageUrl = imageUrl;
+                    }
+
                     await db.collection('gallery').doc(currentEditingGalleryId).update(galleryData);
                     alert('Gallery image updated successfully!');
                 } else {
-                    await db.collection('gallery').add(galleryData);
-                    alert('Gallery image added successfully!');
+                    // Adding multiple new images
+                    const totalImages = imageFiles.length;
+                    let uploadedCount = 0;
+
+                    for (let i = 0; i < totalImages; i++) {
+                        const file = imageFiles[i];
+                        saveGalleryImageBtn.textContent = `⚡ Uploading ${i + 1}/${totalImages}...`;
+
+                        try {
+                            const imageUrl = await uploadImageToStorage(file, 'gallery');
+
+                            const galleryData = {
+                                title: title,
+                                category: category,
+                                subcategory: subcategory,
+                                gradient: gradient,
+                                imageUrl: imageUrl,
+                                order: order + i  // Auto-increment order for each image
+                            };
+
+                            await db.collection('gallery').add(galleryData);
+                            uploadedCount++;
+
+                            console.log(`✓ Uploaded ${i + 1}/${totalImages}: ${file.name}`);
+                        } catch (error) {
+                            console.error(`Error uploading ${file.name}:`, error);
+                            // Continue with next image even if one fails
+                        }
+                    }
+
+                    alert(`Successfully uploaded ${uploadedCount} of ${totalImages} images!`);
                 }
+
                 document.getElementById('galleryImageModal').style.display = 'none';
                 document.getElementById('galleryImageForm').reset();
                 document.getElementById('galleryImagePreview').innerHTML = '';
@@ -618,32 +651,53 @@ function setupManagementEventListeners() {
 
                 loadGalleryList();
             } catch (error) {
-                console.error('Error saving gallery image:', error);
-                alert('Error saving gallery image: ' + error.message);
+                console.error('Error saving gallery images:', error);
+                alert('Error saving gallery images: ' + error.message);
             } finally {
                 saveGalleryImageBtn.disabled = false;
-                saveGalleryImageBtn.textContent = 'Save Image';
+                saveGalleryImageBtn.textContent = 'Save Images';
             }
         });
     }
 
-    // Add image preview for gallery upload
+    // Add image preview for gallery upload (supports multiple files)
     const galleryImageFile = document.getElementById('galleryImageFile');
     if (galleryImageFile) {
         galleryImageFile.addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
+            const files = e.target.files;
+            const previewContainer = document.getElementById('galleryImagePreview');
+
+            if (files.length === 0) {
+                previewContainer.innerHTML = '';
+                return;
+            }
+
+            // Show count message
+            previewContainer.innerHTML = `
+                <div style="background: #d1ecf1; border: 2px solid #17a2b8; padding: 10px; border-radius: 6px; margin-bottom: 10px;">
+                    <strong style="color: #0c5460;">✓ ${files.length} image${files.length > 1 ? 's' : ''} selected</strong>
+                    <p style="font-size: 0.85rem; color: #0c5460; margin: 5px 0 0 0;">All images will share the same category, subcategory, and title.</p>
+                </div>
+                <div id="multipleImagePreviews" style="display: flex; flex-wrap: wrap; gap: 10px;"></div>
+            `;
+
+            const previewsContainer = document.getElementById('multipleImagePreviews');
+
+            // Show preview for each file
+            Array.from(files).forEach((file, index) => {
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    document.getElementById('galleryImagePreview').innerHTML = `
-                        <div style="position: relative; display: inline-block;">
-                            <img src="${e.target.result}" style="max-width: 200px; max-height: 150px; border-radius: 6px; border: 2px solid #4a7c2c;">
-                            <span style="display: block; margin-top: 5px; font-size: 0.8rem; color: #666;">✓ Image selected: ${file.name}</span>
-                        </div>
+                    const previewDiv = document.createElement('div');
+                    previewDiv.style.cssText = 'position: relative; display: inline-block;';
+                    previewDiv.innerHTML = `
+                        <img src="${e.target.result}" style="width: 120px; height: 90px; object-fit: cover; border-radius: 6px; border: 2px solid #4a7c2c;">
+                        <span style="position: absolute; top: 5px; right: 5px; background: #17a2b8; color: white; padding: 2px 6px; border-radius: 3px; font-size: 0.7rem; font-weight: bold;">#${index + 1}</span>
+                        <span style="display: block; margin-top: 3px; font-size: 0.7rem; color: #666; max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${file.name}</span>
                     `;
+                    previewsContainer.appendChild(previewDiv);
                 };
                 reader.readAsDataURL(file);
-            }
+            });
         });
     }
 
