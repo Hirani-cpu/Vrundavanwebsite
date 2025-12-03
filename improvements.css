@@ -565,54 +565,75 @@ body.logged-in #authNavItem .user-info {
     image-orientation: from-image;
 }
 
-/* Mobile - compact header */
+/* Mobile - ULTRA compact header - minimal height */
 @media (max-width: 768px) {
 
-    /* Minimal padding on navbar */
+    /* ZERO padding on navbar */
     .navbar {
-        padding: 5px 0 !important;
-    }
-
-    /* Tight nav container */
-    .nav-container {
-        min-height: auto !important;
-        padding: 0 15px !important;
+        padding: 0 !important;
         margin: 0 !important;
     }
 
-    /* Compact logo spacing */
-    .logo {
-        gap: 8px;
+    /* Ultra-tight nav container - ZERO vertical spacing */
+    .nav-container {
+        min-height: 60px !important;
+        max-height: 60px !important;
+        padding: 0 10px !important;
+        margin: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        overflow: visible !important;
     }
 
-    /* Smaller, crisp logo (60px instead of 160px) */
+    /* Logo container - ZERO extra spacing */
+    .logo {
+        gap: 8px;
+        margin: 0 !important;
+        padding: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        height: 60px !important;
+    }
+
+    /* Logo exactly 60px - NO extra space */
     .logo-image {
         width: 60px !important;
         height: 60px !important;
         font-size: 32px !important;
         flex-shrink: 0;
+        margin: 0 !important;
+        padding: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
     }
 
     .logo-image img {
         width: 60px !important;
         height: 60px !important;
         object-fit: contain !important;
+        display: block !important;
     }
 
-    /* Keep text readable but compact (1.2rem) */
+    /* Text - compact but readable */
     .logo a {
         font-size: 1.2rem !important;
-        line-height: 1.2;
+        line-height: 1.1 !important;
         font-weight: 700 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
-    /* Mobile menu positioning */
+    /* Mobile menu - adjusted for compact header */
     .nav-links {
         position: fixed !important;
-        top: 70px !important;
+        top: 60px !important;
         left: -100% !important;
         width: 100% !important;
-        height: calc(100vh - 70px) !important;
+        height: calc(100vh - 60px) !important;
         background: white !important;
         flex-direction: column !important;
         padding: 20px !important;
@@ -651,7 +672,7 @@ body.logged-in #authNavItem .user-info {
         border-radius: 0 !important;
     }
 
-    /* Hamburger menu */
+    /* Hamburger menu - aligned properly */
     .hamburger {
         display: flex !important;
         flex-direction: column;
@@ -664,6 +685,7 @@ body.logged-in #authNavItem .user-info {
         border: none;
         cursor: pointer;
         z-index: 1001;
+        margin: 0 !important;
     }
 
     .hamburger span {
@@ -688,21 +710,36 @@ body.logged-in #authNavItem .user-info {
         transform: rotate(-45deg) translate(6px, -6px);
     }
 
-    /* Adjust hero for compact header */
+    /* Adjust hero for ultra-compact header - only 60px! */
     .hero,
     .page-hero {
-        margin-top: 70px !important;
+        margin-top: 60px !important;
+    }
+
+    /* Ensure header stays at 60px */
+    #header {
+        height: 60px !important;
+        min-height: 60px !important;
+        max-height: 60px !important;
     }
 }
 
 /* Tablet - slightly bigger but still compact */
 @media (min-width: 481px) and (max-width: 768px) {
     .navbar {
-        padding: 8px 0 !important;
+        padding: 0 !important;
+        margin: 0 !important;
     }
 
     .nav-container {
-        padding: 0 20px !important;
+        min-height: 70px !important;
+        max-height: 70px !important;
+        padding: 0 15px !important;
+        margin: 0 !important;
+    }
+
+    .logo {
+        height: 70px !important;
     }
 
     /* Slightly bigger logo for tablets (70px) */
@@ -720,17 +757,24 @@ body.logged-in #authNavItem .user-info {
     /* Slightly bigger text for tablets */
     .logo a {
         font-size: 1.3rem !important;
+        line-height: 1.1 !important;
     }
 
     /* Adjust menu positioning */
     .nav-links {
-        top: 86px !important;
-        height: calc(100vh - 86px) !important;
+        top: 70px !important;
+        height: calc(100vh - 70px) !important;
     }
 
     .hero,
     .page-hero {
-        margin-top: 86px !important;
+        margin-top: 70px !important;
+    }
+
+    #header {
+        height: 70px !important;
+        min-height: 70px !important;
+        max-height: 70px !important;
     }
 }
 
