@@ -361,7 +361,12 @@
         }
 
         try {
-            const pageUrl = window.location.pathname;
+            // Normalize path for GitHub Pages (strip /Vrundavanwebsite/)
+            let pageUrl = window.location.pathname;
+            pageUrl = pageUrl.replace('/Vrundavanwebsite', '');
+            if (pageUrl === '' || pageUrl === '/') {
+                pageUrl = '/index.html';
+            }
             console.log('📥 Loading saved images for:', pageUrl);
 
             // Load all saved content for this page
@@ -1332,7 +1337,12 @@
         }
 
         try {
-            const pageUrl = window.location.pathname;
+            // Normalize path for GitHub Pages (strip /Vrundavanwebsite/)
+            let pageUrl = window.location.pathname;
+            pageUrl = pageUrl.replace('/Vrundavanwebsite', '');
+            if (pageUrl === '' || pageUrl === '/') {
+                pageUrl = '/index.html';
+            }
             console.log('🌍 Loading public images for:', pageUrl);
 
             const snapshot = await db.collection('pageContent')
