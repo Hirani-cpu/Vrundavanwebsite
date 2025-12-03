@@ -486,6 +486,7 @@ function setupManagementEventListeners() {
         saveMenuItemBtn.addEventListener('click', async function() {
             const menuItemData = {
                 categoryId: document.getElementById('menuItemCategory').value,
+                subcategory: document.getElementById('menuItemSubcategory').value || '',
                 name: document.getElementById('menuItemName').value,
                 description: document.getElementById('menuItemDescription').value,
                 price: parseInt(document.getElementById('menuItemPrice').value),
@@ -1298,6 +1299,7 @@ async function editMenuItem(itemId) {
         await loadCategoriesDropdown();
 
         document.getElementById('menuItemCategory').value = item.categoryId;
+        document.getElementById('menuItemSubcategory').value = item.subcategory || '';
         document.getElementById('menuItemName').value = item.name;
         document.getElementById('menuItemDescription').value = item.description || '';
         document.getElementById('menuItemPrice').value = item.price;

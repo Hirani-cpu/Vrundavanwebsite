@@ -109,25 +109,57 @@ async function loadMenu() {
 function createCategoryCard(category, items) {
     const categoryId = 'category-' + Math.random().toString(36).substr(2, 9);
 
-    const itemsHTML = items.map(item => {
-        const badgeHTML = item.type === 'VEG'
-            ? '<span class="badge-veg">🥬 VEG</span>'
-            : item.type === 'NON-VEG'
-            ? '<span class="badge-nonveg">🍗 NON-VEG</span>'
-            : '';
+    // Group items by subcategory
+    const subcategories = {};
+    items.forEach(item => {
+        const subcategory = item.subcategory || '';
+        if (!subcategories[subcategory]) {
+            subcategories[subcategory] = [];
+        }
+        subcategories[subcategory].push(item);
+    });
 
-        return `
-            <div class="menu-item-compact">
-                <div class="menu-item-row">
-                    <div class="menu-item-info">
-                        <h4 class="menu-item-name">${item.name} ${badgeHTML}</h4>
-                        ${item.description ? `<p class="menu-item-desc">${item.description}</p>` : ''}
+    // Sort subcategories - empty string first (no subcategory), then alphabetically
+    const sortedSubcategoryKeys = Object.keys(subcategories).sort((a, b) => {
+        if (a === '') return -1;
+        if (b === '') return 1;
+        return a.localeCompare(b);
+    });
+
+    // Build HTML for each subcategory
+    let allItemsHTML = '';
+    for (const subcategoryKey of sortedSubcategoryKeys) {
+        const subcategoryItems = subcategories[subcategoryKey];
+
+        const itemsHTML = subcategoryItems.map(item => {
+            const badgeHTML = item.type === 'VEG'
+                ? '<span class="badge-veg">🥬 VEG</span>'
+                : item.type === 'NON-VEG'
+                ? '<span class="badge-nonveg">🍗 NON-VEG</span>'
+                : '';
+
+            return `
+                <div class="menu-item-compact">
+                    <div class="menu-item-row">
+                        <div class="menu-item-info">
+                            <h4 class="menu-item-name">${item.name} ${badgeHTML}</h4>
+                            ${item.description ? `<p class="menu-item-desc">${item.description}</p>` : ''}
+                        </div>
+                        <span class="menu-item-price">₹${item.price}</span>
                     </div>
-                    <span class="menu-item-price">₹${item.price}</span>
                 </div>
-            </div>
-        `;
-    }).join('');
+            `;
+        }).join('');
+
+        // Add subcategory heading if it exists
+        const subcategoryHeading = subcategoryKey ? `
+            <h4 style="color: #4a7c2c; font-size: 1.1rem; margin: 20px 0 15px 0; padding-left: 10px; border-left: 4px solid #4a7c2c; font-weight: 600;">
+                ${subcategoryKey}
+            </h4>
+        ` : '';
+
+        allItemsHTML += subcategoryHeading + itemsHTML;
+    }
 
     return `
         <div class="menu-category-modern ${category.specialClass || ''}">
@@ -140,7 +172,7 @@ function createCategoryCard(category, items) {
                 <span class="toggle-icon" id="${categoryId}-icon">▼</span>
             </div>
             <div class="menu-items-grid" id="${categoryId}" style="display: block;">
-                ${itemsHTML}
+                ${allItemsHTML}
             </div>
         </div>
     `;
