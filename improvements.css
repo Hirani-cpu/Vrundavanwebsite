@@ -521,15 +521,16 @@ body.logged-in #authNavItem .user-info {
    =========================== */
 
 @media (max-width: 768px) {
-    /* SUPER THIN white header bar */
+    /* NO padding on white header bar */
     .navbar {
-        padding: 2px 0 !important;
+        padding: 0 !important;
     }
 
     /* Remove vertical spacing in nav container */
     .nav-container {
         min-height: auto !important;
         padding: 0 !important;
+        margin: 0 !important;
     }
 
     /* Keep logo and text original size, just reduce spacing */
@@ -631,19 +632,20 @@ body.menu-open {
     overflow: hidden;
 }
 
-/* Make logo BIGGER than text on mobile - white bar SUPER THIN */
+/* Make logo BIGGER than text on mobile - NO white bar padding */
 @media (max-width: 768px) {
-    /* SUPER THIN white navbar bar - FIXED size */
+    /* NO padding on white navbar bar */
     .navbar {
-        padding: 2px 0 !important;
+        padding: 0 !important;
     }
 
     /* Remove extra spacing from nav container */
     .nav-container {
         padding: 0 !important;
+        margin: 0 !important;
     }
 
-    /* HUGE logo (160px) - UNCHANGED */
+    /* HUGE logo (160px) - No compression */
     .logo-image {
         width: 160px !important;
         height: 160px !important;
@@ -653,6 +655,7 @@ body.menu-open {
     .logo-image img {
         width: 160px !important;
         height: 160px !important;
+        object-fit: contain !important;
     }
 
     /* Text bigger but not as big as logo (1.5rem) - UNCHANGED */
@@ -664,29 +667,30 @@ body.menu-open {
 
     /* Adjust menu for bigger logo */
     .nav-links {
-        top: 164px !important;
-        height: calc(100vh - 164px) !important;
+        top: 160px !important;
+        height: calc(100vh - 160px) !important;
     }
 
     .hero,
     .page-hero {
-        margin-top: 164px !important;
+        margin-top: 160px !important;
     }
 }
 
-/* Even bigger on tablets - white bar SUPER THIN */
+/* Even bigger on tablets - NO white bar padding */
 @media (min-width: 481px) and (max-width: 768px) {
-    /* SUPER THIN white navbar bar - FIXED size */
+    /* NO padding on white navbar bar */
     .navbar {
-        padding: 2px 0 !important;
+        padding: 0 !important;
     }
 
     /* Remove extra spacing from nav container */
     .nav-container {
         padding: 0 !important;
+        margin: 0 !important;
     }
 
-    /* HUGE logo (170px) - UNCHANGED */
+    /* HUGE logo (170px) - No compression */
     .logo-image {
         width: 170px !important;
         height: 170px !important;
@@ -696,6 +700,7 @@ body.menu-open {
     .logo-image img {
         width: 170px !important;
         height: 170px !important;
+        object-fit: contain !important;
     }
 
     /* Text bigger but not as big as logo (1.6rem) - UNCHANGED */
@@ -705,12 +710,12 @@ body.menu-open {
 
     /* Adjust menu for bigger logo */
     .nav-links {
-        top: 174px !important;
-        height: calc(100vh - 174px) !important;
+        top: 170px !important;
+        height: calc(100vh - 170px) !important;
     }
 
     .hero,
     .page-hero {
-        margin-top: 174px !important;
+        margin-top: 170px !important;
     }
 }
