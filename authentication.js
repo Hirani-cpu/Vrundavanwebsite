@@ -207,6 +207,10 @@
                 submitBtn.disabled = true;
 
                 try {
+                    // SET PERSISTENCE TO LOCAL - Stay logged in even after closing browser!
+                    await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+                    console.log('🔒 Auth persistence set to LOCAL (stays logged in)');
+
                     // Login with Firebase Auth
                     const userCredential = await auth.signInWithEmailAndPassword(email, password);
                     const user = userCredential.user;

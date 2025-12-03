@@ -30,58 +30,32 @@ document.addEventListener('DOMContentLoaded', function() {
 // Authentication Guard
 // ===========================
 function checkAuthStatus() {
-    // PRIORITY: Check Firebase Auth FIRST (persists across sessions)
-    // This fixes the issue where admins had to re-login every time
+    // SIMPLE AUTH CHECK - No more annoying password prompts!
     auth.onAuthStateChanged((firebaseUser) => {
         if (firebaseUser) {
             // Firebase Auth session exists - admin is logged in!
             console.log('✅ Admin authenticated via Firebase Auth:', firebaseUser.email);
-            document.getElementById('adminEmailDisplay').textContent = firebaseUser.email;
 
-            // Also save to localStorage for consistency
-            localStorage.setItem('adminLoggedIn', 'true');
-            localStorage.setItem('adminEmail', firebaseUser.email);
-
-            return; // Stop here, user is authenticated
-        }
-
-        // Fallback: Check localStorage for website login
-        const currentUser = getCurrentUser();
-
-        if (currentUser && currentUser.email) {
+            // Check if user is actually an admin
             const ADMIN_EMAILS = [
                 'admin@vrundavanresort.com',
                 'vishal@vrundavanresort.com'
             ];
 
-            if (ADMIN_EMAILS.includes(currentUser.email.toLowerCase())) {
-                // User logged in via website but not Firebase Auth
-                document.getElementById('adminEmailDisplay').textContent = currentUser.email;
-                console.warn('⚠️ Admin detected in localStorage but NOT authenticated with Firebase Auth!');
-
-                const password = prompt('To access admin features, please enter your Firebase password for ' + currentUser.email + ':');
-
-                if (password) {
-                    auth.signInWithEmailAndPassword(currentUser.email, password)
-                        .then((userCredential) => {
-                            console.log('✅ Successfully authenticated with Firebase Auth!');
-                            alert('Successfully authenticated! You can now use all admin features.');
-                            location.reload();
-                        })
-                        .catch((error) => {
-                            console.error('❌ Firebase Auth login failed:', error);
-                            alert('Login failed: ' + error.message);
-                        });
-                } else {
-                    alert('⚠️ Firebase Authentication Required\n\nPlease use admin.html to login properly.');
-                }
+            if (ADMIN_EMAILS.includes(firebaseUser.email.toLowerCase())) {
+                // Valid admin user
+                document.getElementById('adminEmailDisplay').textContent = firebaseUser.email;
+                localStorage.setItem('adminLoggedIn', 'true');
+                localStorage.setItem('adminEmail', firebaseUser.email);
+                console.log('✅ Admin access granted');
             } else {
-                // Not an admin
+                // Logged in but not an admin
                 alert('You do not have admin access. This page is restricted to administrators only.');
                 window.location.href = 'account.html';
             }
         } else {
-            // Not logged in at all
+            // Not logged in at all - redirect to login page
+            console.log('❌ No Firebase auth session found');
             redirectToLogin();
         }
     });
