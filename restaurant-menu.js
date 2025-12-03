@@ -119,11 +119,18 @@ function createCategoryCard(category, items) {
         subcategories[subcategory].push(item);
     });
 
-    // Sort subcategories - empty string first (no subcategory), then alphabetically
+    // Sort subcategories by the minimum order number of items in each subcategory
+    // This ensures subcategories appear in the order you set them (not alphabetically)
     const sortedSubcategoryKeys = Object.keys(subcategories).sort((a, b) => {
+        // Items without subcategory come first
         if (a === '') return -1;
         if (b === '') return 1;
-        return a.localeCompare(b);
+
+        // Get the minimum order from each subcategory
+        const minOrderA = Math.min(...subcategories[a].map(item => item.order || 999));
+        const minOrderB = Math.min(...subcategories[b].map(item => item.order || 999));
+
+        return minOrderA - minOrderB;
     });
 
     // Build HTML for each subcategory
