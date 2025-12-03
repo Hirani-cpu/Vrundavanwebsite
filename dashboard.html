@@ -1117,15 +1117,22 @@
                     </div>
                     <div class="form-group">
                         <label>Category *</label>
-                        <input type="text" id="galleryImageCategory" required placeholder="Rooms & Accommodation">
+                        <input type="text" id="galleryImageCategory" required placeholder="Swimming Pools">
+                    </div>
+                    <div class="form-group">
+                        <label>Subcategory (Optional)</label>
+                        <input type="text" id="galleryImageSubcategory" placeholder="Swimming Pool 1">
+                        <small style="color: #666; display: block; margin-top: 5px;">
+                            Use this to group images together (e.g., "Swimming Pool 1", "Swimming Pool 2")
+                        </small>
                     </div>
                     <div class="form-group">
                         <label>Gallery Image (Upload from PC) *</label>
                         <input type="file" id="galleryImageFile" accept="image/*" required style="padding: 8px; border: 2px solid #ddd; border-radius: 5px;">
                         <div id="galleryImagePreview" style="margin-top: 10px;"></div>
                         <small style="color: #666; display: block; margin-top: 5px;">
-                            <strong>📐 Recommended: 800×800px (1:1 square)</strong> | JPG, PNG, or WebP | Max 5MB<br>
-                            Square images look best in gallery grid.
+                            <strong>📐 Recommended: All aspect ratios supported</strong> | JPG, PNG, or WebP | Max 5MB<br>
+                            Images will be displayed with grey gradient background.
                         </small>
                     </div>
                     <div class="form-group">

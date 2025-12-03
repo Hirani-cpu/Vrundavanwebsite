@@ -47,21 +47,25 @@ function renderGallery(imagesSnapshot, galleryContainer, galleryLoadingSection, 
         return;
     }
 
-    // Group images by category
+    // Group images by category, then by subcategory
     const categories = {};
     imagesSnapshot.forEach(doc => {
         const image = doc.data();
         const category = image.category || 'Uncategorized';
+        const subcategory = image.subcategory || '';
 
         if (!categories[category]) {
             categories[category] = {
                 name: category,
-                sectionClass: image.sectionClass || 'section',
-                images: []
+                subcategories: {}
             };
         }
 
-        categories[category].images.push(image);
+        if (!categories[category].subcategories[subcategory]) {
+            categories[category].subcategories[subcategory] = [];
+        }
+
+        categories[category].subcategories[subcategory].push(image);
     });
 
     galleryContainer.innerHTML = '';
@@ -71,10 +75,65 @@ function renderGallery(imagesSnapshot, galleryContainer, galleryLoadingSection, 
     for (const categoryKey in categories) {
         const category = categories[categoryKey];
         const sectionClass = sectionIndex % 2 === 0 ? 'section section-alt' : 'section';
-        const section = createGallerySection(category.name, category.images, sectionClass);
+
+        // Create section with subcategories
+        const section = createGallerySectionWithSubcategories(category.name, category.subcategories, sectionClass);
         galleryContainer.innerHTML += section;
         sectionIndex++;
     }
+}
+
+function createGallerySectionWithSubcategories(categoryName, subcategories, sectionClass) {
+    let subcategoriesHTML = '';
+
+    // Sort subcategories - empty string first (no subcategory), then alphabetically
+    const sortedSubcategoryKeys = Object.keys(subcategories).sort((a, b) => {
+        if (a === '') return -1;
+        if (b === '') return 1;
+        return a.localeCompare(b);
+    });
+
+    for (const subcategoryKey of sortedSubcategoryKeys) {
+        const images = subcategories[subcategoryKey];
+
+        const imagesHTML = images.map(image => {
+            // Use img tag with async decoding for faster rendering
+            let imageHTML = '';
+            if (image.imageUrl) {
+                imageHTML = `<img src="${image.imageUrl}" alt="${image.title || 'Gallery image'}" decoding="async" style="width: 100%; height: 100%; object-fit: contain;">`;
+            } else {
+                imageHTML = `<div style="width: 100%; height: 100%; background: ${image.gradient || 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'}; border-radius: 15px;"></div>`;
+            }
+
+            return `
+                <div class="gallery-item" style="position: relative; overflow: hidden;">
+                    ${imageHTML}
+                    <div class="gallery-overlay">
+                        <span>${image.title || 'Image'}</span>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        // Add subcategory label if it exists
+        const subcategoryLabel = subcategoryKey ? `<h3 style="color: #4a7c2c; font-size: 1.3rem; margin-bottom: 20px; font-weight: 500;">${subcategoryKey}</h3>` : '';
+
+        subcategoriesHTML += `
+            ${subcategoryLabel}
+            <div class="gallery-grid" style="margin-bottom: ${subcategoryKey ? '50px' : '0'};">
+                ${imagesHTML}
+            </div>
+        `;
+    }
+
+    return `
+        <section class="${sectionClass}">
+            <div class="container">
+                <h2 class="section-title">${categoryName}</h2>
+                ${subcategoriesHTML}
+            </div>
+        </section>
+    `;
 }
 
 function createGallerySection(categoryName, images, sectionClass) {
@@ -82,7 +141,7 @@ function createGallerySection(categoryName, images, sectionClass) {
         // Use img tag with async decoding for faster rendering
         let imageHTML = '';
         if (image.imageUrl) {
-            imageHTML = `<img src="${image.imageUrl}" alt="${image.title || 'Gallery image'}" decoding="async" style="width: 100%; height: 100%; object-fit: cover; border-radius: 15px;">`;
+            imageHTML = `<img src="${image.imageUrl}" alt="${image.title || 'Gallery image'}" decoding="async" style="width: 100%; height: 100%; object-fit: contain;">`;
         } else {
             imageHTML = `<div style="width: 100%; height: 100%; background: ${image.gradient || 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'}; border-radius: 15px;"></div>`;
         }

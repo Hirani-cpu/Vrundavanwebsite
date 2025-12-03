@@ -6,6 +6,97 @@ let currentEditingCategoryId = null;
 let currentEditingMenuItemId = null;
 let currentEditingGalleryId = null;
 
+// Drag and Drop variables
+let draggedElement = null;
+
+// Drag and Drop handlers for image reordering
+function handleDragStart(e) {
+    draggedElement = this;
+    this.style.opacity = '0.4';
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/html', this.innerHTML);
+}
+
+function handleDragOver(e) {
+    if (e.preventDefault) {
+        e.preventDefault();
+    }
+    e.dataTransfer.dropEffect = 'move';
+    return false;
+}
+
+function handleDragEnter(e) {
+    if (this !== draggedElement) {
+        this.style.transform = 'scale(1.05)';
+        this.style.border = '3px dashed #ffc107';
+    }
+}
+
+function handleDragLeave(e) {
+    this.style.transform = 'scale(1)';
+    this.style.border = '3px solid #17a2b8';
+}
+
+function handleDrop(e) {
+    if (e.stopPropagation) {
+        e.stopPropagation();
+    }
+
+    if (draggedElement !== this) {
+        // Swap the elements
+        const container = this.parentNode;
+        const allItems = Array.from(container.querySelectorAll('.draggable-image-item'));
+        const draggedIndex = allItems.indexOf(draggedElement);
+        const targetIndex = allItems.indexOf(this);
+
+        if (draggedIndex < targetIndex) {
+            container.insertBefore(draggedElement, this.nextSibling);
+        } else {
+            container.insertBefore(draggedElement, this);
+        }
+
+        // Update the order numbers and stored order
+        updateImageOrder();
+    }
+
+    this.style.transform = 'scale(1)';
+    this.style.border = '3px solid #17a2b8';
+    return false;
+}
+
+function handleDragEnd(e) {
+    this.style.opacity = '1';
+
+    // Reset all items
+    const items = document.querySelectorAll('.draggable-image-item');
+    items.forEach(item => {
+        item.style.transform = 'scale(1)';
+        item.style.border = '3px solid #17a2b8';
+    });
+}
+
+function updateImageOrder() {
+    const container = document.getElementById('draggableImagesContainer');
+    if (!container) return;
+
+    const items = container.querySelectorAll('.draggable-image-item');
+    const newOrder = [];
+
+    items.forEach((item, index) => {
+        // Update visual order number
+        const badge = item.querySelector('.image-order-badge');
+        if (badge) {
+            badge.textContent = `#${index + 1}`;
+        }
+        // Store new order
+        newOrder.push(item.dataset.imageUrl);
+    });
+
+    // Update global order array
+    window.currentRoomImageOrder = newOrder;
+    console.log('📸 Image order updated:', newOrder.map((url, i) => `#${i+1}`));
+}
+
 // HIGH QUALITY compression - prioritizes image quality over file size
 async function compressImage(file, maxWidth = 1920, quality = 0.92) {
     const startTime = Date.now();
@@ -211,10 +302,17 @@ function setupManagementEventListeners() {
                     return;
                 }
 
-                // If editing and no new images selected, keep existing images
+                // If editing and no new images selected, use reordered existing images
                 if (currentEditingRoomId && imageUrls.length === 0) {
-                    const existingDoc = await db.collection('rooms').doc(currentEditingRoomId).get();
-                    imageUrls = existingDoc.data().imageUrls || [];
+                    // Use the reordered images if available (from drag-drop)
+                    if (window.currentRoomImageOrder && window.currentRoomImageOrder.length > 0) {
+                        imageUrls = window.currentRoomImageOrder;
+                        console.log('✨ Using reordered images:', imageUrls.map((url, i) => `#${i+1}`));
+                    } else {
+                        // Fallback to existing images in original order
+                        const existingDoc = await db.collection('rooms').doc(currentEditingRoomId).get();
+                        imageUrls = existingDoc.data().imageUrls || [];
+                    }
                 }
 
                 const roomData = {
@@ -422,6 +520,14 @@ function setupManagementEventListeners() {
             currentEditingGalleryId = null;
             document.getElementById('galleryImageModalTitle').textContent = 'Add Gallery Image';
             document.getElementById('galleryImageForm').reset();
+
+            // Make file input required for new images
+            const fileInput = document.getElementById('galleryImageFile');
+            fileInput.setAttribute('required', 'required');
+
+            // Clear preview
+            document.getElementById('galleryImagePreview').innerHTML = '';
+
             document.getElementById('galleryImageModal').style.display = 'block';
         });
     } else {
@@ -432,6 +538,10 @@ function setupManagementEventListeners() {
     if (galleryImageModalClose) {
         galleryImageModalClose.addEventListener('click', function() {
             document.getElementById('galleryImageModal').style.display = 'none';
+            // Reset file input to required
+            const fileInput = document.getElementById('galleryImageFile');
+            fileInput.setAttribute('required', 'required');
+            document.getElementById('galleryImagePreview').innerHTML = '';
         });
     }
 
@@ -439,6 +549,10 @@ function setupManagementEventListeners() {
     if (cancelGalleryImageBtn) {
         cancelGalleryImageBtn.addEventListener('click', function() {
             document.getElementById('galleryImageModal').style.display = 'none';
+            // Reset file input to required
+            const fileInput = document.getElementById('galleryImageFile');
+            fileInput.setAttribute('required', 'required');
+            document.getElementById('galleryImagePreview').innerHTML = '';
         });
     }
 
@@ -473,10 +587,19 @@ function setupManagementEventListeners() {
                 const galleryData = {
                     title: document.getElementById('galleryImageTitle').value,
                     category: document.getElementById('galleryImageCategory').value,
-                    imageUrl: imageUrl || document.getElementById('galleryImageGradient').value,
+                    subcategory: document.getElementById('galleryImageSubcategory').value || '',
                     gradient: document.getElementById('galleryImageGradient').value || 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                     order: parseInt(document.getElementById('galleryImageOrder').value)
                 };
+
+                // Only update imageUrl if a new file was uploaded
+                if (imageUrl) {
+                    galleryData.imageUrl = imageUrl;
+                } else if (!currentEditingGalleryId) {
+                    // For new images without upload, use gradient
+                    galleryData.imageUrl = document.getElementById('galleryImageGradient').value;
+                }
+                // If editing and no new file, keep existing imageUrl (don't include in update)
 
                 if (currentEditingGalleryId) {
                     await db.collection('gallery').doc(currentEditingGalleryId).update(galleryData);
@@ -488,6 +611,11 @@ function setupManagementEventListeners() {
                 document.getElementById('galleryImageModal').style.display = 'none';
                 document.getElementById('galleryImageForm').reset();
                 document.getElementById('galleryImagePreview').innerHTML = '';
+
+                // Reset file input to required for next time
+                const fileInput = document.getElementById('galleryImageFile');
+                fileInput.setAttribute('required', 'required');
+
                 loadGalleryList();
             } catch (error) {
                 console.error('Error saving gallery image:', error);
@@ -672,33 +800,53 @@ async function editRoom(roomId) {
         document.getElementById('roomFeatures').value = (room.features || []).join('\n');
         document.getElementById('roomOrder').value = room.order || 1;
 
-        // Show existing images if any
+        // Show existing images if any with DRAG & DROP REORDERING
         const previewDiv = document.getElementById('roomImagePreview');
         if (room.imageUrls && room.imageUrls.length > 0) {
             previewDiv.innerHTML = '';
 
-            // Add warning banner
-            const warningDiv = document.createElement('div');
-            warningDiv.style.cssText = 'background: #fff3cd; border: 2px solid #ffc107; padding: 10px; border-radius: 6px; margin-bottom: 10px;';
-            warningDiv.innerHTML = `
-                <strong style="color: #856404;">⚠️ OLD IMAGES DETECTED (${room.imageUrls.length} images)</strong>
-                <div style="margin-top: 8px; font-size: 0.9rem; color: #856404;">
-                    <strong>To REPLACE with NEW images:</strong> Select new files below and click Save<br>
-                    <strong>To KEEP old images:</strong> Don't select files and click Save
+            // Store current image order
+            window.currentRoomImageOrder = [...room.imageUrls];
+
+            // Add info banner
+            const infoBanner = document.createElement('div');
+            infoBanner.style.cssText = 'background: #d1ecf1; border: 2px solid #17a2b8; padding: 10px; border-radius: 6px; margin-bottom: 10px;';
+            infoBanner.innerHTML = `
+                <strong style="color: #0c5460;">📸 Existing Images (${room.imageUrls.length})</strong>
+                <div style="margin-top: 8px; font-size: 0.9rem; color: #0c5460;">
+                    <strong>✨ Drag images to reorder</strong> - First image will be the main thumbnail<br>
+                    <strong>To REPLACE all:</strong> Select new files below<br>
+                    <strong>To KEEP current order:</strong> Don't select files and click Save
                 </div>
             `;
-            previewDiv.appendChild(warningDiv);
+            previewDiv.appendChild(infoBanner);
 
-            // Show existing images with RED borders
+            // Show draggable images
             const imagesContainer = document.createElement('div');
+            imagesContainer.id = 'draggableImagesContainer';
             imagesContainer.style.cssText = 'display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 10px;';
+
             room.imageUrls.forEach((url, index) => {
                 const div = document.createElement('div');
-                div.style.cssText = 'position: relative; display: inline-block;';
+                div.className = 'draggable-image-item';
+                div.draggable = true;
+                div.dataset.imageUrl = url;
+                div.dataset.index = index;
+                div.style.cssText = 'position: relative; display: inline-block; cursor: move; transition: transform 0.2s;';
                 div.innerHTML = `
-                    <img src="${url}?t=${Date.now()}" style="width: 120px; height: 80px; object-fit: cover; border-radius: 6px; border: 3px solid #dc3545;">
-                    <span style="position: absolute; top: 5px; right: 5px; background: #dc3545; color: white; padding: 3px 8px; border-radius: 3px; font-size: 0.75rem; font-weight: bold;">OLD #${index + 1}</span>
+                    <img src="${url}?t=${Date.now()}" style="width: 120px; height: 80px; object-fit: cover; border-radius: 6px; border: 3px solid #17a2b8; pointer-events: none;">
+                    <span class="image-order-badge" style="position: absolute; top: 5px; right: 5px; background: #17a2b8; color: white; padding: 3px 8px; border-radius: 3px; font-size: 0.75rem; font-weight: bold;">#${index + 1}</span>
+                    <span style="position: absolute; bottom: 5px; left: 5px; background: rgba(0,0,0,0.7); color: white; padding: 2px 6px; border-radius: 3px; font-size: 0.7rem;">✋ Drag</span>
                 `;
+
+                // Drag events
+                div.addEventListener('dragstart', handleDragStart);
+                div.addEventListener('dragover', handleDragOver);
+                div.addEventListener('drop', handleDrop);
+                div.addEventListener('dragenter', handleDragEnter);
+                div.addEventListener('dragleave', handleDragLeave);
+                div.addEventListener('dragend', handleDragEnd);
+
                 imagesContainer.appendChild(div);
             });
             previewDiv.appendChild(imagesContainer);
@@ -1198,9 +1346,25 @@ async function editGalleryImage(galleryId) {
 
         document.getElementById('galleryImageTitle').value = image.title;
         document.getElementById('galleryImageCategory').value = image.category;
-        document.getElementById('galleryImageUrl').value = image.imageUrl || '';
+        document.getElementById('galleryImageSubcategory').value = image.subcategory || '';
         document.getElementById('galleryImageGradient').value = image.gradient || '';
         document.getElementById('galleryImageOrder').value = image.order;
+
+        // Show existing image preview if available
+        const previewDiv = document.getElementById('galleryImagePreview');
+        if (image.imageUrl) {
+            previewDiv.innerHTML = `<div style="margin-top: 10px; padding: 10px; background: #f5f5f5; border-radius: 5px;">
+                <strong>Current Image:</strong><br>
+                <img src="${image.imageUrl}" alt="${image.title}" style="max-width: 200px; max-height: 200px; margin-top: 5px; border-radius: 5px;">
+                <p style="font-size: 0.85rem; color: #666; margin-top: 5px;">Upload a new image to replace the current one (optional)</p>
+            </div>`;
+        } else {
+            previewDiv.innerHTML = '';
+        }
+
+        // Make file input optional when editing (since image already exists)
+        const fileInput = document.getElementById('galleryImageFile');
+        fileInput.removeAttribute('required');
 
         document.getElementById('galleryImageModal').style.display = 'block';
     } catch (error) {
