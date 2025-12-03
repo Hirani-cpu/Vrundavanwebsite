@@ -233,8 +233,8 @@
     function showAdminMode() {
         if (!isAdmin) return;
 
-        // Create admin mode banner
-        createAdminBanner();
+        // Create admin mode banner - DISABLED (no longer needed)
+        // createAdminBanner();
 
         // Wait for page to fully load
         if (document.readyState === 'loading') {
