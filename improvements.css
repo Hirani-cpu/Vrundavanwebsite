@@ -633,12 +633,12 @@ body.menu-open {
 
 /* Make logo BIGGER than text on mobile - white bar stays THIN */
 @media (max-width: 768px) {
-    /* THIN white navbar bar - FIXED size */
+    /* VERY THIN white navbar bar - FIXED size */
     .navbar {
-        padding: 8px 0 !important;
+        padding: 5px 0 !important;
     }
 
-    /* HUGE logo (160px) */
+    /* HUGE logo (160px) - UNCHANGED */
     .logo-image {
         width: 160px !important;
         height: 160px !important;
@@ -650,7 +650,7 @@ body.menu-open {
         height: 160px !important;
     }
 
-    /* Text bigger but not as big as logo (1.5rem) */
+    /* Text bigger but not as big as logo (1.5rem) - UNCHANGED */
     .logo a {
         font-size: 1.5rem !important;
         line-height: 1.3;
@@ -659,24 +659,24 @@ body.menu-open {
 
     /* Adjust menu for bigger logo */
     .nav-links {
-        top: 176px !important;
-        height: calc(100vh - 176px) !important;
+        top: 170px !important;
+        height: calc(100vh - 170px) !important;
     }
 
     .hero,
     .page-hero {
-        margin-top: 176px !important;
+        margin-top: 170px !important;
     }
 }
 
 /* Even bigger on tablets - white bar stays THIN */
 @media (min-width: 481px) and (max-width: 768px) {
-    /* THIN white navbar bar - FIXED size */
+    /* VERY THIN white navbar bar - FIXED size */
     .navbar {
-        padding: 8px 0 !important;
+        padding: 5px 0 !important;
     }
 
-    /* HUGE logo (170px) */
+    /* HUGE logo (170px) - UNCHANGED */
     .logo-image {
         width: 170px !important;
         height: 170px !important;
@@ -688,19 +688,19 @@ body.menu-open {
         height: 170px !important;
     }
 
-    /* Text bigger but not as big as logo (1.6rem) */
+    /* Text bigger but not as big as logo (1.6rem) - UNCHANGED */
     .logo a {
         font-size: 1.6rem !important;
     }
 
     /* Adjust menu for bigger logo */
     .nav-links {
-        top: 186px !important;
-        height: calc(100vh - 186px) !important;
+        top: 180px !important;
+        height: calc(100vh - 180px) !important;
     }
 
     .hero,
     .page-hero {
-        margin-top: 186px !important;
+        margin-top: 180px !important;
     }
 }
