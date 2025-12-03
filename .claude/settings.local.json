@@ -20,7 +20,12 @@
       "Bash(timeout:*)",
       "Bash(start http://localhost:8000/login.html)",
       "Bash(start http://localhost:8000/admin.html)",
-      "Bash(start:*)"
+      "Bash(start:*)",
+      "Bash(for file in rooms.html restaurant.html amenities.html events.html gallery.html contact.html)",
+      "Bash(do grep -q \"firebase-auth-compat.js\" \"$file\")",
+      "Bash(do sed -i 's|<script src=\"\"https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js\"\"></script>|<script src=\"\"https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js\"\"></script>\\n    <script src=\"\"https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js\"\"></script>|' \"$file\")",
+      "Bash(taskkill:*)",
+      "Bash(del nul)"
     ],
     "deny": [],
     "ask": []

@@ -1102,8 +1102,8 @@
         }
     }
 
-    // Helper: HIGH QUALITY compression for professional images
-    function compressImage(file, maxWidth = 1920, quality = 0.92) {
+    // Helper: OPTIMIZED compression - excellent quality with fast loading
+    function compressImage(file, maxWidth = 1600, quality = 0.88) {
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
             reader.readAsDataURL(file);
