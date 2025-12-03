@@ -138,6 +138,9 @@ function createCategoryCard(category, items) {
     for (const subcategoryKey of sortedSubcategoryKeys) {
         const subcategoryItems = subcategories[subcategoryKey];
 
+        // Sort items within subcategory by price (ascending - lowest first)
+        subcategoryItems.sort((a, b) => (a.price || 0) - (b.price || 0));
+
         const itemsHTML = subcategoryItems.map(item => {
             const badgeHTML = item.type === 'VEG'
                 ? '<span class="badge-veg">🥬 VEG</span>'
