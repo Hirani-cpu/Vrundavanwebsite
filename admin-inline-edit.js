@@ -1327,12 +1327,19 @@
             }
 
             let appliedCount = 0;
+            console.log('📦 Found', snapshot.size, 'saved images in database');
+
             snapshot.forEach(doc => {
                 const data = doc.data();
                 const elementId = doc.id;
                 const imageUrl = data.imageUrl;
 
-                if (!imageUrl) return;
+                console.log('🖼️ Processing:', elementId, '→', imageUrl?.substring(0, 50) + '...');
+
+                if (!imageUrl) {
+                    console.log('⚠️ Skipping - no imageUrl');
+                    return;
+                }
 
                 // Try to find element by ID first
                 let element = document.querySelector(`[data-edit-id="${elementId}"]`);
@@ -1341,17 +1348,27 @@
                 if (!element) {
                     // Service cards - match by title
                     if (elementId.startsWith('service-card_')) {
+                        console.log('🔍 Looking for service card:', elementId);
                         const cards = document.querySelectorAll('.service-card');
+                        console.log('📋 Found', cards.length, 'service cards');
+
                         cards.forEach((card, index) => {
                             const cardTitle = card.querySelector('h3')?.textContent || 'service';
                             const expectedId = `service-card_${cardTitle.replace(/\s+/g, '-').toLowerCase()}_${index}`;
+                            console.log(`  Card ${index}: "${cardTitle}" → ID: ${expectedId}`);
+
                             if (!card.dataset.editId) {
                                 card.dataset.editId = expectedId;
                             }
                             if (card.dataset.editId === elementId) {
                                 element = card;
+                                console.log('✅ MATCHED! Found element for:', elementId);
                             }
                         });
+
+                        if (!element) {
+                            console.log('❌ NO MATCH found for:', elementId);
+                        }
                     }
 
                     // Hero sections
@@ -1397,14 +1414,19 @@
                 if (element && imageUrl) {
                     // Apply the saved image
                     if (element.tagName === 'IMG') {
+                        console.log('🖼️ Applying to <img> tag');
                         element.src = imageUrl;
                     } else {
+                        console.log('🎨 Applying as background image');
                         element.style.backgroundImage = `url('${imageUrl}')`;
                         element.style.backgroundSize = 'cover';
                         element.style.backgroundPosition = 'center';
+                        console.log('✅ Applied! New background:', element.style.backgroundImage.substring(0, 60));
                     }
                     appliedCount++;
                     console.log(`✅ Applied public image to:`, elementId);
+                } else {
+                    console.log('❌ Could not apply - element:', !!element, 'imageUrl:', !!imageUrl);
                 }
             });
 
