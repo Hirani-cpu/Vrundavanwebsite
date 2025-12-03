@@ -27,7 +27,9 @@
       "Bash(taskkill:*)",
       "Bash(del nul)",
       "Bash(for:*)",
-      "Bash(do sed -i 's|<script src=\"\"lazy-load-images.js\"\"></script>|<script src=\"\"instant-load-images.js\"\"></script>\\n    <script src=\"\"lazy-load-images.js\"\"></script>|' \"$file\")"
+      "Bash(do sed -i 's|<script src=\"\"lazy-load-images.js\"\"></script>|<script src=\"\"instant-load-images.js\"\"></script>\\n    <script src=\"\"lazy-load-images.js\"\"></script>|' \"$file\")",
+      "Bash(where:*)",
+      "Bash(gsutil cors:*)"
     ],
     "deny": [],
     "ask": []

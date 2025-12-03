@@ -1,0 +1,517 @@
+/* ===========================
+   INCREMENTAL IMPROVEMENTS - Option B
+   Enhanced Responsiveness & UX
+   =========================== */
+
+/* Improved Typography & Spacing */
+body {
+    line-height: 1.8;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    line-height: 1.3;
+    margin-bottom: 1rem;
+}
+
+h1 { font-size: clamp(2rem, 5vw, 2.5rem); }
+h2 { font-size: clamp(1.75rem, 4vw, 2rem); }
+h3 { font-size: clamp(1.25rem, 3vw, 1.5rem); }
+
+p {
+    margin-bottom: 1.2rem;
+}
+
+.section {
+    padding: 100px 20px;
+}
+
+@media (max-width: 768px) {
+    .section {
+        padding: 60px 20px;
+    }
+}
+
+/* Navigation Improvements - Show Login OR Account, never both */
+#authNavItem {
+    position: relative;
+}
+
+#authNavItem .nav-link-login {
+    display: inline-block;
+}
+
+#authNavItem .user-info {
+    display: none;
+}
+
+/* When logged in, hide login and show account */
+body.logged-in #authNavItem .nav-link-login {
+    display: none !important;
+}
+
+body.logged-in #authNavItem .user-info {
+    display: flex !important;
+}
+
+/* User Avatar in Nav */
+.user-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--secondary-green);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+.user-info:hover {
+    background: var(--light-green);
+}
+
+.user-name {
+    color: var(--dark-text);
+    font-weight: 500;
+    font-size: 0.95rem;
+}
+
+/* Improved Service Cards with Equal Heights */
+.services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 30px;
+    margin-top: 50px;
+}
+
+@media (min-width: 1024px) {
+    .services-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+    .services-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 767px) {
+    .services-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+}
+
+.service-card {
+    background: white;
+    border-radius: 12px;
+    padding: 30px 25px;
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.service-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+}
+
+.service-icon {
+    font-size: 3.5rem;
+    margin-bottom: 20px;
+}
+
+.service-card h3 {
+    font-size: 1.3rem;
+    color: var(--primary-green);
+    margin-bottom: 15px;
+    font-weight: 600;
+}
+
+.service-card p {
+    color: var(--medium-text);
+    line-height: 1.7;
+    margin-bottom: 20px;
+    flex-grow: 1;
+}
+
+.service-card .btn {
+    margin-top: auto;
+    padding: 12px 24px;
+    font-size: 0.95rem;
+}
+
+/* Why Choose Us Cards */
+.why-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 30px;
+    margin-top: 50px;
+}
+
+@media (min-width: 1024px) {
+    .why-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+    .why-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+.why-card {
+    background: white;
+    border-radius: 12px;
+    padding: 30px 20px;
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    transition: all 0.3s ease;
+}
+
+.why-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+}
+
+.why-icon {
+    font-size: 3rem;
+    margin-bottom: 15px;
+}
+
+.why-card h3 {
+    font-size: 1.2rem;
+    color: var(--primary-green);
+    margin-bottom: 10px;
+}
+
+.why-card p {
+    color: var(--medium-text);
+    line-height: 1.6;
+    font-size: 0.95rem;
+}
+
+/* Improved Room Cards */
+.rooms-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 40px;
+    margin-top: 50px;
+}
+
+@media (min-width: 1200px) {
+    .rooms-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 767px) {
+    .rooms-grid {
+        grid-template-columns: 1fr;
+        gap: 30px;
+    }
+}
+
+.room-card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.room-content {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.room-card .btn {
+    margin-top: auto;
+}
+
+/* Improved Footer Layout */
+.footer-content {
+    grid-template-columns: 2fr 1fr 1fr 1fr !important;
+    gap: 50px;
+}
+
+@media (max-width: 968px) {
+    .footer-content {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 40px;
+    }
+}
+
+@media (max-width: 600px) {
+    .footer-content {
+        grid-template-columns: 1fr !important;
+        gap: 30px;
+        text-align: center;
+    }
+
+    .footer-links,
+    .footer-contact {
+        text-align: center;
+    }
+}
+
+.footer-contact a {
+    color: inherit;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.footer-contact a:hover {
+    color: var(--gold);
+}
+
+/* Account Page Improvements */
+.account-error {
+    text-align: center;
+    padding: 60px 20px;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.account-error h3 {
+    font-size: 1.8rem;
+    color: var(--primary-green);
+    margin-bottom: 15px;
+}
+
+.account-error p {
+    color: var(--medium-text);
+    margin-bottom: 25px;
+    line-height: 1.7;
+}
+
+/* Responsive Account Layout */
+@media (max-width: 968px) {
+    .account-container {
+        display: block !important;
+    }
+
+    .account-sidebar {
+        margin-bottom: 30px;
+    }
+}
+
+/* Improved Button Consistency */
+.btn {
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border: none;
+}
+
+.btn-primary {
+    background: var(--secondary-green) !important;
+    color: white !important;
+}
+
+.btn-primary:hover {
+    background: var(--primary-green) !important;
+    transform: translateY(-2px);
+}
+
+.btn-secondary {
+    background: transparent !important;
+    color: var(--secondary-green) !important;
+    border: 2px solid var(--secondary-green) !important;
+}
+
+.btn-secondary:hover {
+    background: var(--secondary-green) !important;
+    color: white !important;
+}
+
+/* Mobile Hamburger Menu Improvements */
+@media (max-width: 768px) {
+    .hamburger {
+        z-index: 1001;
+        padding: 10px;
+        min-width: 44px;
+        min-height: 44px;
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .nav-links {
+        background: white;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        padding: 30px 20px;
+    }
+
+    .nav-links li {
+        margin: 15px 0;
+        width: 100%;
+    }
+
+    .nav-link {
+        display: block;
+        padding: 12px 15px;
+        font-size: 1.05rem;
+    }
+
+    .user-info {
+        justify-content: center;
+        padding: 12px 15px;
+    }
+}
+
+/* Form Improvements */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: var(--dark-text);
+    font-size: 0.95rem;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 14px 16px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-family: var(--font-body);
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--secondary-green);
+    box-shadow: 0 0 0 3px rgba(74, 124, 44, 0.1);
+}
+
+/* Success/Error Messages */
+.success-message {
+    background: #d4edda;
+    color: #155724;
+    padding: 15px 20px;
+    border-radius: 8px;
+    margin: 20px 0;
+    display: none;
+    border-left: 4px solid #28a745;
+}
+
+.success-message.show {
+    display: block !important;
+}
+
+.error-message {
+    background: #f8d7da;
+    color: #721c24;
+    padding: 15px 20px;
+    border-radius: 8px;
+    margin: 20px 0;
+    display: none;
+    border-left: 4px solid #dc3545;
+}
+
+.error-message.show {
+    display: block !important;
+}
+
+/* Improved CTA Section */
+.cta-section {
+    background: linear-gradient(135deg, var(--primary-green) 0%, var(--secondary-green) 100%);
+    padding: 80px 20px;
+    text-align: center;
+    color: white;
+}
+
+.cta-content h2 {
+    font-size: clamp(1.8rem, 4vw, 2.5rem);
+    margin-bottom: 15px;
+    color: white;
+}
+
+.cta-content p {
+    font-size: 1.1rem;
+    margin-bottom: 30px;
+    opacity: 0.95;
+}
+
+.cta-buttons {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+@media (max-width: 600px) {
+    .cta-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .cta-buttons .btn {
+        width: 100%;
+        max-width: 300px;
+    }
+}
+
+/* Improved Container Max Width */
+.container {
+    max-width: 1280px;
+    padding: 0 30px;
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 0 20px;
+    }
+}
+
+/* Section Title Improvements */
+.section-title {
+    font-size: clamp(1.8rem, 4vw, 2.5rem);
+    color: var(--primary-green);
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.section-subtitle {
+    font-size: 1.1rem;
+    color: var(--medium-text);
+    text-align: center;
+    max-width: 700px;
+    margin: 0 auto 50px;
+    line-height: 1.7;
+}
+
+@media (max-width: 768px) {
+    .section-subtitle {
+        font-size: 1rem;
+    }
+}

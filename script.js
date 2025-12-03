@@ -699,6 +699,7 @@ function updateNavigationState() {
 
     if (currentUser && loginLink && userNav) {
         // User is logged in - show user info, hide login button
+        document.body.classList.add('logged-in');
         loginLink.style.display = 'none';
         userNav.style.display = 'inline-flex';
 
@@ -715,6 +716,7 @@ function updateNavigationState() {
         }
     } else if (loginLink && userNav) {
         // User is not logged in - show login button, hide user info
+        document.body.classList.remove('logged-in');
         loginLink.style.display = 'inline-block';
         userNav.style.display = 'none';
     }
