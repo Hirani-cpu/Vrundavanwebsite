@@ -932,6 +932,8 @@ function loadSiteSettings() {
                 document.getElementById('checkInTime').value = settings.checkInTime || '';
                 document.getElementById('checkOutTime').value = settings.checkOutTime || '';
                 document.getElementById('restaurantHours').value = settings.restaurantHours || '';
+                document.getElementById('receptionHours').value = settings.receptionHours || '';
+                document.getElementById('poolHours').value = settings.poolHours || '';
                 document.getElementById('socialFacebook').value = settings.facebookUrl || '';
                 document.getElementById('socialInstagram').value = settings.instagramUrl || '';
                 document.getElementById('socialTwitter').value = settings.twitterUrl || '';
@@ -949,6 +951,8 @@ function loadSiteSettings() {
                 document.getElementById('checkInTime').value = '12:00 PM onwards';
                 document.getElementById('checkOutTime').value = '11:00 AM';
                 document.getElementById('restaurantHours').value = '8:00 AM - 11:00 PM';
+                document.getElementById('receptionHours').value = '24/7';
+                document.getElementById('poolHours').value = '6:00 AM - 8:00 PM';
             }
 
             loadingMessage.style.display = 'none';
@@ -1080,6 +1084,8 @@ async function saveSiteSettings() {
             checkInTime: document.getElementById('checkInTime').value.trim(),
             checkOutTime: document.getElementById('checkOutTime').value.trim(),
             restaurantHours: document.getElementById('restaurantHours').value.trim(),
+            receptionHours: document.getElementById('receptionHours').value.trim(),
+            poolHours: document.getElementById('poolHours').value.trim(),
             facebookUrl: document.getElementById('socialFacebook').value.trim(),
             instagramUrl: document.getElementById('socialInstagram').value.trim(),
             twitterUrl: document.getElementById('socialTwitter').value.trim(),

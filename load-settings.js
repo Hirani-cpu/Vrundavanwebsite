@@ -225,6 +225,88 @@
             }
         }
 
+        // Update Contact Page Contact Information
+        if (window.location.pathname.includes('contact.html')) {
+            // Update phone numbers
+            const contactPhones = document.querySelectorAll('.contact-detail-info a[href^="tel:"]');
+            if (contactPhones.length >= 1 && settings.contactPhone1) {
+                contactPhones[0].href = `tel:${settings.contactPhone1.replace(/\s/g, '')}`;
+                contactPhones[0].textContent = settings.contactPhone1;
+            }
+            if (contactPhones.length >= 2 && settings.contactPhone2) {
+                contactPhones[1].href = `tel:${settings.contactPhone2.replace(/\s/g, '')}`;
+                contactPhones[1].textContent = settings.contactPhone2;
+                contactPhones[1].parentElement.style.display = ''; // Show if available
+            } else if (contactPhones.length >= 2) {
+                contactPhones[1].parentElement.style.display = 'none'; // Hide if not set
+            }
+
+            // Update emails
+            const contactEmails = document.querySelectorAll('.contact-detail-info a[href^="mailto:"]');
+            if (contactEmails.length >= 1 && settings.contactEmail1) {
+                contactEmails[0].href = `mailto:${settings.contactEmail1}`;
+                contactEmails[0].textContent = settings.contactEmail1;
+            }
+            if (contactEmails.length >= 2 && settings.contactEmail2) {
+                contactEmails[1].href = `mailto:${settings.contactEmail2}`;
+                contactEmails[1].textContent = settings.contactEmail2;
+                contactEmails[1].parentElement.style.display = ''; // Show if available
+            } else if (contactEmails.length >= 2) {
+                contactEmails[1].parentElement.style.display = 'none'; // Hide if not set
+            }
+
+            // Update address
+            if (settings.contactAddress) {
+                const addressItems = document.querySelectorAll('.contact-detail-item');
+                addressItems.forEach(item => {
+                    if (item.textContent.includes('Location') || item.textContent.includes('📍')) {
+                        const addressInfo = item.querySelector('.contact-detail-info');
+                        if (addressInfo) {
+                            const h3 = addressInfo.querySelector('h3');
+                            const addressLines = settings.contactAddress.split('\n');
+                            addressInfo.innerHTML = '<h3>Location</h3>';
+                            addressLines.forEach(line => {
+                                if (line.trim()) {
+                                    const p = document.createElement('p');
+                                    p.textContent = line.trim();
+                                    addressInfo.appendChild(p);
+                                }
+                            });
+                        }
+                    }
+                });
+            }
+
+            // Update operating hours
+            const hoursItems = document.querySelectorAll('.contact-detail-item');
+            hoursItems.forEach(item => {
+                if (item.textContent.includes('Operating Hours') || item.textContent.includes('🕐')) {
+                    const hoursInfo = item.querySelector('.contact-detail-info');
+                    if (hoursInfo) {
+                        hoursInfo.innerHTML = '<h3>Operating Hours</h3>';
+
+                        if (settings.receptionHours) {
+                            const receptionP = document.createElement('p');
+                            receptionP.innerHTML = `<strong>Reception:</strong> ${settings.receptionHours}`;
+                            hoursInfo.appendChild(receptionP);
+                        }
+
+                        if (settings.restaurantHours) {
+                            const restaurantP = document.createElement('p');
+                            restaurantP.innerHTML = `<strong>Restaurant:</strong> ${settings.restaurantHours}`;
+                            hoursInfo.appendChild(restaurantP);
+                        }
+
+                        if (settings.poolHours) {
+                            const poolP = document.createElement('p');
+                            poolP.innerHTML = `<strong>Pool:</strong> ${settings.poolHours}`;
+                            hoursInfo.appendChild(poolP);
+                        }
+                    }
+                }
+            });
+        }
+
         // Update Social Media Links in Footer
         if (settings.facebookUrl) {
             const facebookLink = document.getElementById('facebookLink');
