@@ -340,14 +340,69 @@
         // Remove existing edit buttons first
         document.querySelectorAll('.admin-edit-btn').forEach(btn => btn.remove());
 
-        // Add edit buttons to EVERYTHING
+        // Add edit buttons to EVERYTHING (this assigns persistent IDs)
         addEditToSections();
         addEditToHeadings();
         addEditToImages();
         addEditToCards();
         addEditToHeroSection();
 
+        // Load saved images from Firestore AFTER IDs are assigned
+        loadSavedImages();
+
         console.log('✅ Admin editing initialized!');
+    }
+
+    // Load all saved images from Firestore and apply them
+    async function loadSavedImages() {
+        if (typeof db === 'undefined' || !db) {
+            console.log('⚠️ Firestore not available, skipping image load');
+            return;
+        }
+
+        try {
+            const pageUrl = window.location.pathname;
+            console.log('📥 Loading saved images for:', pageUrl);
+
+            // Load all saved content for this page
+            const snapshot = await db.collection('pageContent')
+                .where('pageType', '==', pageUrl)
+                .where('elementType', '==', 'image')
+                .get();
+
+            if (snapshot.empty) {
+                console.log('No saved images found for this page');
+                return;
+            }
+
+            let appliedCount = 0;
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                const elementId = doc.id;
+                const imageUrl = data.imageUrl;
+
+                // Find element with this ID
+                const element = document.querySelector(`[data-edit-id="${elementId}"]`);
+                if (element && imageUrl) {
+                    // Apply the saved image
+                    if (element.tagName === 'IMG') {
+                        element.src = imageUrl;
+                    } else {
+                        element.style.backgroundImage = `url('${imageUrl}')`;
+                        element.style.backgroundSize = 'cover';
+                        element.style.backgroundPosition = 'center';
+                    }
+                    appliedCount++;
+                    console.log(`✅ Applied saved image to:`, elementId);
+                }
+            });
+
+            if (appliedCount > 0) {
+                console.log(`✅ Applied ${appliedCount} saved images`);
+            }
+        } catch (error) {
+            console.error('Error loading saved images:', error);
+        }
     }
 
     // Add edit to all major sections
@@ -458,8 +513,12 @@
         const heroes = document.querySelectorAll('.hero, .hero-home, .cta-section');
         console.log(`Found ${heroes.length} hero sections`);
 
-        heroes.forEach((hero) => {
+        heroes.forEach((hero, index) => {
             if (!hero.querySelector('.admin-edit-btn')) {
+                // Assign persistent ID
+                if (!hero.dataset.editId) {
+                    hero.dataset.editId = generatePersistentId(hero, 'hero', index);
+                }
                 const btn = createEditButton('image');
                 btn.onclick = () => openImageEditor(hero);
                 hero.style.position = 'relative';
@@ -471,8 +530,12 @@
         const placeholders = document.querySelectorAll('.image-placeholder');
         console.log(`Found ${placeholders.length} image placeholders`);
 
-        placeholders.forEach((placeholder) => {
+        placeholders.forEach((placeholder, index) => {
             if (!placeholder.querySelector('.admin-edit-btn')) {
+                // Assign persistent ID
+                if (!placeholder.dataset.editId) {
+                    placeholder.dataset.editId = generatePersistentId(placeholder, 'placeholder', index);
+                }
                 const btn = createEditButton('image', 'small');
                 btn.onclick = () => openImageEditor(placeholder);
                 placeholder.style.position = 'relative';
@@ -484,8 +547,12 @@
         const amenityImages = document.querySelectorAll('.amenity-detailed-image');
         console.log(`Found ${amenityImages.length} amenity detailed images`);
 
-        amenityImages.forEach((img) => {
+        amenityImages.forEach((img, index) => {
             if (!img.querySelector('.admin-edit-btn')) {
+                // Assign persistent ID
+                if (!img.dataset.editId) {
+                    img.dataset.editId = generatePersistentId(img, 'amenity-image', index);
+                }
                 const btn = createEditButton('image');
                 btn.onclick = () => openImageEditor(img);
                 img.style.position = 'relative';
@@ -497,8 +564,12 @@
         const venueImages = document.querySelectorAll('.venue-image');
         console.log(`Found ${venueImages.length} venue images`);
 
-        venueImages.forEach((img) => {
+        venueImages.forEach((img, index) => {
             if (!img.querySelector('.admin-edit-btn')) {
+                // Assign persistent ID
+                if (!img.dataset.editId) {
+                    img.dataset.editId = generatePersistentId(img, 'venue-image', index);
+                }
                 const btn = createEditButton('image');
                 btn.onclick = () => openImageEditor(img);
                 img.style.position = 'relative';
@@ -506,12 +577,34 @@
             }
         });
 
+        // Service cards with background images (Fine Dining, etc.)
+        const serviceCards = document.querySelectorAll('.service-card');
+        console.log(`Found ${serviceCards.length} service cards`);
+
+        serviceCards.forEach((card, index) => {
+            if (!card.querySelector('.admin-edit-btn')) {
+                // Assign persistent ID
+                if (!card.dataset.editId) {
+                    const cardTitle = card.querySelector('h3')?.textContent || 'service';
+                    card.dataset.editId = `service-card_${cardTitle.replace(/\s+/g, '-').toLowerCase()}_${index}`;
+                }
+                const btn = createEditButton('image', 'small');
+                btn.onclick = () => openImageEditor(card);
+                card.style.position = 'relative';
+                card.appendChild(btn);
+            }
+        });
+
         // Image elements
         const images = document.querySelectorAll('img');
         console.log(`Found ${images.length} images`);
 
-        images.forEach((img) => {
+        images.forEach((img, index) => {
             if (!img.closest('.admin-edit-btn') && img.offsetHeight > 50) {
+                // Assign persistent ID
+                if (!img.dataset.editId) {
+                    img.dataset.editId = generatePersistentId(img, 'img', index);
+                }
                 const wrapper = img.parentElement;
                 if (wrapper && !wrapper.querySelector('.admin-edit-btn')) {
                     const btn = createEditButton('image', 'small');
