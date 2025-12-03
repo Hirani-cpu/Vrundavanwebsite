@@ -521,17 +521,17 @@ body.logged-in #authNavItem .user-info {
    =========================== */
 
 @media (max-width: 768px) {
-    /* Smaller white header bar */
+    /* SUPER THIN white header bar */
     .navbar {
-        padding: 8px 0 !important;
+        padding: 2px 0 !important;
     }
-    
-    /* Reduce vertical spacing in nav container */
+
+    /* Remove vertical spacing in nav container */
     .nav-container {
         min-height: auto !important;
-        padding: 5px 0 !important;
+        padding: 0 !important;
     }
-    
+
     /* Keep logo and text original size, just reduce spacing */
     .logo {
         gap: 10px;
@@ -631,11 +631,16 @@ body.menu-open {
     overflow: hidden;
 }
 
-/* Make logo BIGGER than text on mobile - white bar stays THIN */
+/* Make logo BIGGER than text on mobile - white bar SUPER THIN */
 @media (max-width: 768px) {
-    /* VERY THIN white navbar bar - FIXED size */
+    /* SUPER THIN white navbar bar - FIXED size */
     .navbar {
-        padding: 5px 0 !important;
+        padding: 2px 0 !important;
+    }
+
+    /* Remove extra spacing from nav container */
+    .nav-container {
+        padding: 0 !important;
     }
 
     /* HUGE logo (160px) - UNCHANGED */
@@ -659,21 +664,26 @@ body.menu-open {
 
     /* Adjust menu for bigger logo */
     .nav-links {
-        top: 170px !important;
-        height: calc(100vh - 170px) !important;
+        top: 164px !important;
+        height: calc(100vh - 164px) !important;
     }
 
     .hero,
     .page-hero {
-        margin-top: 170px !important;
+        margin-top: 164px !important;
     }
 }
 
-/* Even bigger on tablets - white bar stays THIN */
+/* Even bigger on tablets - white bar SUPER THIN */
 @media (min-width: 481px) and (max-width: 768px) {
-    /* VERY THIN white navbar bar - FIXED size */
+    /* SUPER THIN white navbar bar - FIXED size */
     .navbar {
-        padding: 5px 0 !important;
+        padding: 2px 0 !important;
+    }
+
+    /* Remove extra spacing from nav container */
+    .nav-container {
+        padding: 0 !important;
     }
 
     /* HUGE logo (170px) - UNCHANGED */
@@ -695,12 +705,12 @@ body.menu-open {
 
     /* Adjust menu for bigger logo */
     .nav-links {
-        top: 180px !important;
-        height: calc(100vh - 180px) !important;
+        top: 174px !important;
+        height: calc(100vh - 174px) !important;
     }
 
     .hero,
     .page-hero {
-        margin-top: 180px !important;
+        margin-top: 174px !important;
     }
 }
