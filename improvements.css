@@ -638,16 +638,16 @@ body.menu-open {
         padding: 8px 0 !important;
     }
 
-    /* BIG logo (120px) */
+    /* VERY BIG logo (140px) */
     .logo-image {
-        width: 120px !important;
-        height: 120px !important;
-        font-size: 65px !important;
+        width: 140px !important;
+        height: 140px !important;
+        font-size: 75px !important;
     }
 
     .logo-image img {
-        width: 120px !important;
-        height: 120px !important;
+        width: 140px !important;
+        height: 140px !important;
     }
 
     /* Text bigger but not as big as logo (1.5rem) */
@@ -659,13 +659,13 @@ body.menu-open {
 
     /* Adjust menu for bigger logo */
     .nav-links {
-        top: 136px !important;
-        height: calc(100vh - 136px) !important;
+        top: 156px !important;
+        height: calc(100vh - 156px) !important;
     }
 
     .hero,
     .page-hero {
-        margin-top: 136px !important;
+        margin-top: 156px !important;
     }
 }
 
@@ -676,16 +676,16 @@ body.menu-open {
         padding: 8px 0 !important;
     }
 
-    /* Even BIGGER logo (130px) */
+    /* VERY BIG logo (150px) */
     .logo-image {
-        width: 130px !important;
-        height: 130px !important;
-        font-size: 70px !important;
+        width: 150px !important;
+        height: 150px !important;
+        font-size: 80px !important;
     }
 
     .logo-image img {
-        width: 130px !important;
-        height: 130px !important;
+        width: 150px !important;
+        height: 150px !important;
     }
 
     /* Text bigger but not as big as logo (1.6rem) */
@@ -695,12 +695,12 @@ body.menu-open {
 
     /* Adjust menu for bigger logo */
     .nav-links {
-        top: 146px !important;
-        height: calc(100vh - 146px) !important;
+        top: 166px !important;
+        height: calc(100vh - 166px) !important;
     }
 
     .hero,
     .page-hero {
-        margin-top: 146px !important;
+        margin-top: 166px !important;
     }
 }
