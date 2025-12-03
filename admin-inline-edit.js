@@ -841,6 +841,7 @@
     // Open section editor
     function openSectionEditor(section) {
         const headings = Array.from(section.querySelectorAll('h1, h2, h3, h4')).map(h => h.textContent).join(', ') || 'No headings';
+        const hasBackgroundImage = section.style.backgroundImage && section.style.backgroundImage !== 'none';
 
         const modal = createModal('Edit Section', `
             <div style="margin-bottom: 20px;">
@@ -852,20 +853,33 @@
                 <ul style="color: #666; font-size: 0.95rem; margin-top: 10px;">
                     <li>Click individual text ✏️ icons to edit text</li>
                     <li>Click card ✏️ icons to edit cards</li>
-                    <li>Upload a background image here</li>
+                    <li>Upload or delete the background image here</li>
                 </ul>
             </div>
+            ${hasBackgroundImage ? `
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600;">Current Background:</label>
+                    <div style="width: 100%; height: 150px; background-image: ${section.style.backgroundImage}; background-size: cover; background-position: center; border-radius: 8px;"></div>
+                </div>
+            ` : ''}
             <div style="margin-bottom: 20px;">
                 <label style="display: block; margin-bottom: 8px; font-weight: 600;">Section Background Image (Optional):</label>
                 <input type="file" id="sectionImageUpload" accept="image/*" style="width: 100%; padding: 10px; border: 2px dashed #4a7c2c; border-radius: 8px;">
             </div>
             <div style="display: flex; gap: 10px;">
                 <button id="saveSection" style="flex: 1; padding: 12px; background: #4a7c2c; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">Upload Image</button>
+                ${hasBackgroundImage ? '<button id="deleteSectionBg" style="flex: 1; padding: 12px; background: #ff6b6b; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">Delete Image</button>' : ''}
                 <button id="cancelSection" style="flex: 1; padding: 12px; background: #ccc; color: #333; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">Cancel</button>
             </div>
         `);
 
         document.getElementById('saveSection').onclick = () => saveImage(section, 'background');
+
+        const deleteSectionBtn = document.getElementById('deleteSectionBg');
+        if (deleteSectionBtn) {
+            deleteSectionBtn.onclick = () => deleteImage(section, 'background');
+        }
+
         document.getElementById('cancelSection').onclick = () => closeModal();
     }
 
@@ -1290,16 +1304,133 @@
         if (modal) modal.remove();
     }
 
-    // Initialize
+    // Load saved images for ALL users (not just admins)
+    // This runs on EVERY page load for EVERYONE
+    async function loadPublicSavedImages() {
+        if (typeof db === 'undefined' || !db) {
+            console.log('⚠️ Firestore not available for public image load');
+            return;
+        }
+
+        try {
+            const pageUrl = window.location.pathname;
+            console.log('🌍 Loading public images for:', pageUrl);
+
+            const snapshot = await db.collection('pageContent')
+                .where('pageType', '==', pageUrl)
+                .where('elementType', '==', 'image')
+                .get();
+
+            if (snapshot.empty) {
+                console.log('No public images found for this page');
+                return;
+            }
+
+            let appliedCount = 0;
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                const elementId = doc.id;
+                const imageUrl = data.imageUrl;
+
+                if (!imageUrl) return;
+
+                // Try to find element by ID first
+                let element = document.querySelector(`[data-edit-id="${elementId}"]`);
+
+                // If not found, try to assign IDs and find elements by common selectors
+                if (!element) {
+                    // Service cards - match by title
+                    if (elementId.startsWith('service-card_')) {
+                        const cards = document.querySelectorAll('.service-card');
+                        cards.forEach((card, index) => {
+                            const cardTitle = card.querySelector('h3')?.textContent || 'service';
+                            const expectedId = `service-card_${cardTitle.replace(/\s+/g, '-').toLowerCase()}_${index}`;
+                            if (!card.dataset.editId) {
+                                card.dataset.editId = expectedId;
+                            }
+                            if (card.dataset.editId === elementId) {
+                                element = card;
+                            }
+                        });
+                    }
+
+                    // Hero sections
+                    if (elementId.startsWith('hero_')) {
+                        const heroes = document.querySelectorAll('.hero, .hero-home, .cta-section');
+                        heroes.forEach((hero, index) => {
+                            if (!hero.dataset.editId) {
+                                hero.dataset.editId = generatePersistentId(hero, 'hero', index);
+                            }
+                            if (hero.dataset.editId === elementId) {
+                                element = hero;
+                            }
+                        });
+                    }
+
+                    // Venue images
+                    if (elementId.startsWith('venue-image_')) {
+                        const venues = document.querySelectorAll('.venue-image');
+                        venues.forEach((venue, index) => {
+                            if (!venue.dataset.editId) {
+                                venue.dataset.editId = generatePersistentId(venue, 'venue-image', index);
+                            }
+                            if (venue.dataset.editId === elementId) {
+                                element = venue;
+                            }
+                        });
+                    }
+
+                    // Amenity images
+                    if (elementId.startsWith('amenity-image_')) {
+                        const amenities = document.querySelectorAll('.amenity-detailed-image');
+                        amenities.forEach((amenity, index) => {
+                            if (!amenity.dataset.editId) {
+                                amenity.dataset.editId = generatePersistentId(amenity, 'amenity-image', index);
+                            }
+                            if (amenity.dataset.editId === elementId) {
+                                element = amenity;
+                            }
+                        });
+                    }
+                }
+
+                if (element && imageUrl) {
+                    // Apply the saved image
+                    if (element.tagName === 'IMG') {
+                        element.src = imageUrl;
+                    } else {
+                        element.style.backgroundImage = `url('${imageUrl}')`;
+                        element.style.backgroundSize = 'cover';
+                        element.style.backgroundPosition = 'center';
+                    }
+                    appliedCount++;
+                    console.log(`✅ Applied public image to:`, elementId);
+                }
+            });
+
+            if (appliedCount > 0) {
+                console.log(`✅ Applied ${appliedCount} public images for all users`);
+            }
+        } catch (error) {
+            console.error('Error loading public images:', error);
+        }
+    }
+
+    // Initialize - load public images for EVERYONE
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', checkAdminStatus);
+        document.addEventListener('DOMContentLoaded', () => {
+            checkAdminStatus(); // Check if admin
+            loadPublicSavedImages(); // Load images for everyone
+        });
     } else {
         checkAdminStatus();
+        loadPublicSavedImages();
     }
 
     // Expose for debugging
     window.adminInlineEdit = {
         isAdmin: () => isAdmin,
-        refresh: initializeAllEditing
+        refresh: initializeAllEditing,
+        loadPublicImages: loadPublicSavedImages
     };
 })();
