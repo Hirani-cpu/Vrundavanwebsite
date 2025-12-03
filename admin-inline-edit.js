@@ -388,12 +388,16 @@
                     if (element.tagName === 'IMG') {
                         element.src = imageUrl;
                     } else {
-                        // IMPORTANT: Remove inline background gradient first!
-                        element.removeAttribute('style');
-                        // Now apply the image with all properties
+                        // Apply the image - overriding any inline gradient
                         element.style.background = `url('${imageUrl}') center/cover no-repeat`;
-                        element.style.width = '100%';
-                        element.style.height = '100%';
+                        element.style.backgroundSize = 'cover';
+                        element.style.backgroundPosition = 'center';
+
+                        // Hide label text
+                        const label = element.querySelector('.amenity-label, span');
+                        if (label && label.textContent && label.textContent.trim()) {
+                            label.style.display = 'none';
+                        }
                     }
                     appliedCount++;
                     console.log(`✅ Applied saved image to:`, elementId);
@@ -997,12 +1001,10 @@
             const imageUrl = await uploadToFirebase(compressedFile, 'images');
 
             if (updateType === 'background') {
-                // IMPORTANT: Remove inline background gradient first!
-                element.removeAttribute('style');
-                // Now apply the image with all properties
+                // Apply the image - overriding any inline gradient
                 element.style.background = `url('${imageUrl}') center/cover no-repeat`;
-                element.style.width = '100%';
-                element.style.height = '100%';
+                element.style.backgroundSize = 'cover';
+                element.style.backgroundPosition = 'center';
 
                 // Hide label text when image is uploaded
                 const label = element.querySelector('.amenity-label, span');
@@ -1423,13 +1425,19 @@
                         console.log('🖼️ Applying to <img> tag');
                         element.src = imageUrl;
                     } else {
-                        console.log('🎨 Applying as background image');
-                        // IMPORTANT: Remove inline background gradient first!
-                        element.removeAttribute('style');
-                        // Now apply the image with all properties
+                        console.log('🎨 Applying as background image to:', elementId);
+                        // Apply the image - overriding any inline gradient
                         element.style.background = `url('${imageUrl}') center/cover no-repeat`;
-                        element.style.width = '100%';
-                        element.style.height = '100%';
+                        element.style.backgroundSize = 'cover';
+                        element.style.backgroundPosition = 'center';
+
+                        // Hide label text
+                        const label = element.querySelector('.amenity-label, span');
+                        if (label && label.textContent && label.textContent.trim()) {
+                            label.style.display = 'none';
+                            console.log('   Hidden label text');
+                        }
+
                         console.log('✅ Applied! New background:', element.style.background.substring(0, 60));
                     }
                     appliedCount++;
