@@ -1,19 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login / Register – Vrundavan Resort & Restaurant</title>
-    <meta name="description" content="Login or create an account at Vrundavan Resort to manage your bookings, view reservations, and access exclusive member benefits.">
+    <meta name="description"
+        content="Login or create an account at Vrundavan Resort to manage your bookings, view reservations, and access exclusive member benefits.">
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="improvements.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
 
     <!-- INSTANT LOAD: Pre-apply cached settings BEFORE page renders (ZERO flash) -->
     <script>
-        (function() {
+        (function () {
             const cached = localStorage.getItem('siteSettings');
             if (cached) {
                 try {
@@ -23,14 +27,14 @@
                         document.write('<link rel="preload" as="image" href="' + s.siteLogoUrl + '" crossorigin="anonymous">');
                         document.write('<style>.logo-image{background-image:url(' + s.siteLogoUrl + ');background-size:contain;background-repeat:no-repeat;background-position:center;font-size:0;}</style>');
                     }
-                } catch(e) {}
+                } catch (e) { }
             }
         })();
     </script>
 
     <!-- INSTANT IMAGE LOAD: Apply cached images BEFORE page renders (NO gradient flash!) -->
     <script>
-        (function() {
+        (function () {
             try {
                 const cache = localStorage.getItem('vrundavan_image_cache_v1');
                 if (cache) {
@@ -46,17 +50,18 @@
                         console.log('⚡ INSTANT: Injected styles for', Object.keys(images).length, 'cached images');
                     }
                 }
-            } catch(e) { console.error('Instant image load error:', e); }
+            } catch (e) { console.error('Instant image load error:', e); }
         })();
     </script>
 </head>
+
 <body>
     <!-- Header & Navigation -->
     <header id="header">
         <nav class="navbar">
             <div class="container nav-container">
                 <div class="logo">
-                    <div class="logo-image">🌳</div>
+                    <div class="logo-image"><img src="logo.png" alt="Vrundavan Resort Logo"></div>
                     <a href="index.html" id="logoText">Vrundavan Resort & Restaurant</a>
                 </div>
                 <script>
@@ -119,7 +124,8 @@
 
                             <div class="form-group">
                                 <label for="loginPassword">Password *</label>
-                                <input type="password" id="loginPassword" name="password" required placeholder="Enter your password">
+                                <input type="password" id="loginPassword" name="password" required
+                                    placeholder="Enter your password">
                             </div>
 
                             <div class="form-options">
@@ -160,28 +166,33 @@
                         <form id="registerForm" class="auth-form">
                             <div class="form-group">
                                 <label for="registerName">Full Name *</label>
-                                <input type="text" id="registerName" name="name" required placeholder="Enter your full name">
+                                <input type="text" id="registerName" name="name" required
+                                    placeholder="Enter your full name">
                             </div>
 
                             <div class="form-group">
                                 <label for="registerEmail">Email Address *</label>
-                                <input type="email" id="registerEmail" name="email" required placeholder="your@email.com">
+                                <input type="email" id="registerEmail" name="email" required
+                                    placeholder="your@email.com">
                             </div>
 
                             <div class="form-group">
                                 <label for="registerPhone">Phone Number *</label>
-                                <input type="tel" id="registerPhone" name="phone" required placeholder="+91 98765 43210">
+                                <input type="tel" id="registerPhone" name="phone" required
+                                    placeholder="+91 98765 43210">
                             </div>
 
                             <div class="form-row">
                                 <div class="form-group">
                                     <label for="registerPassword">Password *</label>
-                                    <input type="password" id="registerPassword" name="password" required placeholder="Create password">
+                                    <input type="password" id="registerPassword" name="password" required
+                                        placeholder="Create password">
                                 </div>
 
                                 <div class="form-group">
                                     <label for="confirmPassword">Confirm Password *</label>
-                                    <input type="password" id="confirmPassword" name="confirmPassword" required placeholder="Confirm password">
+                                    <input type="password" id="confirmPassword" name="confirmPassword" required
+                                        placeholder="Confirm password">
                                 </div>
                             </div>
 
@@ -239,7 +250,8 @@
                     <!-- Forgot Password Success Message -->
                     <div id="forgotSuccessMessage" class="success-message" style="display: none;">
                         <h4>✓ Reset Link Sent!</h4>
-                        <p>We've sent a password reset link to your email address. Please check your inbox and follow the instructions.</p>
+                        <p>We've sent a password reset link to your email address. Please check your inbox and follow
+                            the instructions.</p>
                         <div class="success-actions">
                             <a href="#" onclick="showLogin(event)" class="btn btn-primary">Back to Login</a>
                         </div>
@@ -310,7 +322,8 @@
                 <div class="security-icon">🔒</div>
                 <div>
                     <h3>Your Security is Our Priority</h3>
-                    <p>All data is encrypted and stored securely. We never share your information with third parties. This is a demo website - no actual accounts are created.</p>
+                    <p>All data is encrypted and stored securely. We never share your information with third parties.
+                        This is a demo website - no actual accounts are created.</p>
                 </div>
             </div>
         </div>
@@ -366,4 +379,5 @@
     <script src="authentication.js"></script>
     <script src="script.js"></script>
 </body>
+
 </html>

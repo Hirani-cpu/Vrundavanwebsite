@@ -1,15 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Contact & Booking – Vrundavan Resort & Restaurant</title>
-    <meta name="description" content="Book your room or event at Vrundavan Resort. Contact us for reservations, enquiries, and special requests.">
+    <meta name="description"
+        content="Book your room or event at Vrundavan Resort. Contact us for reservations, enquiries, and special requests.">
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="improvements.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
 
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -18,7 +22,7 @@
 
     <!-- INSTANT LOAD: Pre-apply cached settings BEFORE page renders (ZERO flash) -->
     <script>
-        (function() {
+        (function () {
             const cached = localStorage.getItem('siteSettings');
             if (cached) {
                 try {
@@ -28,14 +32,14 @@
                         document.write('<link rel="preload" as="image" href="' + s.siteLogoUrl + '" crossorigin="anonymous">');
                         document.write('<style>.logo-image{background-image:url(' + s.siteLogoUrl + ');background-size:contain;background-repeat:no-repeat;background-position:center;font-size:0;}</style>');
                     }
-                } catch(e) {}
+                } catch (e) { }
             }
         })();
     </script>
 
     <!-- INSTANT IMAGE LOAD: Apply cached images BEFORE page renders (NO gradient flash!) -->
     <script>
-        (function() {
+        (function () {
             try {
                 const cache = localStorage.getItem('vrundavan_image_cache_v1');
                 if (cache) {
@@ -51,17 +55,18 @@
                         console.log('⚡ INSTANT: Injected styles for', Object.keys(images).length, 'cached images');
                     }
                 }
-            } catch(e) { console.error('Instant image load error:', e); }
+            } catch (e) { console.error('Instant image load error:', e); }
         })();
     </script>
 </head>
+
 <body>
     <!-- Header & Navigation -->
     <header id="header">
         <nav class="navbar">
             <div class="container nav-container">
                 <div class="logo">
-                    <div class="logo-image">🌳</div>
+                    <div class="logo-image"><img src="logo.png" alt="Vrundavan Resort Logo"></div>
                     <a href="index.html" id="logoText">Vrundavan Resort & Restaurant</a>
                 </div>
                 <script>
@@ -112,7 +117,8 @@
             <div class="contact-info-section">
                 <div class="contact-info-content">
                     <h2 class="section-title">Get in Touch</h2>
-                    <p>Have questions or need assistance? We're here to help! Reach out to us through phone, email, or visit us at our resort.</p>
+                    <p>Have questions or need assistance? We're here to help! Reach out to us through phone, email, or
+                        visit us at our resort.</p>
 
                     <div class="contact-details-list">
                         <div class="contact-detail-item">
@@ -156,7 +162,10 @@
                 </div>
 
                 <div class="map-placeholder">
-                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3666.9088116797175!2d69.58673297387271!3d23.209993609310803!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39511ec4e58a20eb%3A0x8a337479b6977456!2sVrundavan%20Resort%20%26%20Restaurant!5e0!3m2!1sen!2suk!4v1764747226337!5m2!1sen!2suk" width="100%" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                    <iframe
+                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3666.9088116797175!2d69.58673297387271!3d23.209993609310803!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39511ec4e58a20eb%3A0x8a337479b6977456!2sVrundavan%20Resort%20%26%20Restaurant!5e0!3m2!1sen!2suk!4v1764747226337!5m2!1sen!2suk"
+                        width="100%" height="450" style="border:0;" allowfullscreen="" loading="lazy"
+                        referrerpolicy="no-referrer-when-downgrade"></iframe>
                 </div>
             </div>
         </div>
@@ -166,7 +175,9 @@
     <section class="section section-alt">
         <div class="container">
             <h2 class="section-title">Event & Party Reservations</h2>
-            <p class="section-subtitle">For room bookings, please visit our <a href="rooms.html" style="color: #4a7c2c; font-weight: 600;">Rooms Page</a> and click "Book Now" on your preferred room.</p>
+            <p class="section-subtitle">For room bookings, please visit our <a href="rooms.html"
+                    style="color: #4a7c2c; font-weight: 600;">Rooms Page</a> and click "Book Now" on your preferred
+                room.</p>
 
             <div class="booking-container" style="max-width: 700px; margin: 0 auto;">
                 <!-- Event / Party Booking Form -->
@@ -238,7 +249,8 @@
 
                         <div class="form-group">
                             <label for="eventDetails">Additional Details</label>
-                            <textarea id="eventDetails" name="details" rows="4" placeholder="Tell us more about your event requirements (decoration, catering preferences, special arrangements, etc.)"></textarea>
+                            <textarea id="eventDetails" name="details" rows="4"
+                                placeholder="Tell us more about your event requirements (decoration, catering preferences, special arrangements, etc.)"></textarea>
                         </div>
 
                         <button type="submit" class="btn btn-primary btn-full">Submit Event Enquiry</button>
@@ -249,7 +261,8 @@
                     <!-- Event Booking Success Message -->
                     <div id="eventSuccessMessage" class="success-message" style="display: none;">
                         <h4>✓ Thank you! Your event enquiry has been submitted.</h4>
-                        <p>Our event coordinator will contact you within 24 hours to discuss your requirements and provide a detailed quotation.</p>
+                        <p>Our event coordinator will contact you within 24 hours to discuss your requirements and
+                            provide a detailed quotation.</p>
                         <div id="eventBookingSummary" class="booking-summary"></div>
                         <button class="btn btn-secondary" onclick="resetEventForm()">Submit Another Enquiry</button>
                     </div>
@@ -274,7 +287,8 @@
 
                         <div class="form-group">
                             <label for="enquiryEmail">Your Email *</label>
-                            <input type="email" id="enquiryEmail" name="email" required placeholder="Your email address">
+                            <input type="email" id="enquiryEmail" name="email" required
+                                placeholder="Your email address">
                         </div>
                     </div>
 
@@ -286,13 +300,15 @@
 
                         <div class="form-group">
                             <label for="enquirySubject">Subject *</label>
-                            <input type="text" id="enquirySubject" name="subject" required placeholder="Subject of enquiry">
+                            <input type="text" id="enquirySubject" name="subject" required
+                                placeholder="Subject of enquiry">
                         </div>
                     </div>
 
                     <div class="form-group">
                         <label for="enquiryMessage">Message *</label>
-                        <textarea id="enquiryMessage" name="message" rows="6" required placeholder="Type your message here..."></textarea>
+                        <textarea id="enquiryMessage" name="message" rows="6" required
+                            placeholder="Type your message here..."></textarea>
                     </div>
 
                     <div class="form-center">
@@ -321,27 +337,32 @@
             <div class="faq-container">
                 <div class="faq-item">
                     <h3>What are the check-in and check-out times?</h3>
-                    <p>Check-in time is 12:00 PM (noon) and check-out time is 11:00 AM. Early check-in and late check-out are subject to availability and may incur additional charges.</p>
+                    <p>Check-in time is 12:00 PM (noon) and check-out time is 11:00 AM. Early check-in and late
+                        check-out are subject to availability and may incur additional charges.</p>
                 </div>
 
                 <div class="faq-item">
                     <h3>Is parking available at the resort?</h3>
-                    <p>Yes, we provide free parking for all our guests. Valet parking service is also available on request.</p>
+                    <p>Yes, we provide free parking for all our guests. Valet parking service is also available on
+                        request.</p>
                 </div>
 
                 <div class="faq-item">
                     <h3>Do you allow pets?</h3>
-                    <p>Yes, pets are allowed with prior notice. Please inform us during booking if you're bringing a pet.</p>
+                    <p>Yes, pets are allowed with prior notice. Please inform us during booking if you're bringing a
+                        pet.</p>
                 </div>
 
                 <div class="faq-item">
                     <h3>What is your cancellation policy?</h3>
-                    <p>Free cancellation up to 48 hours before check-in. Cancellations within 48 hours will incur a 50% charge. No-shows will be charged in full.</p>
+                    <p>Free cancellation up to 48 hours before check-in. Cancellations within 48 hours will incur a 50%
+                        charge. No-shows will be charged in full.</p>
                 </div>
 
                 <div class="faq-item">
                     <h3>Is Wi-Fi available?</h3>
-                    <p>Yes, high-speed Wi-Fi is available throughout the resort premises free of charge for all guests.</p>
+                    <p>Yes, high-speed Wi-Fi is available throughout the resort premises free of charge for all guests.
+                    </p>
                 </div>
 
                 <div class="faq-item">
@@ -351,12 +372,14 @@
 
                 <div class="faq-item">
                     <h3>Are meals included in the room rate?</h3>
-                    <p>Complimentary breakfast is included with all room bookings. Lunch and dinner can be ordered from our restaurant.</p>
+                    <p>Complimentary breakfast is included with all room bookings. Lunch and dinner can be ordered from
+                        our restaurant.</p>
                 </div>
 
                 <div class="faq-item">
                     <h3>Can I customize the event package?</h3>
-                    <p>Yes, all event packages are fully customizable. Our event coordinator will work with you to create a package that suits your needs and budget.</p>
+                    <p>Yes, all event packages are fully customizable. Our event coordinator will work with you to
+                        create a package that suits your needs and budget.</p>
                 </div>
             </div>
         </div>
@@ -412,12 +435,30 @@
                 <div class="footer-section">
                     <h4>Follow Us</h4>
                     <div class="social-links" id="socialLinks">
-                        <a href="#" id="facebookLink" class="social-link" style="display: none;" target="_blank" rel="noopener noreferrer">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="#1877F2" style="vertical-align: middle; margin-right: 5px;"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                        <a href="#" id="facebookLink" class="social-link" style="display: none;" target="_blank"
+                            rel="noopener noreferrer">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="#1877F2"
+                                style="vertical-align: middle; margin-right: 5px;">
+                                <path
+                                    d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+                            </svg>
                             Facebook
                         </a>
-                        <a href="#" id="instagramLink" class="social-link" style="display: none;" target="_blank" rel="noopener noreferrer">
-                            <svg width="20" height="20" viewBox="0 0 24 24" style="vertical-align: middle; margin-right: 5px;"><defs><linearGradient id="instagramGradient" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#FED576;stop-opacity:1" /><stop offset="25%" style="stop-color:#F47133;stop-opacity:1" /><stop offset="50%" style="stop-color:#BC3081;stop-opacity:1" /><stop offset="100%" style="stop-color:#4C63D2;stop-opacity:1" /></linearGradient></defs><path fill="url(#instagramGradient)" d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+                        <a href="#" id="instagramLink" class="social-link" style="display: none;" target="_blank"
+                            rel="noopener noreferrer">
+                            <svg width="20" height="20" viewBox="0 0 24 24"
+                                style="vertical-align: middle; margin-right: 5px;">
+                                <defs>
+                                    <linearGradient id="instagramGradient" x1="0%" y1="100%" x2="100%" y2="0%">
+                                        <stop offset="0%" style="stop-color:#FED576;stop-opacity:1" />
+                                        <stop offset="25%" style="stop-color:#F47133;stop-opacity:1" />
+                                        <stop offset="50%" style="stop-color:#BC3081;stop-opacity:1" />
+                                        <stop offset="100%" style="stop-color:#4C63D2;stop-opacity:1" />
+                                    </linearGradient>
+                                </defs>
+                                <path fill="url(#instagramGradient)"
+                                    d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
+                            </svg>
                             Instagram
                         </a>
                     </div>
@@ -444,4 +485,5 @@
     <script src="instant-load-images.js"></script>
     <script src="lazy-load-images.js"></script>
 </body>
+
 </html>

@@ -516,35 +516,69 @@ body.logged-in #authNavItem .user-info {
     }
 }
 /* ===========================
-   MOBILE HEADER FIX - Just smaller white bar
-   Keep logo and text same size, reduce header height
+   MOBILE HEADER FIX - Compact navbar with clear logo
+   Smaller logo, same text size, minimal white bar
    =========================== */
 
+/* Logo clarity improvements - crisp rendering */
+.logo-image {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+}
+
+.logo-image img {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+    object-fit: contain;
+}
+
+/* Mobile - compact header */
 @media (max-width: 768px) {
-    /* NO padding on white header bar */
+    /* Minimal padding on navbar */
     .navbar {
-        padding: 0 !important;
+        padding: 5px 0 !important;
     }
 
-    /* Remove vertical spacing in nav container */
+    /* Tight nav container */
     .nav-container {
         min-height: auto !important;
-        padding: 0 !important;
+        padding: 0 15px !important;
         margin: 0 !important;
     }
 
-    /* Keep logo and text original size, just reduce spacing */
+    /* Compact logo spacing */
     .logo {
-        gap: 10px;
+        gap: 8px;
     }
     
-    /* Mobile menu positioning - adjust for smaller header */
+    /* Smaller, crisp logo (60px instead of 160px) */
+    .logo-image {
+        width: 60px !important;
+        height: 60px !important;
+        font-size: 32px !important;
+        flex-shrink: 0;
+    }
+
+    .logo-image img {
+        width: 60px !important;
+        height: 60px !important;
+        object-fit: contain !important;
+    }
+
+    /* Keep text readable but compact (1.2rem) */
+    .logo a {
+        font-size: 1.2rem !important;
+        line-height: 1.2;
+        font-weight: 700 !important;
+    }
+
+    /* Mobile menu positioning */
     .nav-links {
         position: fixed !important;
-        top: 80px !important;
+        top: 70px !important;
         left: -100% !important;
         width: 100% !important;
-        height: calc(100vh - 80px) !important;
+        height: calc(100vh - 70px) !important;
         background: white !important;
         flex-direction: column !important;
         padding: 20px !important;
@@ -620,102 +654,53 @@ body.logged-in #authNavItem .user-info {
         transform: rotate(-45deg) translate(6px, -6px);
     }
     
-    /* Adjust hero for smaller header */
+    /* Adjust hero for compact header */
     .hero,
     .page-hero {
-        margin-top: 80px !important;
+        margin-top: 70px !important;
+    }
+}
+
+/* Tablet - slightly bigger but still compact */
+@media (min-width: 481px) and (max-width: 768px) {
+    .navbar {
+        padding: 8px 0 !important;
+    }
+
+    .nav-container {
+        padding: 0 20px !important;
+    }
+    
+    /* Slightly bigger logo for tablets (70px) */
+    .logo-image {
+        width: 70px !important;
+        height: 70px !important;
+        font-size: 36px !important;
+    }
+
+    .logo-image img {
+        width: 70px !important;
+        height: 70px !important;
+    }
+
+    /* Slightly bigger text for tablets */
+    .logo a {
+        font-size: 1.3rem !important;
+    }
+
+    /* Adjust menu positioning */
+    .nav-links {
+        top: 86px !important;
+        height: calc(100vh - 86px) !important;
+    }
+
+    .hero,
+    .page-hero {
+        margin-top: 86px !important;
     }
 }
 
 /* Prevent body scroll when menu is open */
 body.menu-open {
     overflow: hidden;
-}
-
-/* Make logo BIGGER than text on mobile - NO white bar padding */
-@media (max-width: 768px) {
-    /* NO padding on white navbar bar */
-    .navbar {
-        padding: 0 !important;
-    }
-
-    /* Remove extra spacing from nav container */
-    .nav-container {
-        padding: 0 !important;
-        margin: 0 !important;
-    }
-
-    /* HUGE logo (160px) - No compression */
-    .logo-image {
-        width: 160px !important;
-        height: 160px !important;
-        font-size: 85px !important;
-    }
-
-    .logo-image img {
-        width: 160px !important;
-        height: 160px !important;
-        object-fit: contain !important;
-    }
-
-    /* Text bigger but not as big as logo (1.5rem) - UNCHANGED */
-    .logo a {
-        font-size: 1.5rem !important;
-        line-height: 1.3;
-        font-weight: 700 !important;
-    }
-
-    /* Adjust menu for bigger logo */
-    .nav-links {
-        top: 160px !important;
-        height: calc(100vh - 160px) !important;
-    }
-
-    .hero,
-    .page-hero {
-        margin-top: 160px !important;
-    }
-}
-
-/* Even bigger on tablets - NO white bar padding */
-@media (min-width: 481px) and (max-width: 768px) {
-    /* NO padding on white navbar bar */
-    .navbar {
-        padding: 0 !important;
-    }
-
-    /* Remove extra spacing from nav container */
-    .nav-container {
-        padding: 0 !important;
-        margin: 0 !important;
-    }
-
-    /* HUGE logo (170px) - No compression */
-    .logo-image {
-        width: 170px !important;
-        height: 170px !important;
-        font-size: 90px !important;
-    }
-
-    .logo-image img {
-        width: 170px !important;
-        height: 170px !important;
-        object-fit: contain !important;
-    }
-
-    /* Text bigger but not as big as logo (1.6rem) - UNCHANGED */
-    .logo a {
-        font-size: 1.6rem !important;
-    }
-
-    /* Adjust menu for bigger logo */
-    .nav-links {
-        top: 170px !important;
-        height: calc(100vh - 170px) !important;
-    }
-
-    .hero,
-    .page-hero {
-        margin-top: 170px !important;
-    }
 }

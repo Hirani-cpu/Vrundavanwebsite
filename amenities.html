@@ -1,19 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Amenities – Vrundavan Resort & Restaurant</title>
-    <meta name="description" content="Explore world-class amenities at Vrundavan Resort including swimming pools, party hall, garden, dining, parking, Wi-Fi, and 24/7 services.">
+    <meta name="description"
+        content="Explore world-class amenities at Vrundavan Resort including swimming pools, party hall, garden, dining, parking, Wi-Fi, and 24/7 services.">
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="improvements.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
 
     <!-- INSTANT LOAD: Pre-apply cached settings BEFORE page renders (ZERO flash) -->
     <script>
-        (function() {
+        (function () {
             const cached = localStorage.getItem('siteSettings');
             if (cached) {
                 try {
@@ -23,14 +27,14 @@
                         document.write('<link rel="preload" as="image" href="' + s.siteLogoUrl + '" crossorigin="anonymous">');
                         document.write('<style>.logo-image{background-image:url(' + s.siteLogoUrl + ');background-size:contain;background-repeat:no-repeat;background-position:center;font-size:0;}</style>');
                     }
-                } catch(e) {}
+                } catch (e) { }
             }
         })();
     </script>
 
     <!-- INSTANT IMAGE LOAD: Apply cached images BEFORE page renders (NO gradient flash!) -->
     <script>
-        (function() {
+        (function () {
             try {
                 const cache = localStorage.getItem('vrundavan_image_cache_v1');
                 if (cache) {
@@ -46,17 +50,18 @@
                         console.log('⚡ INSTANT: Injected styles for', Object.keys(images).length, 'cached images');
                     }
                 }
-            } catch(e) { console.error('Instant image load error:', e); }
+            } catch (e) { console.error('Instant image load error:', e); }
         })();
     </script>
 </head>
+
 <body>
     <!-- Header & Navigation -->
     <header id="header">
         <nav class="navbar">
             <div class="container nav-container">
                 <div class="logo">
-                    <div class="logo-image">🌳</div>
+                    <div class="logo-image"><img src="logo.png" alt="Vrundavan Resort Logo"></div>
                     <a href="index.html" id="logoText">Vrundavan Resort & Restaurant</a>
                 </div>
                 <script>
@@ -106,7 +111,9 @@
         <div class="container">
             <div class="intro-text text-center">
                 <h2 class="section-title">World-Class Facilities</h2>
-                <p>At Vrundavan Resort & Restaurant, we pride ourselves on providing exceptional amenities that enhance your stay. From relaxing by the pool to hosting grand celebrations, our facilities are designed to exceed your expectations.</p>
+                <p>At Vrundavan Resort & Restaurant, we pride ourselves on providing exceptional amenities that enhance
+                    your stay. From relaxing by the pool to hosting grand celebrations, our facilities are designed to
+                    exceed your expectations.</p>
             </div>
         </div>
     </section>
@@ -115,13 +122,16 @@
     <section class="section section-alt">
         <div class="container">
             <div class="amenity-detailed">
-                <div class="amenity-detailed-image" data-edit-id="amenity-swimming-pool-image" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                <div class="amenity-detailed-image" data-edit-id="amenity-swimming-pool-image"
+                    style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
                     <span class="amenity-label">Swimming Pools</span>
                 </div>
                 <div class="amenity-detailed-content">
                     <h2>🏊 Swimming Pools</h2>
                     <h3>Adult Pool & Kids Pool</h3>
-                    <p>Take a refreshing dip in our two well-maintained swimming pools. Our adult pool features proper depth for swimming and relaxation, while the kids pool is specially designed with shallow water to ensure safe and enjoyable water fun for children.</p>
+                    <p>Take a refreshing dip in our two well-maintained swimming pools. Our adult pool features proper
+                        depth for swimming and relaxation, while the kids pool is specially designed with shallow water
+                        to ensure safe and enjoyable water fun for children.</p>
                     <div class="amenity-features-list">
                         <div class="feature-item-small">✓ Clean, chlorinated water maintained daily</div>
                         <div class="feature-item-small">✓ Lifeguard on duty during pool hours</div>
@@ -137,7 +147,9 @@
                 <div class="amenity-detailed-content">
                     <h2>🎉 Party Hall / Banquet</h2>
                     <h3>Fully Air-Conditioned Event Space</h3>
-                    <p>Our spacious AC party hall is perfect for indoor events and celebrations. Equipped with modern facilities and flexible seating arrangements, it can accommodate everything from intimate gatherings to large celebrations.</p>
+                    <p>Our spacious AC party hall is perfect for indoor events and celebrations. Equipped with modern
+                        facilities and flexible seating arrangements, it can accommodate everything from intimate
+                        gatherings to large celebrations.</p>
                     <div class="amenity-features-list">
                         <div class="feature-item-small">✓ Capacity: 100-250 guests</div>
                         <div class="feature-item-small">✓ Fully air-conditioned comfort</div>
@@ -147,19 +159,23 @@
                         <div class="feature-item-small">✓ Attached washroom facilities</div>
                     </div>
                 </div>
-                <div class="amenity-detailed-image" data-edit-id="amenity-party-hall-image" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                <div class="amenity-detailed-image" data-edit-id="amenity-party-hall-image"
+                    style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
                     <span class="amenity-label">Party Hall</span>
                 </div>
             </div>
 
             <div class="amenity-detailed">
-                <div class="amenity-detailed-image" data-edit-id="amenity-garden-image" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                <div class="amenity-detailed-image" data-edit-id="amenity-garden-image"
+                    style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
                     <span class="amenity-label">Garden</span>
                 </div>
                 <div class="amenity-detailed-content">
                     <h2>🌳 Garden / Lawn</h2>
                     <h3>Spacious Outdoor Event Space</h3>
-                    <p>Our expansive garden and lawn area is perfect for outdoor events, weddings, and celebrations. Surrounded by nature and beautifully landscaped, this venue offers a picturesque setting for your special occasions.</p>
+                    <p>Our expansive garden and lawn area is perfect for outdoor events, weddings, and celebrations.
+                        Surrounded by nature and beautifully landscaped, this venue offers a picturesque setting for
+                        your special occasions.</p>
                     <div class="amenity-features-list">
                         <div class="feature-item-small">✓ Capacity: 200-500 guests</div>
                         <div class="feature-item-small">✓ Beautiful natural surroundings</div>
@@ -175,7 +191,9 @@
                 <div class="amenity-detailed-content">
                     <h2>🍽️ AC Dining Hall</h2>
                     <h3>Multi-Cuisine Restaurant</h3>
-                    <p>Our fully air-conditioned dining hall offers a comfortable environment to enjoy delicious meals. With seating for over 100 guests, it's perfect for family dining, group meals, or intimate dinners.</p>
+                    <p>Our fully air-conditioned dining hall offers a comfortable environment to enjoy delicious meals.
+                        With seating for over 100 guests, it's perfect for family dining, group meals, or intimate
+                        dinners.</p>
                     <div class="amenity-features-list">
                         <div class="feature-item-small">✓ Seating capacity: 100+ guests</div>
                         <div class="feature-item-small">✓ Comfortable AC environment</div>
@@ -185,7 +203,8 @@
                         <div class="feature-item-small">✓ Hygienic and well-maintained</div>
                     </div>
                 </div>
-                <div class="amenity-detailed-image" data-edit-id="amenity-restaurant-image" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+                <div class="amenity-detailed-image" data-edit-id="amenity-restaurant-image"
+                    style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
                     <span class="amenity-label">Restaurant</span>
                 </div>
             </div>
@@ -202,73 +221,85 @@
                 <div class="amenity-card" data-admin-editable="amenity" data-edit-id="amenity-parking">
                     <div class="amenity-icon">🚗</div>
                     <h3 class="amenity-name">Free Parking</h3>
-                    <p class="amenity-description">Spacious parking area available for all guests at no extra charge. Valet service available on request for your convenience.</p>
+                    <p class="amenity-description">Spacious parking area available for all guests at no extra charge.
+                        Valet service available on request for your convenience.</p>
                 </div>
 
                 <div class="amenity-card" data-admin-editable="amenity" data-edit-id="amenity-wifi">
                     <div class="amenity-icon">📶</div>
                     <h3 class="amenity-name">Free Wi-Fi</h3>
-                    <p class="amenity-description">High-speed internet connectivity available throughout the resort premises. Stay connected with complimentary Wi-Fi access.</p>
+                    <p class="amenity-description">High-speed internet connectivity available throughout the resort
+                        premises. Stay connected with complimentary Wi-Fi access.</p>
                 </div>
 
                 <div class="amenity-card" data-admin-editable="amenity" data-edit-id="amenity-roomservice">
                     <div class="amenity-icon">🛎️</div>
                     <h3 class="amenity-name">24/7 Room Service</h3>
-                    <p class="amenity-description">Round-the-clock room service to cater to all your needs. Order food, request assistance, or get anything you need anytime.</p>
+                    <p class="amenity-description">Round-the-clock room service to cater to all your needs. Order food,
+                        request assistance, or get anything you need anytime.</p>
                 </div>
 
                 <div class="amenity-card" data-admin-editable="amenity" data-edit-id="amenity-security">
                     <div class="amenity-icon">🔒</div>
                     <h3 class="amenity-name">24/7 Security</h3>
-                    <p class="amenity-description">Your safety is our priority. Professional security personnel and CCTV surveillance ensure a safe and secure environment.</p>
+                    <p class="amenity-description">Your safety is our priority. Professional security personnel and CCTV
+                        surveillance ensure a safe and secure environment.</p>
                 </div>
 
                 <div class="amenity-card">
                     <div class="amenity-icon">⚡</div>
                     <h3>Power Backup</h3>
-                    <p>Uninterrupted power supply with generator backup ensuring your comfort is never compromised during power outages.</p>
+                    <p>Uninterrupted power supply with generator backup ensuring your comfort is never compromised
+                        during power outages.</p>
                 </div>
 
                 <div class="amenity-card">
                     <div class="amenity-icon">🧺</div>
                     <h3>Laundry Service</h3>
-                    <p>Professional laundry and dry cleaning services available for all guests. Quick turnaround on all laundry requests.</p>
+                    <p>Professional laundry and dry cleaning services available for all guests. Quick turnaround on all
+                        laundry requests.</p>
                 </div>
 
                 <div class="amenity-card">
                     <div class="amenity-icon">🚕</div>
                     <h3>Travel Assistance</h3>
-                    <p>We can help arrange local transportation, airport transfers, and sightseeing tours. Just ask our front desk staff.</p>
+                    <p>We can help arrange local transportation, airport transfers, and sightseeing tours. Just ask our
+                        front desk staff.</p>
                 </div>
 
                 <div class="amenity-card">
                     <div class="amenity-icon">🏃</div>
                     <h3>Fitness & Recreation</h3>
-                    <p>Outdoor space for jogging, yoga, and exercise. Enjoy morning walks in our beautiful garden area.</p>
+                    <p>Outdoor space for jogging, yoga, and exercise. Enjoy morning walks in our beautiful garden area.
+                    </p>
                 </div>
 
                 <div class="amenity-card">
                     <div class="amenity-icon">☕</div>
                     <h3>Coffee/Tea Lounge</h3>
-                    <p>Relax in our common area with complimentary tea and coffee available throughout the day for guests.</p>
+                    <p>Relax in our common area with complimentary tea and coffee available throughout the day for
+                        guests.</p>
                 </div>
 
                 <div class="amenity-card">
                     <div class="amenity-icon">🎮</div>
                     <h3>Indoor Games</h3>
-                    <p>Board games, carrom, and other indoor entertainment options available for guests in the common area.</p>
+                    <p>Board games, carrom, and other indoor entertainment options available for guests in the common
+                        area.</p>
                 </div>
 
                 <div class="amenity-card">
                     <div class="amenity-icon">📺</div>
                     <h3>TV Lounge</h3>
-                    <p>Common TV lounge with comfortable seating for guests to relax and watch their favorite shows and sports.</p>
+                    <p>Common TV lounge with comfortable seating for guests to relax and watch their favorite shows and
+                        sports.</p>
                 </div>
 
                 <div class="amenity-card">
                     <div class="amenity-icon">🌡️</div>
                     <h3>First Aid</h3>
-                    <p>Basic first aid and medical assistance available. We can also arrange doctor visits in case of emergencies.</p>
+                    <p>Basic first aid and medical assistance available. We can also arrange doctor visits in case of
+                        emergencies.</p>
                 </div>
             </div>
         </div>
@@ -284,37 +315,43 @@
                 <div class="event-amenity-item">
                     <span class="event-amenity-icon">🎤</span>
                     <h3>Sound System</h3>
-                    <p>Professional audio equipment with microphones, speakers, and mixing console for events and parties.</p>
+                    <p>Professional audio equipment with microphones, speakers, and mixing console for events and
+                        parties.</p>
                 </div>
 
                 <div class="event-amenity-item">
                     <span class="event-amenity-icon">💡</span>
                     <h3>Lighting Setup</h3>
-                    <p>Customizable lighting arrangements including decorative lights, spotlights, and ambient lighting.</p>
+                    <p>Customizable lighting arrangements including decorative lights, spotlights, and ambient lighting.
+                    </p>
                 </div>
 
                 <div class="event-amenity-item">
                     <span class="event-amenity-icon">🎭</span>
                     <h3>Stage & Backdrop</h3>
-                    <p>Elevated stage platform available for performances, speeches, and celebrations with backdrop setup.</p>
+                    <p>Elevated stage platform available for performances, speeches, and celebrations with backdrop
+                        setup.</p>
                 </div>
 
                 <div class="event-amenity-item">
                     <span class="event-amenity-icon">🪑</span>
                     <h3>Furniture & Seating</h3>
-                    <p>Various seating arrangements available including chairs, tables, and sofas as per event requirements.</p>
+                    <p>Various seating arrangements available including chairs, tables, and sofas as per event
+                        requirements.</p>
                 </div>
 
                 <div class="event-amenity-item">
                     <span class="event-amenity-icon">🎨</span>
                     <h3>Decoration Service</h3>
-                    <p>Professional decoration services available on request. We work with experienced decorators for all themes.</p>
+                    <p>Professional decoration services available on request. We work with experienced decorators for
+                        all themes.</p>
                 </div>
 
                 <div class="event-amenity-item">
                     <span class="event-amenity-icon">🍱</span>
                     <h3>In-house Catering</h3>
-                    <p>Complete catering packages from our restaurant. Customizable menus for all types of events and budgets.</p>
+                    <p>Complete catering packages from our restaurant. Customizable menus for all types of events and
+                        budgets.</p>
                 </div>
 
                 <div class="event-amenity-item">
@@ -326,7 +363,8 @@
                 <div class="event-amenity-item">
                     <span class="event-amenity-icon">🎪</span>
                     <h3>Event Coordinator</h3>
-                    <p>Dedicated event coordinator to help plan and execute your event smoothly from start to finish.</p>
+                    <p>Dedicated event coordinator to help plan and execute your event smoothly from start to finish.
+                    </p>
                 </div>
             </div>
         </div>
@@ -382,12 +420,30 @@
                 <div class="footer-section">
                     <h4>Follow Us</h4>
                     <div class="social-links" id="socialLinks">
-                        <a href="#" id="facebookLink" class="social-link" style="display: none;" target="_blank" rel="noopener noreferrer">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="#1877F2" style="vertical-align: middle; margin-right: 5px;"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                        <a href="#" id="facebookLink" class="social-link" style="display: none;" target="_blank"
+                            rel="noopener noreferrer">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="#1877F2"
+                                style="vertical-align: middle; margin-right: 5px;">
+                                <path
+                                    d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+                            </svg>
                             Facebook
                         </a>
-                        <a href="#" id="instagramLink" class="social-link" style="display: none;" target="_blank" rel="noopener noreferrer">
-                            <svg width="20" height="20" viewBox="0 0 24 24" style="vertical-align: middle; margin-right: 5px;"><defs><linearGradient id="instagramGradient" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#FED576;stop-opacity:1" /><stop offset="25%" style="stop-color:#F47133;stop-opacity:1" /><stop offset="50%" style="stop-color:#BC3081;stop-opacity:1" /><stop offset="100%" style="stop-color:#4C63D2;stop-opacity:1" /></linearGradient></defs><path fill="url(#instagramGradient)" d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+                        <a href="#" id="instagramLink" class="social-link" style="display: none;" target="_blank"
+                            rel="noopener noreferrer">
+                            <svg width="20" height="20" viewBox="0 0 24 24"
+                                style="vertical-align: middle; margin-right: 5px;">
+                                <defs>
+                                    <linearGradient id="instagramGradient" x1="0%" y1="100%" x2="100%" y2="0%">
+                                        <stop offset="0%" style="stop-color:#FED576;stop-opacity:1" />
+                                        <stop offset="25%" style="stop-color:#F47133;stop-opacity:1" />
+                                        <stop offset="50%" style="stop-color:#BC3081;stop-opacity:1" />
+                                        <stop offset="100%" style="stop-color:#4C63D2;stop-opacity:1" />
+                                    </linearGradient>
+                                </defs>
+                                <path fill="url(#instagramGradient)"
+                                    d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
+                            </svg>
                             Instagram
                         </a>
                     </div>
@@ -414,4 +470,5 @@
     <script src="instant-load-images.js"></script>
     <script src="lazy-load-images.js"></script>
 </body>
+
 </html>

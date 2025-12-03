@@ -1,15 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Account – Vrundavan Resort & Restaurant</title>
-    <meta name="description" content="Manage your account, view bookings, and update your profile at Vrundavan Resort & Restaurant.">
+    <meta name="description"
+        content="Manage your account, view bookings, and update your profile at Vrundavan Resort & Restaurant.">
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="improvements.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
 
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -18,7 +22,7 @@
 
     <!-- INSTANT LOAD: Pre-apply cached settings BEFORE page renders (ZERO flash) -->
     <script>
-        (function() {
+        (function () {
             const cached = localStorage.getItem('siteSettings');
             if (cached) {
                 try {
@@ -28,14 +32,14 @@
                         document.write('<link rel="preload" as="image" href="' + s.siteLogoUrl + '" crossorigin="anonymous">');
                         document.write('<style>.logo-image{background-image:url(' + s.siteLogoUrl + ');background-size:contain;background-repeat:no-repeat;background-position:center;font-size:0;}</style>');
                     }
-                } catch(e) {}
+                } catch (e) { }
             }
         })();
     </script>
 
     <!-- INSTANT IMAGE LOAD: Apply cached images BEFORE page renders (NO gradient flash!) -->
     <script>
-        (function() {
+        (function () {
             try {
                 const cache = localStorage.getItem('vrundavan_image_cache_v1');
                 if (cache) {
@@ -51,17 +55,18 @@
                         console.log('⚡ INSTANT: Injected styles for', Object.keys(images).length, 'cached images');
                     }
                 }
-            } catch(e) { console.error('Instant image load error:', e); }
+            } catch (e) { console.error('Instant image load error:', e); }
         })();
     </script>
 </head>
+
 <body>
     <!-- Header & Navigation -->
     <header id="header">
         <nav class="navbar">
             <div class="container nav-container">
                 <div class="logo">
-                    <div class="logo-image">🌳</div>
+                    <div class="logo-image"><img src="logo.png" alt="Vrundavan Resort Logo"></div>
                     <a href="index.html" id="logoText">Vrundavan Resort & Restaurant</a>
                 </div>
                 <script>
@@ -139,7 +144,8 @@
                                 <span>⚙️</span> Settings
                             </a>
                             <!-- Admin Panel Link (Only visible for admin users) -->
-                            <a href="dashboard.html" class="account-menu-item" id="adminPanelLink" style="display: none;">
+                            <a href="dashboard.html" class="account-menu-item" id="adminPanelLink"
+                                style="display: none;">
                                 <span>🔐</span> Admin Panel
                             </a>
                             <!-- Logout Button -->
@@ -249,26 +255,34 @@
                                         <form id="changePasswordFormElement">
                                             <div class="form-group" style="margin-bottom: 15px;">
                                                 <label for="currentPassword">Current Password *</label>
-                                                <input type="password" id="currentPassword" required placeholder="Enter current password" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; margin-top: 5px;">
+                                                <input type="password" id="currentPassword" required
+                                                    placeholder="Enter current password"
+                                                    style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; margin-top: 5px;">
                                             </div>
 
                                             <div class="form-group" style="margin-bottom: 15px;">
                                                 <label for="newPassword">New Password *</label>
-                                                <input type="password" id="newPassword" required placeholder="Enter new password (min 6 characters)" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; margin-top: 5px;">
+                                                <input type="password" id="newPassword" required
+                                                    placeholder="Enter new password (min 6 characters)"
+                                                    style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; margin-top: 5px;">
                                             </div>
 
                                             <div class="form-group" style="margin-bottom: 20px;">
                                                 <label for="confirmNewPassword">Confirm New Password *</label>
-                                                <input type="password" id="confirmNewPassword" required placeholder="Confirm new password" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; margin-top: 5px;">
+                                                <input type="password" id="confirmNewPassword" required
+                                                    placeholder="Confirm new password"
+                                                    style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; margin-top: 5px;">
                                             </div>
 
                                             <div style="display: flex; gap: 10px;">
                                                 <button type="submit" class="btn btn-primary">Update Password</button>
-                                                <button type="button" class="btn btn-secondary" id="cancelPasswordChangeBtn">Cancel</button>
+                                                <button type="button" class="btn btn-secondary"
+                                                    id="cancelPasswordChangeBtn">Cancel</button>
                                             </div>
                                         </form>
 
-                                        <div id="passwordChangeSuccess" style="display: none; margin-top: 15px; padding: 15px; background: #d4edda; color: #155724; border-radius: 5px;">
+                                        <div id="passwordChangeSuccess"
+                                            style="display: none; margin-top: 15px; padding: 15px; background: #d4edda; color: #155724; border-radius: 5px;">
                                             <strong>✓ Password Changed Successfully!</strong>
                                             <p style="margin: 5px 0 0 0;">Your password has been updated.</p>
                                         </div>
@@ -289,9 +303,11 @@
                                         <span class="toggle-slider"></span>
                                     </label>
                                 </div>
-                                <div style="margin-top: 10px; padding: 15px; background: #fff3cd; border-left: 4px solid #ffc107; border-radius: 5px;">
+                                <div
+                                    style="margin-top: 10px; padding: 15px; background: #fff3cd; border-left: 4px solid #ffc107; border-radius: 5px;">
                                     <p style="margin: 0; font-size: 0.9rem; color: #856404;">
-                                        <strong>ℹ️ Note:</strong> When disabled, all pencil edit buttons will be hidden. You can re-enable it anytime from this page.
+                                        <strong>ℹ️ Note:</strong> When disabled, all pencil edit buttons will be hidden.
+                                        You can re-enable it anytime from this page.
                                     </p>
                                 </div>
                             </div>
@@ -339,12 +355,30 @@
                 <div class="footer-section">
                     <h4>Follow Us</h4>
                     <div class="social-links" id="socialLinks">
-                        <a href="#" id="facebookLink" class="social-link" style="display: none;" target="_blank" rel="noopener noreferrer">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="#1877F2" style="vertical-align: middle; margin-right: 5px;"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                        <a href="#" id="facebookLink" class="social-link" style="display: none;" target="_blank"
+                            rel="noopener noreferrer">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="#1877F2"
+                                style="vertical-align: middle; margin-right: 5px;">
+                                <path
+                                    d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+                            </svg>
                             Facebook
                         </a>
-                        <a href="#" id="instagramLink" class="social-link" style="display: none;" target="_blank" rel="noopener noreferrer">
-                            <svg width="20" height="20" viewBox="0 0 24 24" style="vertical-align: middle; margin-right: 5px;"><defs><linearGradient id="instagramGradient" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#FED576;stop-opacity:1" /><stop offset="25%" style="stop-color:#F47133;stop-opacity:1" /><stop offset="50%" style="stop-color:#BC3081;stop-opacity:1" /><stop offset="100%" style="stop-color:#4C63D2;stop-opacity:1" /></linearGradient></defs><path fill="url(#instagramGradient)" d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+                        <a href="#" id="instagramLink" class="social-link" style="display: none;" target="_blank"
+                            rel="noopener noreferrer">
+                            <svg width="20" height="20" viewBox="0 0 24 24"
+                                style="vertical-align: middle; margin-right: 5px;">
+                                <defs>
+                                    <linearGradient id="instagramGradient" x1="0%" y1="100%" x2="100%" y2="0%">
+                                        <stop offset="0%" style="stop-color:#FED576;stop-opacity:1" />
+                                        <stop offset="25%" style="stop-color:#F47133;stop-opacity:1" />
+                                        <stop offset="50%" style="stop-color:#BC3081;stop-opacity:1" />
+                                        <stop offset="100%" style="stop-color:#4C63D2;stop-opacity:1" />
+                                    </linearGradient>
+                                </defs>
+                                <path fill="url(#instagramGradient)"
+                                    d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
+                            </svg>
                             Instagram
                         </a>
                     </div>
@@ -453,7 +487,7 @@
                         }
 
                         // Handle toggle change
-                        toggle.addEventListener('change', function() {
+                        toggle.addEventListener('change', function () {
                             const enabled = this.checked;
                             localStorage.setItem('adminEditorModeEnabled', enabled ? 'true' : 'false');
 
@@ -475,7 +509,7 @@
 
         // Wait for Firebase Auth state to be ready
         if (typeof firebase !== 'undefined' && firebase.auth) {
-            firebase.auth().onAuthStateChanged(function(user) {
+            firebase.auth().onAuthStateChanged(function (user) {
                 console.log('🔄 Auth state changed:', user ? user.email : 'no user');
                 checkAdminAndShowEditorToggle();
             });
@@ -485,7 +519,7 @@
 
         // Also run on page load (fallback)
         if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', function() {
+            document.addEventListener('DOMContentLoaded', function () {
                 setTimeout(checkAdminAndShowEditorToggle, 1000);
             });
         } else {
@@ -495,4 +529,5 @@
     <script src="instant-load-images.js"></script>
     <script src="lazy-load-images.js"></script>
 </body>
+
 </html>
