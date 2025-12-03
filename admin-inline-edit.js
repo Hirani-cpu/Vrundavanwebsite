@@ -388,9 +388,12 @@
                     if (element.tagName === 'IMG') {
                         element.src = imageUrl;
                     } else {
-                        element.style.backgroundImage = `url('${imageUrl}')`;
-                        element.style.backgroundSize = 'cover';
-                        element.style.backgroundPosition = 'center';
+                        // IMPORTANT: Remove inline background gradient first!
+                        element.removeAttribute('style');
+                        // Now apply the image with all properties
+                        element.style.background = `url('${imageUrl}') center/cover no-repeat`;
+                        element.style.width = '100%';
+                        element.style.height = '100%';
                     }
                     appliedCount++;
                     console.log(`✅ Applied saved image to:`, elementId);
@@ -994,9 +997,12 @@
             const imageUrl = await uploadToFirebase(compressedFile, 'images');
 
             if (updateType === 'background') {
-                element.style.backgroundImage = `url('${imageUrl}')`;
-                element.style.backgroundSize = 'cover';
-                element.style.backgroundPosition = 'center';
+                // IMPORTANT: Remove inline background gradient first!
+                element.removeAttribute('style');
+                // Now apply the image with all properties
+                element.style.background = `url('${imageUrl}') center/cover no-repeat`;
+                element.style.width = '100%';
+                element.style.height = '100%';
 
                 // Hide label text when image is uploaded
                 const label = element.querySelector('.amenity-label, span');
@@ -1418,10 +1424,13 @@
                         element.src = imageUrl;
                     } else {
                         console.log('🎨 Applying as background image');
-                        element.style.backgroundImage = `url('${imageUrl}')`;
-                        element.style.backgroundSize = 'cover';
-                        element.style.backgroundPosition = 'center';
-                        console.log('✅ Applied! New background:', element.style.backgroundImage.substring(0, 60));
+                        // IMPORTANT: Remove inline background gradient first!
+                        element.removeAttribute('style');
+                        // Now apply the image with all properties
+                        element.style.background = `url('${imageUrl}') center/cover no-repeat`;
+                        element.style.width = '100%';
+                        element.style.height = '100%';
+                        console.log('✅ Applied! New background:', element.style.background.substring(0, 60));
                     }
                     appliedCount++;
                     console.log(`✅ Applied public image to:`, elementId);
