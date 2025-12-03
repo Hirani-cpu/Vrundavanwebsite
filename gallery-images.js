@@ -115,12 +115,10 @@ function createGallerySectionWithSubcategories(categoryName, subcategories, sect
             `;
         }).join('');
 
-        // Add subcategory label if it exists
-        const subcategoryLabel = subcategoryKey ? `<h3 style="color: #4a7c2c; font-size: 1.3rem; margin-bottom: 20px; font-weight: 500;">${subcategoryKey}</h3>` : '';
-
+        // Don't show subcategory label - it's just for internal organization
+        // Images are grouped together but without visible heading
         subcategoriesHTML += `
-            ${subcategoryLabel}
-            <div class="gallery-grid" style="margin-bottom: ${subcategoryKey ? '50px' : '0'};">
+            <div class="gallery-grid" style="margin-bottom: ${subcategoryKey ? '40px' : '0'};">
                 ${imagesHTML}
             </div>
         `;
