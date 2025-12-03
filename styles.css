@@ -43,6 +43,13 @@ body {
     background-color: var(--cream);
 }
 
+/* Global image quality - prevent compression */
+img {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: high-quality;
+    -ms-interpolation-mode: bicubic;
+}
+
 .container {
     max-width: var(--container-max-width);
     margin: 0 auto;
@@ -97,6 +104,20 @@ body {
     width: 100%;
     height: 100%;
     object-fit: contain;
+    /* Maximum quality rendering - prevent compression */
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
+    image-rendering: high-quality;
+    /* Disable browser image smoothing for crisp display */
+    -ms-interpolation-mode: nearest-neighbor;
+    /* Prevent blurry rendering */
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    /* Ensure sharp edges */
+    shape-rendering: crispEdges;
 }
 
 .logo a {

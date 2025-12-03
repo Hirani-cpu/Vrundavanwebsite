@@ -8,14 +8,27 @@ body {
     line-height: 1.8;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
     line-height: 1.3;
     margin-bottom: 1rem;
 }
 
-h1 { font-size: clamp(2rem, 5vw, 2.5rem); }
-h2 { font-size: clamp(1.75rem, 4vw, 2rem); }
-h3 { font-size: clamp(1.25rem, 3vw, 1.5rem); }
+h1 {
+    font-size: clamp(2rem, 5vw, 2.5rem);
+}
+
+h2 {
+    font-size: clamp(1.75rem, 4vw, 2rem);
+}
+
+h3 {
+    font-size: clamp(1.25rem, 3vw, 1.5rem);
+}
 
 p {
     margin-bottom: 1.2rem;
@@ -119,7 +132,7 @@ body.logged-in #authNavItem .user-info {
     border-radius: 12px;
     padding: 30px 25px;
     text-align: center;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
     transition: all 0.3s ease;
     display: flex;
     flex-direction: column;
@@ -128,7 +141,7 @@ body.logged-in #authNavItem .user-info {
 
 .service-card:hover {
     transform: translateY(-8px);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
 }
 
 .service-icon {
@@ -181,13 +194,13 @@ body.logged-in #authNavItem .user-info {
     border-radius: 12px;
     padding: 30px 20px;
     text-align: center;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
     transition: all 0.3s ease;
 }
 
 .why-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
 }
 
 .why-icon {
@@ -286,7 +299,7 @@ body.logged-in #authNavItem .user-info {
     padding: 60px 20px;
     background: white;
     border-radius: 15px;
-    box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
     max-width: 500px;
     margin: 0 auto;
 }
@@ -359,7 +372,7 @@ body.logged-in #authNavItem .user-info {
 
     .nav-links {
         background: white;
-        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
         padding: 30px 20px;
     }
 
@@ -515,25 +528,46 @@ body.logged-in #authNavItem .user-info {
         font-size: 1rem;
     }
 }
+
 /* ===========================
    MOBILE HEADER FIX - Compact navbar with clear logo
    Smaller logo, same text size, minimal white bar
    =========================== */
 
-/* Logo clarity improvements - crisp rendering */
+/* Logo clarity improvements - maximum quality rendering */
 .logo-image {
     image-rendering: -webkit-optimize-contrast;
+    image-rendering: -moz-crisp-edges;
     image-rendering: crisp-edges;
+    image-rendering: high-quality;
+    /* Hardware acceleration for better rendering */
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    will-change: transform;
 }
 
 .logo-image img {
     image-rendering: -webkit-optimize-contrast;
+    image-rendering: -moz-crisp-edges;
     image-rendering: crisp-edges;
+    image-rendering: high-quality;
     object-fit: contain;
+    /* Disable browser smoothing/compression */
+    -ms-interpolation-mode: nearest-neighbor;
+    /* Prevent blurry rendering */
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    /* Ensure maximum sharpness */
+    shape-rendering: crispEdges;
+    /* Prevent image degradation */
+    image-orientation: from-image;
 }
 
 /* Mobile - compact header */
 @media (max-width: 768px) {
+
     /* Minimal padding on navbar */
     .navbar {
         padding: 5px 0 !important;
@@ -550,7 +584,7 @@ body.logged-in #authNavItem .user-info {
     .logo {
         gap: 8px;
     }
-    
+
     /* Smaller, crisp logo (60px instead of 160px) */
     .logo-image {
         width: 60px !important;
@@ -584,31 +618,31 @@ body.logged-in #authNavItem .user-info {
         padding: 20px !important;
         overflow-y: auto !important;
         transition: left 0.3s ease !important;
-        box-shadow: 0 5px 20px rgba(0,0,0,0.1) !important;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1) !important;
         align-items: flex-start !important;
     }
-    
+
     .nav-links.active {
         left: 0 !important;
     }
-    
+
     .nav-links li {
         width: 100% !important;
         margin: 0 !important;
         border-bottom: 1px solid #f0f0f0;
     }
-    
+
     .nav-link {
         display: block !important;
         padding: 15px 20px !important;
         font-size: 1rem !important;
         width: 100%;
     }
-    
+
     .nav-link::after {
         display: none !important;
     }
-    
+
     /* User info in mobile menu */
     .user-info {
         width: 100% !important;
@@ -616,7 +650,7 @@ body.logged-in #authNavItem .user-info {
         justify-content: flex-start !important;
         border-radius: 0 !important;
     }
-    
+
     /* Hamburger menu */
     .hamburger {
         display: flex !important;
@@ -631,7 +665,7 @@ body.logged-in #authNavItem .user-info {
         cursor: pointer;
         z-index: 1001;
     }
-    
+
     .hamburger span {
         width: 24px;
         height: 2px;
@@ -641,19 +675,19 @@ body.logged-in #authNavItem .user-info {
         border-radius: 2px;
         display: block;
     }
-    
+
     .hamburger.active span:nth-child(1) {
         transform: rotate(45deg) translate(6px, 6px);
     }
-    
+
     .hamburger.active span:nth-child(2) {
         opacity: 0;
     }
-    
+
     .hamburger.active span:nth-child(3) {
         transform: rotate(-45deg) translate(6px, -6px);
     }
-    
+
     /* Adjust hero for compact header */
     .hero,
     .page-hero {
@@ -670,7 +704,7 @@ body.logged-in #authNavItem .user-info {
     .nav-container {
         padding: 0 20px !important;
     }
-    
+
     /* Slightly bigger logo for tablets (70px) */
     .logo-image {
         width: 70px !important;
