@@ -515,54 +515,35 @@ body.logged-in #authNavItem .user-info {
         font-size: 1rem;
     }
 }
-
 /* ===========================
-   MOBILE HEADER FIXES
-   Better mobile experience
+   MOBILE HEADER FIX - Just smaller white bar
+   Keep logo and text same size, reduce header height
    =========================== */
 
-/* Reduce logo and header size on mobile */
 @media (max-width: 768px) {
-    #header {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        z-index: 1000;
-    }
-    
+    /* Smaller white header bar */
     .navbar {
-        padding: 10px 0;
+        padding: 8px 0 !important;
     }
     
+    /* Reduce vertical spacing in nav container */
+    .nav-container {
+        min-height: auto !important;
+        padding: 5px 0 !important;
+    }
+    
+    /* Keep logo and text original size, just reduce spacing */
     .logo {
-        gap: 8px;
+        gap: 10px;
     }
     
-    .logo-image {
-        width: 50px !important;
-        height: 50px !important;
-        font-size: 28px !important;
-    }
-    
-    .logo-image img {
-        width: 50px !important;
-        height: 50px !important;
-    }
-    
-    .logo a {
-        font-size: 0.95rem !important;
-        line-height: 1.3;
-        max-width: 180px;
-    }
-    
-    /* Mobile menu positioning - below header */
+    /* Mobile menu positioning - adjust for smaller header */
     .nav-links {
         position: fixed !important;
-        top: 70px !important;
+        top: 80px !important;
         left: -100% !important;
         width: 100% !important;
-        height: calc(100vh - 70px) !important;
+        height: calc(100vh - 80px) !important;
         background: white !important;
         flex-direction: column !important;
         padding: 20px !important;
@@ -599,16 +580,6 @@ body.logged-in #authNavItem .user-info {
         padding: 15px 20px !important;
         justify-content: flex-start !important;
         border-radius: 0 !important;
-    }
-    
-    .user-avatar {
-        width: 32px !important;
-        height: 32px !important;
-        font-size: 0.85rem !important;
-    }
-    
-    .user-name {
-        font-size: 1rem !important;
     }
     
     /* Hamburger menu */
@@ -648,54 +619,10 @@ body.logged-in #authNavItem .user-info {
         transform: rotate(-45deg) translate(6px, -6px);
     }
     
-    /* Adjust hero and page content for smaller header */
+    /* Adjust hero for smaller header */
     .hero,
     .page-hero {
-        margin-top: 70px !important;
-    }
-    
-    /* Smaller section padding on mobile */
-    .section {
-        padding: 50px 15px !important;
-    }
-    
-    .container {
-        padding: 0 15px !important;
-    }
-}
-
-/* Extra small phones */
-@media (max-width: 480px) {
-    .logo a {
-        font-size: 0.85rem !important;
-        max-width: 160px;
-    }
-    
-    .logo-image {
-        width: 45px !important;
-        height: 45px !important;
-        font-size: 24px !important;
-    }
-    
-    .logo-image img {
-        width: 45px !important;
-        height: 45px !important;
-    }
-    
-    .section {
-        padding: 40px 15px !important;
-    }
-    
-    h1 {
-        font-size: 1.8rem !important;
-    }
-    
-    h2 {
-        font-size: 1.5rem !important;
-    }
-    
-    .section-title {
-        font-size: 1.6rem !important;
+        margin-top: 80px !important;
     }
 }
 
@@ -703,4 +630,3 @@ body.logged-in #authNavItem .user-info {
 body.menu-open {
     overflow: hidden;
 }
-
