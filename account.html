@@ -31,6 +31,28 @@
             }
         })();
     </script>
+
+    <!-- INSTANT IMAGE LOAD: Apply cached images BEFORE page renders (NO gradient flash!) -->
+    <script>
+        (function() {
+            try {
+                const cache = localStorage.getItem('vrundavan_image_cache_v1');
+                if (cache) {
+                    const images = JSON.parse(cache);
+                    let styles = '';
+                    for (const id in images) {
+                        const url = images[id];
+                        styles += `[data-edit-id="${id}"]{background:url('${url}') center/cover no-repeat !important;}`;
+                        styles += `[data-edit-id="${id}"] .amenity-label,[data-edit-id="${id}"] span{display:none !important;}`;
+                    }
+                    if (styles) {
+                        document.write('<style>' + styles + '</style>');
+                        console.log('⚡ INSTANT: Injected styles for', Object.keys(images).length, 'cached images');
+                    }
+                }
+            } catch(e) { console.error('Instant image load error:', e); }
+        })();
+    </script>
 </head>
 <body>
     <!-- Header & Navigation -->
