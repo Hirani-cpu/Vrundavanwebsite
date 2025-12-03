@@ -1343,12 +1343,43 @@ async function loadGalleryList() {
             return;
         }
 
+        // Group images by category
+        const categories = {};
         snapshot.forEach(doc => {
             const image = doc.data();
-            const card = createGalleryCard(doc.id, image);
-            galleryList.innerHTML += card;
+            const category = image.category || 'Uncategorized';
+
+            if (!categories[category]) {
+                categories[category] = [];
+            }
+
+            categories[category].push({ id: doc.id, data: image });
         });
 
+        // Render each category with its images
+        let html = '';
+        for (const categoryName in categories) {
+            const images = categories[categoryName];
+
+            html += `
+                <div style="margin-bottom: 40px;">
+                    <h3 style="color: #4a7c2c; font-size: 1.4rem; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 3px solid #4a7c2c;">
+                        ${categoryName} (${images.length} image${images.length > 1 ? 's' : ''})
+                    </h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px;">
+            `;
+
+            images.forEach(item => {
+                html += createGalleryCard(item.id, item.data);
+            });
+
+            html += `
+                    </div>
+                </div>
+            `;
+        }
+
+        galleryList.innerHTML = html;
         attachGalleryEventListeners();
 
     } catch (error) {
@@ -1358,15 +1389,25 @@ async function loadGalleryList() {
 }
 
 function createGalleryCard(id, image) {
+    const thumbnailHTML = image.imageUrl
+        ? `<img src="${image.imageUrl}" alt="${image.title}" style="width: 100%; height: 150px; object-fit: cover; border-radius: 8px 8px 0 0;">`
+        : `<div style="width: 100%; height: 150px; background: ${image.gradient || 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'}; border-radius: 8px 8px 0 0; display: flex; align-items: center; justify-content: center; color: white; font-size: 2rem;">🖼️</div>`;
+
+    const subcategoryBadge = image.subcategory
+        ? `<span style="display: inline-block; background: #17a2b8; color: white; padding: 3px 8px; border-radius: 4px; font-size: 0.75rem; margin-left: 5px;">${image.subcategory}</span>`
+        : '';
+
     return `
-        <div class="item-card">
-            <h3>${image.title}</h3>
-            <p><strong>Category:</strong> ${image.category}</p>
-            <p><strong>Order:</strong> ${image.order}</p>
-            ${image.imageUrl ? `<p><strong>Has Image:</strong> Yes</p>` : `<p><strong>Has Image:</strong> No (using gradient)</p>`}
-            <div class="item-card-actions">
-                <button class="btn-edit" data-gallery-id="${id}">Edit</button>
-                <button class="btn-delete-item" data-gallery-id="${id}">Delete</button>
+        <div class="item-card" style="padding: 0; overflow: hidden;">
+            ${thumbnailHTML}
+            <div style="padding: 15px;">
+                <h3 style="margin: 0 0 10px 0; font-size: 1.1rem;">${image.title}</h3>
+                ${subcategoryBadge}
+                <p style="margin: 8px 0; font-size: 0.9rem; color: #666;"><strong>Order:</strong> ${image.order}</p>
+                <div class="item-card-actions" style="margin-top: 15px;">
+                    <button class="btn-edit" data-gallery-id="${id}">Edit</button>
+                    <button class="btn-delete-item" data-gallery-id="${id}">Delete</button>
+                </div>
             </div>
         </div>
     `;
