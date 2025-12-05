@@ -32,7 +32,11 @@
       "Bash(gsutil cors:*)",
       "Bash(cat:*)",
       "Bash(dir:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(curl:*)",
+      "Bash(do grep -q \"logoText\" \"$file\")",
+      "Bash(do)",
+      "Bash(python:*)"
     ],
     "deny": [],
     "ask": []
