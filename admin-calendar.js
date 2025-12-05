@@ -156,9 +156,14 @@ function createCalendarDay(day, month, year, isOtherMonth) {
         const roomBadge = document.createElement('span');
         roomBadge.className = 'calendar-booking-badge room';
 
+        // Calculate TOTAL number of rooms (sum of all numberOfRooms)
+        const totalRooms = dayBookings.rooms.reduce((sum, booking) => {
+            return sum + (booking.numberOfRooms || 1);
+        }, 0);
+
         // Get unique room types
         const roomTypes = [...new Set(dayBookings.rooms.map(b => b.roomType))];
-        roomBadge.textContent = `🏨 ${dayBookings.rooms.length} Room${dayBookings.rooms.length > 1 ? 's' : ''}`;
+        roomBadge.textContent = `🏨 ${totalRooms} Room${totalRooms > 1 ? 's' : ''}`;
         dayEl.appendChild(roomBadge);
 
         // Show room types
@@ -244,10 +249,15 @@ function showDayDetails(dateStr, bookings) {
 
     // Add room bookings
     if (bookings.rooms.length > 0) {
+        // Calculate total rooms across all bookings
+        const totalRooms = bookings.rooms.reduce((sum, booking) => {
+            return sum + (booking.numberOfRooms || 1);
+        }, 0);
+
         const roomsHeader = document.createElement('h3');
         roomsHeader.style.color = '#2d5016';
         roomsHeader.style.marginTop = '0';
-        roomsHeader.textContent = `🏨 Room Bookings (${bookings.rooms.length})`;
+        roomsHeader.textContent = `🏨 Room Bookings (${bookings.rooms.length} booking${bookings.rooms.length > 1 ? 's' : ''}, ${totalRooms} room${totalRooms > 1 ? 's' : ''} total)`;
         body.appendChild(roomsHeader);
 
         bookings.rooms.forEach(booking => {
@@ -288,6 +298,7 @@ function createDayBookingCard(booking, type) {
 
         card.innerHTML = `
             <h4>🏨 ${booking.roomType || 'Room Booking'}</h4>
+            <p style="background: #d4edda; padding: 8px; border-radius: 4px; margin: 8px 0; font-weight: 700; color: #155724;"><strong>📊 Number of Rooms:</strong> ${booking.numberOfRooms || 1} Room${(booking.numberOfRooms || 1) > 1 ? 's' : ''}</p>
             <p><strong>Guest:</strong> ${booking.fullName || 'N/A'}</p>
             <p><strong>Contact:</strong> ${booking.phone || 'N/A'} | ${booking.email || 'N/A'}</p>
             <p><strong>Stay Period:</strong> ${checkIn} → ${checkOut} (${booking.numberOfNights || '?'} night${booking.numberOfNights !== 1 ? 's' : ''})</p>
