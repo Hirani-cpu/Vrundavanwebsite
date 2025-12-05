@@ -1512,46 +1512,61 @@
 
         /* Mobile Responsiveness */
         @media (max-width: 768px) {
+            .dashboard-main {
+                max-width: 100%;
+                padding: 15px 10px;
+            }
+
             .calendar-section {
-                padding: 15px;
+                padding: 10px;
+                margin-left: -5px;
+                margin-right: -5px;
+            }
+
+            .calendar-header {
+                flex-direction: column;
+                gap: 10px;
             }
 
             .calendar-header h2 {
-                font-size: 1.2rem;
+                font-size: 1rem;
+                text-align: center;
             }
 
             .calendar-nav-btn {
-                padding: 8px 15px;
-                font-size: 1rem;
+                padding: 6px 12px;
+                font-size: 0.9rem;
             }
 
             .booking-calendar {
-                gap: 4px;
-            }
-
-            .calendar-day {
-                padding: 4px;
-                min-height: 60px;
-                font-size: 0.75rem;
-            }
-
-            .calendar-day-header {
-                padding: 6px 2px;
+                gap: 2px;
                 font-size: 0.7rem;
             }
 
+            .calendar-day {
+                padding: 2px;
+                min-height: 50px;
+                font-size: 0.65rem;
+            }
+
+            .calendar-day-header {
+                padding: 4px 1px;
+                font-size: 0.65rem;
+            }
+
             .calendar-day-number {
-                font-size: 0.85rem;
-                margin-bottom: 2px;
+                font-size: 0.75rem;
+                margin-bottom: 1px;
             }
 
             .calendar-booking-badge {
-                font-size: 0.55rem;
-                padding: 1px 3px;
+                font-size: 0.5rem;
+                padding: 1px 2px;
+                margin-bottom: 1px;
             }
 
-            .dashboard-main {
-                padding: 20px 15px;
+            .calendar-booking-badge small {
+                display: none !important;
             }
 
             .bookings-table-container {
@@ -1562,6 +1577,74 @@
             .day-details-content {
                 width: 95%;
                 margin: 5% auto;
+                max-height: 85vh;
+            }
+
+            .bookings-section {
+                padding: 10px;
+                margin: 0 -5px;
+            }
+
+            /* Fix manage rooms table for mobile */
+            .rooms-list > div {
+                padding: 10px !important;
+                margin: 0 !important;
+            }
+
+            .rooms-list table {
+                font-size: 0.75rem !important;
+            }
+
+            .rooms-list th,
+            .rooms-list td {
+                padding: 6px 4px !important;
+            }
+
+            .rooms-list img {
+                width: 40px !important;
+                height: 30px !important;
+            }
+
+            .rooms-list button {
+                font-size: 0.7rem !important;
+                padding: 4px 8px !important;
+                margin: 2px !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .calendar-section {
+                padding: 5px;
+                margin-left: -10px;
+                margin-right: -10px;
+            }
+
+            .booking-calendar {
+                gap: 1px;
+            }
+
+            .calendar-day {
+                padding: 1px;
+                min-height: 45px;
+            }
+
+            .calendar-day-header {
+                padding: 3px 0;
+                font-size: 0.6rem;
+            }
+
+            .calendar-day-number {
+                font-size: 0.7rem;
+            }
+
+            .calendar-booking-badge {
+                font-size: 0.45rem;
+                padding: 0 1px;
+            }
+
+            .calendar-nav-btn {
+                padding: 5px 10px;
+                font-size: 0.85rem;
             }
         }
     </style>
