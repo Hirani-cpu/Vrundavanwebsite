@@ -320,6 +320,7 @@ function setupManagementEventListeners() {
                     description: document.getElementById('roomDescription').value,
                     price: parseInt(document.getElementById('roomPrice').value),
                     priceUnit: document.getElementById('roomPriceUnit').value || 'night',
+                    totalRooms: parseInt(document.getElementById('roomTotalAvailable').value) || 1,
                     badge: document.getElementById('roomBadge').value,
                     badgeClass: document.getElementById('roomBadgeClass').value,
                     imageUrls: imageUrls, // Array of image URLs
@@ -746,11 +747,12 @@ async function loadRoomsList() {
                         <tr style="background: #f8f9fa; border-bottom: 2px solid #dee2e6;">
                             <th style="padding: 10px; text-align: left; font-weight: 600; color: #2d5016; width: 5%;">#</th>
                             <th style="padding: 10px; text-align: left; font-weight: 600; color: #2d5016; width: 10%;">Image</th>
-                            <th style="padding: 10px; text-align: left; font-weight: 600; color: #2d5016; width: 20%;">Room Name</th>
+                            <th style="padding: 10px; text-align: left; font-weight: 600; color: #2d5016; width: 18%;">Room Name</th>
                             <th style="padding: 10px; text-align: left; font-weight: 600; color: #2d5016; width: 10%;">Price</th>
+                            <th style="padding: 10px; text-align: center; font-weight: 600; color: #2d5016; width: 8%;">Total</th>
                             <th style="padding: 10px; text-align: left; font-weight: 600; color: #2d5016; width: 10%;">Badge</th>
-                            <th style="padding: 10px; text-align: left; font-weight: 600; color: #2d5016; width: 30%;">Description</th>
-                            <th style="padding: 10px; text-align: center; font-weight: 600; color: #2d5016; width: 15%;">Actions</th>
+                            <th style="padding: 10px; text-align: left; font-weight: 600; color: #2d5016; width: 27%;">Description</th>
+                            <th style="padding: 10px; text-align: center; font-weight: 600; color: #2d5016; width: 12%;">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -794,8 +796,9 @@ async function loadRoomsList() {
                     <td style="padding: 10px;">${imageHTML}</td>
                     <td style="padding: 10px; font-weight: 500; color: #2d5016;">${room.name}</td>
                     <td style="padding: 10px; font-weight: 600; color: #4a7c2c;">₹${room.price}/${room.priceUnit || 'night'}</td>
+                    <td style="padding: 10px; text-align: center; font-weight: 600; color: #2d5016; background: #f0f7ed;">${room.totalRooms || 1} rooms</td>
                     <td style="padding: 10px;">${badgeHTML}</td>
-                    <td style="padding: 10px; font-size: 0.8rem; color: #666; line-height: 1.3;">${room.description ? room.description.substring(0, 80) + (room.description.length > 80 ? '...' : '') : '-'}</td>
+                    <td style="padding: 10px; font-size: 0.8rem; color: #666; line-height: 1.3;">${room.description ? room.description.substring(0, 70) + (room.description.length > 70 ? '...' : '') : '-'}</td>
                     <td style="padding: 10px; text-align: center;">
                         <button class="btn-edit" data-room-id="${doc.id}" style="padding: 6px 12px; background: #4a7c2c; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.8rem; margin-right: 5px;">✏️ Edit</button>
                         <button class="btn-delete-item" data-room-id="${doc.id}" style="padding: 6px 12px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.8rem;">🗑️ Delete</button>
@@ -849,6 +852,7 @@ async function editRoom(roomId) {
         document.getElementById('roomDescription').value = room.description || '';
         document.getElementById('roomPrice').value = room.price || 0;
         document.getElementById('roomPriceUnit').value = room.priceUnit || 'night';
+        document.getElementById('roomTotalAvailable').value = room.totalRooms || 1;
         document.getElementById('roomBadge').value = room.badge || '';
         document.getElementById('roomBadgeClass').value = room.badgeClass || '';
         document.getElementById('roomGradient').value = room.gradient || '';

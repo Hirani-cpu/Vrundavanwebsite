@@ -1329,6 +1329,7 @@ function createRoomBookingCard(booking, docId) {
             <p><strong>Guests:</strong> ${booking.adults} Adult(s)${booking.children > 0 ? ', ' + booking.children + ' Child(ren)' : ''}</p>
             <p><strong>Booked on:</strong> ${createdDate}</p>
             ${booking.specialRequests ? '<p><strong>Special Requests:</strong> ' + booking.specialRequests + '</p>' : ''}
+            ${booking.adminNotes ? '<p style="background: #fff3cd; padding: 10px; border-left: 4px solid #ffc107; margin-top: 10px;"><strong>📝 Admin Notes:</strong><br>' + booking.adminNotes + '</p>' : ''}
         </div>
     `;
 
@@ -1369,6 +1370,7 @@ function createEventBookingCard(booking, docId) {
             <p><strong>Preferred Venue:</strong> ${booking.preferredArea}</p>
             <p><strong>Booked on:</strong> ${createdDate}</p>
             ${booking.message ? '<p><strong>Additional Details:</strong> ' + booking.message + '</p>' : ''}
+            ${booking.adminNotes ? '<p style="background: #fff3cd; padding: 10px; border-left: 4px solid #ffc107; margin-top: 10px;"><strong>📝 Admin Notes:</strong><br>' + booking.adminNotes + '</p>' : ''}
         </div>
     `;
 

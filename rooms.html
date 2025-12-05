@@ -157,6 +157,33 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        /* Guest Counter Buttons */
+        .guest-btn {
+            width: 40px;
+            height: 40px;
+            border: 2px solid #4a7c2c;
+            background: white;
+            color: #4a7c2c;
+            font-size: 1.5rem;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .guest-btn:hover {
+            background: #4a7c2c;
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .guest-btn:active {
+            transform: scale(0.95);
+        }
     </style>
 
     <!-- INSTANT LOAD: Pre-apply cached settings BEFORE page renders (ZERO flash) -->
@@ -386,8 +413,33 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="numGuests">Number of Guests *</label>
-                    <input type="number" id="numGuests" min="1" required placeholder="2">
+                    <label for="numRooms">How many rooms do you want? *</label>
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <button type="button" class="guest-btn" onclick="decrementRooms()">-</button>
+                        <input type="number" id="numRooms" min="1" value="1" required readonly style="width: 80px; text-align: center; font-size: 1.2rem; font-weight: 600;">
+                        <button type="button" class="guest-btn" onclick="incrementRooms()">+</button>
+                    </div>
+                    <div id="roomAvailabilityWarning" style="display: none; background: #fff3cd; color: #856404; padding: 10px; border-radius: 6px; margin-top: 10px; font-weight: 600;">
+                        <!-- Warning will be shown here -->
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="numAdults">Number of Adults *</label>
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <button type="button" class="guest-btn" onclick="decrementAdults()">-</button>
+                        <input type="number" id="numAdults" min="1" value="1" required readonly style="width: 80px; text-align: center; font-size: 1.2rem; font-weight: 600;">
+                        <button type="button" class="guest-btn" onclick="incrementAdults()">+</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="numChildren">Number of Children</label>
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <button type="button" class="guest-btn" onclick="decrementChildren()">-</button>
+                        <input type="number" id="numChildren" min="0" value="0" readonly style="width: 80px; text-align: center; font-size: 1.2rem; font-weight: 600;">
+                        <button type="button" class="guest-btn" onclick="incrementChildren()">+</button>
+                    </div>
                 </div>
 
                 <div class="form-group">

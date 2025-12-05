@@ -3,10 +3,14 @@ let slideshowIntervals = {}; // Store slideshow intervals for each room
 let roomsCache = null;
 let roomsCacheTime = null;
 const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes cache
+let currentRoomData = null; // Store current room data for availability checking
+let allRoomsData = {}; // Store all rooms data indexed by name
 
 // Room Booking Modal Functions - Define BEFORE DOM loads
 window.openBookingModal = function(roomName, price, priceUnit) {
     console.log('Opening booking modal for:', roomName, price, priceUnit);
+    currentRoomData = allRoomsData[roomName]; // Get room data from global storage
+
     document.getElementById('selectedRoomName').value = roomName;
     document.getElementById('selectedRoomPrice').value = price;
     document.getElementById('displayRoomName').value = roomName;
@@ -25,14 +29,118 @@ window.openBookingModal = function(roomName, price, priceUnit) {
     document.getElementById('roomBookingForm').reset();
     document.getElementById('displayRoomName').value = roomName;
     document.getElementById('displayRoomPrice').value = `₹${price}/${priceUnit}`;
+
+    // Reset guest counters
+    document.getElementById('numRooms').value = 1;
+    document.getElementById('numAdults').value = 1;
+    document.getElementById('numChildren').value = 0;
+    document.getElementById('roomAvailabilityWarning').style.display = 'none';
+
     document.getElementById('roomBookingForm').style.display = 'block';
     document.getElementById('bookingSuccessMessage').style.display = 'none';
+
+    // Check initial availability
+    checkRoomAvailability();
 };
 
 window.closeBookingModal = function() {
     document.getElementById('roomBookingModal').style.display = 'none';
     document.getElementById('roomBookingForm').reset();
+    currentRoomData = null;
 };
+
+// Room counter functions
+window.incrementRooms = function() {
+    const input = document.getElementById('numRooms');
+    input.value = parseInt(input.value) + 1;
+    checkRoomAvailability();
+};
+
+window.decrementRooms = function() {
+    const input = document.getElementById('numRooms');
+    if (parseInt(input.value) > 1) {
+        input.value = parseInt(input.value) - 1;
+        checkRoomAvailability();
+    }
+};
+
+// Adult counter functions
+window.incrementAdults = function() {
+    const input = document.getElementById('numAdults');
+    input.value = parseInt(input.value) + 1;
+};
+
+window.decrementAdults = function() {
+    const input = document.getElementById('numAdults');
+    if (parseInt(input.value) > 1) {
+        input.value = parseInt(input.value) - 1;
+    }
+};
+
+// Children counter functions
+window.incrementChildren = function() {
+    const input = document.getElementById('numChildren');
+    input.value = parseInt(input.value) + 1;
+};
+
+window.decrementChildren = function() {
+    const input = document.getElementById('numChildren');
+    if (parseInt(input.value) > 0) {
+        input.value = parseInt(input.value) - 1;
+    }
+};
+
+// Check room availability
+async function checkRoomAvailability() {
+    const numRoomsRequested = parseInt(document.getElementById('numRooms').value);
+    const warningEl = document.getElementById('roomAvailabilityWarning');
+
+    if (!currentRoomData) {
+        return;
+    }
+
+    const totalRooms = currentRoomData.totalRooms || 1;
+    const checkInDate = document.getElementById('checkInDate').value;
+    const checkOutDate = document.getElementById('checkOutDate').value;
+
+    // Calculate available rooms
+    let availableRooms = totalRooms;
+
+    // If dates are selected, check bookings for those dates
+    if (checkInDate && checkOutDate && firebase && firebase.firestore) {
+        const db = firebase.firestore();
+        const roomName = currentRoomData.name;
+
+        try {
+            const bookings = await db.collection('roomBookings')
+                .where('roomType', '==', roomName)
+                .where('bookingStatus', 'in', ['pending', 'confirmed'])
+                .get();
+
+            // Count rooms booked during the requested period
+            let bookedRooms = 0;
+            bookings.forEach(doc => {
+                const booking = doc.data();
+                // Check if booking overlaps with requested dates
+                if (booking.checkIn < checkOutDate && booking.checkOut > checkInDate) {
+                    bookedRooms += (booking.numberOfRooms || 1);
+                }
+            });
+
+            availableRooms = totalRooms - bookedRooms;
+        } catch (error) {
+            console.error('Error checking availability:', error);
+        }
+    }
+
+    // Show warning if requested exceeds available
+    if (numRoomsRequested > availableRooms) {
+        warningEl.textContent = `⚠️ ${numRoomsRequested} rooms not available. Only ${availableRooms} room${availableRooms !== 1 ? 's' : ''} remaining.`;
+        warningEl.style.display = 'block';
+    } else {
+        warningEl.style.display = 'none';
+    }
+}
 
 document.addEventListener('DOMContentLoaded', function() {
     loadRooms();
@@ -97,6 +205,10 @@ function renderRooms(roomsSnapshot, roomsContainer, roomsLoading, noRooms) {
             imageUrls: room.imageUrls,
             firstImage: room.imageUrls && room.imageUrls[0] ? room.imageUrls[0].substring(0, 100) + '...' : 'none'
         });
+
+        // Store room data globally for availability checking
+        allRoomsData[room.name] = room;
+
         roomsData.push({ room, index: roomIndex });
         const roomCard = createRoomCard(room, `room-${roomIndex}`);
         roomCards.push(roomCard);
@@ -221,7 +333,9 @@ document.addEventListener('DOMContentLoaded', function() {
             const guestPhone = document.getElementById('guestPhone').value;
             const checkIn = document.getElementById('checkInDate').value;
             const checkOut = document.getElementById('checkOutDate').value;
-            const numGuests = document.getElementById('numGuests').value;
+            const numRooms = parseInt(document.getElementById('numRooms').value);
+            const numAdults = parseInt(document.getElementById('numAdults').value);
+            const numChildren = parseInt(document.getElementById('numChildren').value);
             const specialRequests = document.getElementById('specialRequests').value;
 
             console.log('Form data collected:', { roomName, roomPrice, guestName, guestEmail });
@@ -263,12 +377,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     phone: guestPhone,
                     checkIn: checkIn,
                     checkOut: checkOut,
-                    adults: parseInt(numGuests),
-                    children: 0,
+                    numberOfRooms: numRooms,
+                    adults: numAdults,
+                    children: numChildren,
                     roomType: roomName,
                     roomPrice: parseInt(roomPrice),
                     numberOfNights: nights,
-                    totalPrice: totalPrice,
+                    totalPrice: totalPrice * numRooms,
                     specialRequests: specialRequests,
                     bookingStatus: 'pending',
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -296,12 +411,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.getElementById('bookingSummary').innerHTML = `
                     <strong>Booking Summary:</strong><br>
                     Room: ${roomName}<br>
+                    Number of Rooms: ${numRooms}<br>
                     Guest: ${guestName}<br>
                     Check-in: ${checkIn}<br>
                     Check-out: ${checkOut}<br>
                     Nights: ${nights}<br>
-                    Guests: ${numGuests}<br>
-                    Total Price: ₹${totalPrice.toLocaleString()}
+                    Guests: ${numAdults} Adult(s)${numChildren > 0 ? ', ' + numChildren + ' Child(ren)' : ''}<br>
+                    Total Price: ₹${(totalPrice * numRooms).toLocaleString()}
                 `;
 
             } catch (error) {
@@ -310,6 +426,22 @@ document.addEventListener('DOMContentLoaded', function() {
                 alert('Error submitting booking: ' + error.message + '\nPlease try again or call us directly.');
             }
         }, true); // Use capture phase to run before other handlers
+    }
+
+    // Add event listeners for date changes to recheck availability
+    const checkInDateInput = document.getElementById('checkInDate');
+    const checkOutDateInput = document.getElementById('checkOutDate');
+
+    if (checkInDateInput) {
+        checkInDateInput.addEventListener('change', function() {
+            checkRoomAvailability();
+        });
+    }
+
+    if (checkOutDateInput) {
+        checkOutDateInput.addEventListener('change', function() {
+            checkRoomAvailability();
+        });
     }
 
     // Close modal when clicking outside
