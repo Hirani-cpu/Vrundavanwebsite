@@ -20,10 +20,13 @@
                     const s = JSON.parse(cached);
                     // Store in global for instant access
                     window.__cachedSettings = s;
-                    // Pre-inject logo into head for instant display
+                    // Preload logo image for instant loading
                     if (s.siteLogoUrl) {
-                        document.write('<link rel="preload" as="image" href="' + s.siteLogoUrl + '" crossorigin="anonymous">');
-                        document.write('<style>.logo-image img{content:url(' + s.siteLogoUrl + ') !important;}</style>');
+                        const link = document.createElement('link');
+                        link.rel = 'preload';
+                        link.as = 'image';
+                        link.href = s.siteLogoUrl;
+                        document.head.appendChild(link);
                     }
                 } catch(e) {}
             }
@@ -59,13 +62,18 @@
             <div class="container nav-container">
                 <!-- Logo -->
                 <div class="logo">
-                    <div class="logo-image"><img src="logo.jpg" alt="Vrundavan Resort Logo"></div>
+                    <div class="logo-image"><img src="logo.jpg" alt="Vrundavan Resort Logo" id="logoImg"></div>
                     <a href="index.html" id="logoText">Vrundavan Resort & Restaurant</a>
                 </div>
                 <script>
-                    // INSTANT: Apply cached name immediately (before DOM loads)
-                    if (window.__cachedSettings && window.__cachedSettings.siteName) {
-                        document.getElementById('logoText').textContent = window.__cachedSettings.siteName;
+                    // INSTANT: Apply cached logo and name immediately (before DOM loads)
+                    if (window.__cachedSettings) {
+                        if (window.__cachedSettings.siteLogoUrl) {
+                            document.getElementById('logoImg').src = window.__cachedSettings.siteLogoUrl;
+                        }
+                        if (window.__cachedSettings.siteName) {
+                            document.getElementById('logoText').textContent = window.__cachedSettings.siteName;
+                        }
                     }
                 </script>
 
