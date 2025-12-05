@@ -539,12 +539,16 @@ function generateRoomBookingDetails(booking, docId) {
             <div class="value">${checkOutDate}</div>
         </div>
         <div class="booking-detail-item">
-            <label>Guests</label>
-            <div class="value">${booking.adults || 0} Adult(s)${booking.children > 0 ? ', ' + booking.children + ' Child(ren)' : ''}</div>
-        </div>
-        <div class="booking-detail-item">
             <label>Room Type</label>
             <div class="value">${booking.roomType || 'N/A'}</div>
+        </div>
+        <div class="booking-detail-item">
+            <label>Number of Rooms</label>
+            <div class="value" style="font-size: 1.2rem; font-weight: 700; color: #2d5016;">${booking.numberOfRooms || 1} Room${(booking.numberOfRooms || 1) > 1 ? 's' : ''}</div>
+        </div>
+        <div class="booking-detail-item">
+            <label>Guests</label>
+            <div class="value">${booking.adults || 0} Adult(s)${booking.children > 0 ? ', ' + booking.children + ' Child(ren)' : ''}</div>
         </div>
         ${booking.specialRequests ? `
         <div class="booking-detail-item">

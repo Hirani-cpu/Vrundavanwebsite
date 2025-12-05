@@ -94,6 +94,8 @@ window.decrementChildren = function() {
 async function checkRoomAvailability() {
     const numRoomsRequested = parseInt(document.getElementById('numRooms').value);
     const warningEl = document.getElementById('roomAvailabilityWarning');
+    const availableIndicator = document.getElementById('availableRoomsIndicator');
+    const availableCountEl = document.getElementById('availableRoomsCount');
 
     if (!currentRoomData) {
         return;
@@ -130,6 +132,24 @@ async function checkRoomAvailability() {
             availableRooms = totalRooms - bookedRooms;
         } catch (error) {
             console.error('Error checking availability:', error);
+        }
+    }
+
+    // Update availability indicator
+    if (availableIndicator && availableCountEl) {
+        availableCountEl.textContent = availableRooms;
+        availableIndicator.style.display = 'block';
+
+        // Change color based on availability
+        if (availableRooms === 0) {
+            availableIndicator.style.background = '#f8d7da';
+            availableIndicator.style.color = '#721c24';
+        } else if (availableRooms <= 3) {
+            availableIndicator.style.background = '#fff3cd';
+            availableIndicator.style.color = '#856404';
+        } else {
+            availableIndicator.style.background = '#d4edda';
+            availableIndicator.style.color = '#155724';
         }
     }
 

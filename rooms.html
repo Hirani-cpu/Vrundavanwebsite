@@ -371,8 +371,15 @@
     <!-- Room Booking Modal -->
     <div id="roomBookingModal" class="modal" style="display: none;">
         <div class="modal-content" style="max-width: 600px;">
-            <span class="close" onclick="closeBookingModal()">&times;</span>
-            <h2 id="bookingModalTitle">Book Room</h2>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <h2 id="bookingModalTitle" style="margin: 0;">Book Room</h2>
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <div id="availableRoomsIndicator" style="background: #d4edda; color: #155724; padding: 8px 15px; border-radius: 6px; font-weight: 600; font-size: 0.9rem; display: none;">
+                        <span id="availableRoomsCount">0</span> Available
+                    </div>
+                    <span class="close" onclick="closeBookingModal()">&times;</span>
+                </div>
+            </div>
             <form id="roomBookingForm" style="margin-top: 20px;">
                 <input type="hidden" id="selectedRoomName">
                 <input type="hidden" id="selectedRoomPrice">
@@ -413,32 +420,34 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="numRooms">How many rooms do you want? *</label>
-                    <div style="display: flex; align-items: center; gap: 15px;">
-                        <button type="button" class="guest-btn" onclick="decrementRooms()">-</button>
-                        <input type="number" id="numRooms" min="1" value="1" required readonly style="width: 80px; text-align: center; font-size: 1.2rem; font-weight: 600;">
-                        <button type="button" class="guest-btn" onclick="incrementRooms()">+</button>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
+                        <div>
+                            <label for="numRooms" style="margin-bottom: 8px; display: block; font-size: 0.9rem;">Rooms *</label>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <button type="button" class="guest-btn" onclick="decrementRooms()">-</button>
+                                <input type="number" id="numRooms" min="1" value="1" required readonly style="width: 50px; text-align: center; font-size: 1.1rem; font-weight: 600; border: 2px solid #4a7c2c; border-radius: 6px; padding: 8px;">
+                                <button type="button" class="guest-btn" onclick="incrementRooms()">+</button>
+                            </div>
+                        </div>
+                        <div>
+                            <label for="numAdults" style="margin-bottom: 8px; display: block; font-size: 0.9rem;">Adults *</label>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <button type="button" class="guest-btn" onclick="decrementAdults()">-</button>
+                                <input type="number" id="numAdults" min="1" value="1" required readonly style="width: 50px; text-align: center; font-size: 1.1rem; font-weight: 600; border: 2px solid #4a7c2c; border-radius: 6px; padding: 8px;">
+                                <button type="button" class="guest-btn" onclick="incrementAdults()">+</button>
+                            </div>
+                        </div>
+                        <div>
+                            <label for="numChildren" style="margin-bottom: 8px; display: block; font-size: 0.9rem;">Children</label>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <button type="button" class="guest-btn" onclick="decrementChildren()">-</button>
+                                <input type="number" id="numChildren" min="0" value="0" readonly style="width: 50px; text-align: center; font-size: 1.1rem; font-weight: 600; border: 2px solid #4a7c2c; border-radius: 6px; padding: 8px;">
+                                <button type="button" class="guest-btn" onclick="incrementChildren()">+</button>
+                            </div>
+                        </div>
                     </div>
                     <div id="roomAvailabilityWarning" style="display: none; background: #fff3cd; color: #856404; padding: 10px; border-radius: 6px; margin-top: 10px; font-weight: 600;">
                         <!-- Warning will be shown here -->
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="numAdults">Number of Adults *</label>
-                    <div style="display: flex; align-items: center; gap: 15px;">
-                        <button type="button" class="guest-btn" onclick="decrementAdults()">-</button>
-                        <input type="number" id="numAdults" min="1" value="1" required readonly style="width: 80px; text-align: center; font-size: 1.2rem; font-weight: 600;">
-                        <button type="button" class="guest-btn" onclick="incrementAdults()">+</button>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="numChildren">Number of Children</label>
-                    <div style="display: flex; align-items: center; gap: 15px;">
-                        <button type="button" class="guest-btn" onclick="decrementChildren()">-</button>
-                        <input type="number" id="numChildren" min="0" value="0" readonly style="width: 80px; text-align: center; font-size: 1.2rem; font-weight: 600;">
-                        <button type="button" class="guest-btn" onclick="incrementChildren()">+</button>
                     </div>
                 </div>
 
