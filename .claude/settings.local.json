@@ -31,7 +31,8 @@
       "Bash(where:*)",
       "Bash(gsutil cors:*)",
       "Bash(cat:*)",
-      "Bash(dir:*)"
+      "Bash(dir:*)",
+      "Bash(grep:*)"
     ],
     "deny": [],
     "ask": []
