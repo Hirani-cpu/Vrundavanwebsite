@@ -39,7 +39,10 @@ window.openBookingModal = function(roomName, price, priceUnit) {
     document.getElementById('roomBookingForm').style.display = 'block';
     document.getElementById('bookingSuccessMessage').style.display = 'none';
 
-    // Check initial availability
+    // Show total available rooms initially (before dates selected)
+    showInitialAvailability();
+
+    // Check availability when dates are selected
     checkRoomAvailability();
 };
 
@@ -90,7 +93,58 @@ window.decrementChildren = function() {
     }
 };
 
-// Check room availability
+// Show initial availability (total currently available across all dates)
+async function showInitialAvailability() {
+    if (!currentRoomData || !firebase || !firebase.firestore) {
+        return;
+    }
+
+    const totalRooms = currentRoomData.totalRooms || 1;
+    const availableIndicator = document.getElementById('availableRoomsIndicator');
+    const availableCountEl = document.getElementById('availableRoomsCount');
+
+    try {
+        const db = firebase.firestore();
+        const roomName = currentRoomData.name;
+
+        // Get all active bookings for this room type
+        const bookings = await db.collection('roomBookings')
+            .where('roomType', '==', roomName)
+            .where('bookingStatus', 'in', ['pending', 'confirmed'])
+            .get();
+
+        // Count total rooms currently booked (across all dates)
+        let totalBookedRooms = 0;
+        bookings.forEach(doc => {
+            const booking = doc.data();
+            totalBookedRooms += (booking.numberOfRooms || 1);
+        });
+
+        const availableRooms = Math.max(0, totalRooms - totalBookedRooms);
+
+        // Update availability indicator
+        if (availableIndicator && availableCountEl) {
+            availableCountEl.textContent = availableRooms;
+            availableIndicator.style.display = 'block';
+
+            // Change color based on availability
+            if (availableRooms === 0) {
+                availableIndicator.style.background = '#f8d7da';
+                availableIndicator.style.color = '#721c24';
+            } else if (availableRooms <= 3) {
+                availableIndicator.style.background = '#fff3cd';
+                availableIndicator.style.color = '#856404';
+            } else {
+                availableIndicator.style.background = '#d4edda';
+                availableIndicator.style.color = '#155724';
+            }
+        }
+    } catch (error) {
+        console.error('Error checking initial availability:', error);
+    }
+}
+
+// Check room availability for specific dates
 async function checkRoomAvailability() {
     const numRoomsRequested = parseInt(document.getElementById('numRooms').value);
     const warningEl = document.getElementById('roomAvailabilityWarning');
@@ -133,23 +187,23 @@ async function checkRoomAvailability() {
         } catch (error) {
             console.error('Error checking availability:', error);
         }
-    }
 
-    // Update availability indicator
-    if (availableIndicator && availableCountEl) {
-        availableCountEl.textContent = availableRooms;
-        availableIndicator.style.display = 'block';
+        // Update availability indicator with date-specific availability
+        if (availableIndicator && availableCountEl) {
+            availableCountEl.textContent = availableRooms;
+            availableIndicator.style.display = 'block';
 
-        // Change color based on availability
-        if (availableRooms === 0) {
-            availableIndicator.style.background = '#f8d7da';
-            availableIndicator.style.color = '#721c24';
-        } else if (availableRooms <= 3) {
-            availableIndicator.style.background = '#fff3cd';
-            availableIndicator.style.color = '#856404';
-        } else {
-            availableIndicator.style.background = '#d4edda';
-            availableIndicator.style.color = '#155724';
+            // Change color based on availability
+            if (availableRooms === 0) {
+                availableIndicator.style.background = '#f8d7da';
+                availableIndicator.style.color = '#721c24';
+            } else if (availableRooms <= 3) {
+                availableIndicator.style.background = '#fff3cd';
+                availableIndicator.style.color = '#856404';
+            } else {
+                availableIndicator.style.background = '#d4edda';
+                availableIndicator.style.color = '#155724';
+            }
         }
     }
 
