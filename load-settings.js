@@ -99,24 +99,12 @@
             }
         }
 
-        // Update Logo with aggressive caching
+        // Update Logo - just change src for instant update
         if (settings.siteLogoUrl) {
-            // Preload image for instant display (forces browser cache)
-            const preloadLink = document.createElement('link');
-            preloadLink.rel = 'preload';
-            preloadLink.as = 'image';
-            preloadLink.href = settings.siteLogoUrl;
-            preloadLink.crossOrigin = 'anonymous'; // Fix CORS preload warning
-            document.head.appendChild(preloadLink);
-
-            const logoElements = document.querySelectorAll('.logo-image, .navbar .logo .logo-image');
-            logoElements.forEach(el => {
-                el.innerHTML = `<img src="${settings.siteLogoUrl}" alt="Logo" style="width: 100px; height: 100px; object-fit: contain;" loading="eager" decoding="sync">`;
-            });
-
-            // Force download to browser cache immediately
-            const img = new Image();
-            img.src = settings.siteLogoUrl;
+            const logoImg = document.getElementById('logoImg');
+            if (logoImg) {
+                logoImg.src = settings.siteLogoUrl;
+            }
         }
 
         // Update Tagline
