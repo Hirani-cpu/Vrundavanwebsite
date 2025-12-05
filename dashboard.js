@@ -1,4 +1,32 @@
 // ===========================
+// Toast Notification System
+// ===========================
+function showSuccessToast(message) {
+    const toast = document.createElement('div');
+    toast.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #28a745;
+        color: white;
+        padding: 15px 25px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        font-weight: 600;
+        font-size: 1rem;
+        z-index: 10000;
+        animation: slideInRight 0.3s ease;
+    `;
+    toast.textContent = message;
+    document.body.appendChild(toast);
+
+    setTimeout(() => {
+        toast.style.animation = 'fadeOut 0.3s ease';
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+}
+
+// ===========================
 // Admin Dashboard Logic
 // ===========================
 
@@ -718,24 +746,24 @@ function updateBookingStatus(status) {
             clearTimeout(updateTimeout); // Clear the timeout
             console.log('Booking updated successfully');
 
-            // Re-enable buttons first
-            btnApprove.disabled = false;
-            btnReject.disabled = false;
-            btnApprove.textContent = '✓ Approve Booking';
-            btnReject.textContent = '✗ Reject Booking';
-
-            // Close modal first
+            // Close modal IMMEDIATELY
             closeModal();
 
-            // Show success alert
-            alert(`Booking ${status === 'confirmed' ? 'APPROVED' : 'REJECTED'} successfully!`);
-
-            // Reload bookings immediately after alert is dismissed
+            // Reload bookings INSTANTLY
             if (currentBookingType === 'room') {
                 loadRoomBookings();
             } else {
                 loadEventBookings();
             }
+
+            // Show non-blocking success message
+            showSuccessToast(`✅ Booking ${status === 'confirmed' ? 'APPROVED' : 'REJECTED'} successfully!`);
+
+            // Re-enable buttons
+            btnApprove.disabled = false;
+            btnReject.disabled = false;
+            btnApprove.textContent = '✓ Approve Booking';
+            btnReject.textContent = '✗ Reject Booking';
         })
         .catch((error) => {
             clearTimeout(updateTimeout); // Clear the timeout
@@ -808,25 +836,25 @@ function deleteBooking() {
             clearTimeout(deleteTimeout); // Clear the timeout
             console.log('Booking deleted successfully');
 
-            // Re-enable buttons first
-            btnApprove.disabled = false;
-            btnReject.disabled = false;
-            btnDelete.disabled = false;
-            btnCancel.disabled = false;
-            btnDelete.textContent = originalDeleteText;
-
-            // Close modal first
+            // Close modal IMMEDIATELY
             closeModal();
 
-            // Show success alert
-            alert('✅ Booking deleted successfully!');
-
-            // Reload bookings immediately after alert is dismissed
+            // Reload bookings INSTANTLY (no alert blocking)
             if (currentBookingType === 'room') {
                 loadRoomBookings();
             } else {
                 loadEventBookings();
             }
+
+            // Show non-blocking success message
+            showSuccessToast('✅ Booking deleted successfully!');
+
+            // Re-enable buttons
+            btnApprove.disabled = false;
+            btnReject.disabled = false;
+            btnDelete.disabled = false;
+            btnCancel.disabled = false;
+            btnDelete.textContent = originalDeleteText;
         })
         .catch((error) => {
             clearTimeout(deleteTimeout); // Clear the timeout
