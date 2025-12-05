@@ -740,9 +740,9 @@ async function loadRoomsList() {
 
         // Create compact table view
         let tableHTML = `
-            <div style="background: white; padding: 15px; border-radius: 6px; margin-bottom: 15px; box-shadow: 0 2px 6px rgba(0,0,0,0.08);">
+            <div style="background: white; padding: 15px; border-radius: 6px; margin-bottom: 15px; box-shadow: 0 2px 6px rgba(0,0,0,0.08); overflow-x: auto;">
                 <h3 style="margin: 0 0 15px 0; color: #2d5016; font-size: 1.1rem;">📋 All Rooms (${snapshot.size} total)</h3>
-                <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem;">
+                <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem; min-width: 900px;">
                     <thead>
                         <tr style="background: #f8f9fa; border-bottom: 2px solid #dee2e6;">
                             <th style="padding: 10px; text-align: left; font-weight: 600; color: #2d5016; width: 5%;">#</th>

@@ -184,6 +184,68 @@
         .guest-btn:active {
             transform: scale(0.95);
         }
+
+        /* Mobile Responsiveness for Booking Form */
+        @media (max-width: 768px) {
+            .modal-content {
+                width: 95% !important;
+                max-width: 95% !important;
+                margin: 5% auto;
+                padding: 20px 15px !important;
+            }
+
+            #availableRoomsIndicator {
+                font-size: 0.75rem !important;
+                padding: 6px 10px !important;
+            }
+
+            .guest-btn {
+                width: 35px;
+                height: 35px;
+                font-size: 1.2rem;
+            }
+
+            /* Stack the room/adult/children fields vertically on mobile */
+            .form-group > div[style*="grid-template-columns"] {
+                display: flex !important;
+                flex-direction: column !important;
+                gap: 15px !important;
+            }
+
+            .form-group > div > div {
+                width: 100%;
+            }
+
+            .form-group > div > div > div {
+                justify-content: center;
+            }
+
+            .form-group input[type="number"][readonly] {
+                width: 60px !important;
+                font-size: 1.1rem;
+            }
+
+            .form-group label[style*="margin-bottom"] {
+                text-align: center;
+                font-size: 1rem !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .modal-content h2 {
+                font-size: 1.3rem;
+            }
+
+            .guest-btn {
+                width: 32px;
+                height: 32px;
+                font-size: 1.1rem;
+            }
+
+            .form-group input[type="number"][readonly] {
+                width: 50px !important;
+            }
+        }
     </style>
 
     <!-- INSTANT LOAD: Pre-apply cached settings BEFORE page renders (ZERO flash) -->
