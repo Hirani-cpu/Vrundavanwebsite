@@ -294,26 +294,8 @@
         <nav class="navbar">
             <div class="container nav-container">
                 <div class="logo">
-                    <div class="logo-image">
-                        <script>
-                            // INSTANT: Write logo image IMMEDIATELY from cache (ZERO delay)
-                            const cached = localStorage.getItem('siteSettings');
-                            if (cached) {
-                                try {
-                                    const s = JSON.parse(cached);
-                                    if (s.siteLogoUrl) {
-                                        document.write('<img src="' + s.siteLogoUrl + '" alt="Logo" style="width: 100px; height: 100px; object-fit: contain;" loading="eager">');
-                                    } else {
-                                        document.write('<img src="logo.jpg" alt="Vrundavan Resort Logo" style="width: 100px; height: 100px; object-fit: contain;">');
-                                    }
-                                } catch(e) {
-                                    document.write('<img src="logo.jpg" alt="Vrundavan Resort Logo" style="width: 100px; height: 100px; object-fit: contain;">');
-                                }
-                            } else {
-                                document.write('<img src="logo.jpg" alt="Vrundavan Resort Logo" style="width: 100px; height: 100px; object-fit: contain;">');
-                            }
-                        </script>
-                    </div>
+                    <div class="logo-image"><img src="logo.jpg" alt="Vrundavan Resort Logo" id="logoImg"></div>
+                    <a href="index.html" id="logoText">Vrundavan Resort & Restaurant</a>
                 </div>
                 <script>
                     if (window.__cachedSettings && window.__cachedSettings.siteName) {
